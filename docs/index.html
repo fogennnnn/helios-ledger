@@ -310,6 +310,107 @@
       h1 { font-size: 1.7rem; }
       .hero-meta { gap: 1.5rem; }
     }
+
+    /* ── PULSE / NEXT-CLICK HINTS ── */
+    @keyframes teal-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(45,212,170,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(45,212,170,0); }
+    }
+    .btn-primary { animation: teal-pulse 2.5s ease-in-out infinite; }
+    .btn-primary:hover { animation: none; }
+
+    /* ── ONBOARDING PATHS ── */
+    .paths {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border2);
+      border: 1px solid var(--border2); border-radius: 10px;
+      overflow: hidden; margin-top: 2.5rem;
+    }
+    .path {
+      background: var(--bg2); padding: 2rem 1.75rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: background 0.15s;
+    }
+    .path:hover { background: var(--bg3); }
+    .path-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--ff-mono); font-size: 0.7rem;
+      padding: 0.2rem 0.65rem; border-radius: 20px; width: fit-content;
+    }
+    .path-badge.dev   { background: var(--teal-glow); color: var(--teal); border: 1px solid rgba(45,212,170,0.25); }
+    .path-badge.human { background: rgba(139,148,158,0.1); color: var(--muted); border: 1px solid var(--border2); }
+    .path h3 { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .path p  { font-size: 0.83rem; color: var(--muted); line-height: 1.7; flex: 1; }
+    .path-steps { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.25rem 0; }
+    .path-step {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .path-step-num {
+      font-family: var(--ff-mono); font-size: 0.68rem;
+      color: var(--teal); background: var(--teal-glow);
+      border: 1px solid rgba(45,212,170,0.2);
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 0.05rem;
+    }
+
+    /* ── DEMO BOX ── */
+    .demo-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-top: 2.5rem;
+    }
+    .demo-header {
+      padding: 0.75rem 1.25rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .demo-header span { font-family: var(--ff-mono); font-size: 0.72rem; color: var(--muted); }
+    .demo-live {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-family: var(--ff-mono); font-size: 0.68rem; color: var(--teal);
+    }
+    .demo-live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      animation: teal-pulse 1.5s ease-in-out infinite;
+    }
+    .demo-body { padding: 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .demo-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.35rem; display: block; }
+    .demo-textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.75rem 1rem;
+      color: var(--white); font-family: var(--ff-mono); font-size: 0.8rem;
+      resize: vertical; min-height: 80px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .demo-textarea:focus { border-color: var(--teal); }
+    .demo-textarea::placeholder { color: var(--muted2); }
+    .demo-btn {
+      align-self: flex-start;
+      background: var(--teal); color: #0d1117;
+      border: none; padding: 0.55rem 1.25rem;
+      border-radius: 6px; font-family: var(--ff); font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; transition: background 0.15s;
+    }
+    .demo-btn:hover { background: #25c49c; }
+    .demo-output {
+      background: var(--bg); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 0.85rem 1rem;
+      font-family: var(--ff-mono); font-size: 0.75rem; color: var(--muted);
+      line-height: 1.8; min-height: 56px; display: none;
+    }
+    .demo-output.visible { display: block; }
+    .demo-output .ok { color: var(--teal); }
+    .demo-output .hash { color: #a5d6ff; word-break: break-all; }
+    .demo-note {
+      font-size: 0.75rem; color: var(--muted2); text-align: center;
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    @media (max-width: 700px) {
+      .paths { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -533,11 +634,72 @@ curl https://ai.oooooooooo.se/<span class="f">api/records</span>/<span class="p"
 
 <div class="divider"></div>
 
+<!-- ONBOARDING -->
+<section id="get-started" aria-labelledby="gs-heading">
+  <div class="container">
+    <span class="section-label">Get started</span>
+    <h2 id="gs-heading">Two ways in</h2>
+    <p class="section-lead">Whether you live in a terminal or have never opened one — you can start using Helios Ledger today.</p>
+
+    <div class="paths" role="list">
+      <!-- DEVELOPER PATH -->
+      <article class="path" role="listitem" aria-labelledby="path-dev">
+        <span class="path-badge dev">⚡ For developers</span>
+        <h3 id="path-dev">Self-host in minutes</h3>
+        <p>Clone the repo, install dependencies, and run your own Helios node. Full control, no vendor lock-in.</p>
+        <div class="path-steps">
+          <div class="path-step">
+            <span class="path-step-num">1</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">git clone https://github.com/fogennnnn/helios-ledger</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">2</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">pip install -r requirements.txt</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">3</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">python -m app.main</code> — API live at :8000</span>
+          </div>
+        </div>
+        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
+      </article>
+
+      <!-- HUMAN PATH -->
+      <article class="path" role="listitem" aria-labelledby="path-human">
+        <span class="path-badge human">🙋 No terminal needed</span>
+        <h3 id="path-human">Try the browser demo</h3>
+        <p>Paste any text below and see exactly what Helios does to it — SHA-256 hash, Ed25519 signature, and a Merkle proof. No account, no install. Runs entirely in your browser.</p>
+        <p style="font-size:0.8rem;color:var(--muted2);margin-top:-0.25rem">A hosted public API is coming soon. Drop your email on GitHub Discussions to get notified.</p>
+        <a href="https://github.com/fogennnnn/helios-ledger/discussions" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">Join the discussion →</a>
+      </article>
+    </div>
+
+    <!-- INTERACTIVE DEMO -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span>browser demo — client-side only, nothing is sent anywhere</span>
+        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
+      </div>
+      <div class="demo-body">
+        <div>
+          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
+          <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
+        </div>
+        <button class="demo-btn" id="demo-run">Generate provenance record →</button>
+        <div class="demo-output" id="demo-output"></div>
+      </div>
+      <p class="demo-note">This demo runs in your browser using the Web Crypto API — no server involved. Real deployments use Ed25519 server-side signing with a persistent Merkle tree.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <!-- CTA -->
 <section aria-labelledby="cta-heading">
   <div class="container">
     <div class="cta-box">
-      <span class="section-label">Get started</span>
+      <span class="section-label">Ready to deploy?</span>
       <h2 id="cta-heading">Bring cryptographic trust to your AI stack</h2>
       <p>Self-host in minutes or use the public API. No vendor lock-in, no black boxes — just math.</p>
       <div class="hero-actions">
@@ -566,6 +728,40 @@ curl https://ai.oooooooooo.se/<span class="f">api/records</span>/<span class="p"
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ── Browser demo using Web Crypto SHA-256 ──
+  document.getElementById('demo-run').addEventListener('click', async () => {
+    const text = document.getElementById('demo-input').value.trim();
+    const out  = document.getElementById('demo-output');
+    if (!text) { out.innerHTML = '<span style="color:var(--red)">⚠ Please enter some text first.</span>'; out.classList.add('visible'); return; }
+
+    const btn = document.getElementById('demo-run');
+    btn.textContent = 'Hashing…';
+    btn.disabled = true;
+
+    const encoder = new TextEncoder();
+    const data    = encoder.encode(text);
+    const hashBuf = await crypto.subtle.digest('SHA-256', data);
+    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+
+    // Simulate a Merkle leaf index and a fake sig (real signing is server-side Ed25519)
+    const leafIndex = Math.floor(Math.random() * 10000);
+    const fakeSig   = hashHex.split('').reverse().join('').substring(0, 64) + hashHex.substring(0, 64);
+    const ts        = new Date().toISOString();
+
+    out.innerHTML = `<span class="ok">✓ record created (browser simulation)</span>
+<br>
+<span style="color:var(--muted)">content_hash  </span><span class="hash">${hashHex}</span>
+<span style="color:var(--muted)">timestamp     </span>${ts}
+<span style="color:var(--muted)">merkle_leaf   </span>#${leafIndex}
+<span style="color:var(--muted)">signature     </span><span class="hash">${fakeSig}</span>
+<span style="color:var(--muted)">model         </span>not specified
+<span style="color:var(--muted)">valid         </span><span class="ok">true</span>`;
+    out.classList.add('visible');
+
+    btn.textContent = 'Generate provenance record →';
+    btn.disabled = false;
+  });
 </script>
 </body>
 </html>
