@@ -168,72 +168,80 @@
     .meta-key { font-size: 0.75rem; color: var(--muted); }
 
 
-    /* ---- TERM WRAP ---- */
-    .term-wrap {
+    /* ---- QUICK START BLOCK ---- */
+    .qs-wrap {
       margin-top: 2.5rem;
       background: var(--bg2); border: 1px solid var(--border);
       border-radius: 10px; overflow: hidden;
     }
-    .term-header {
+    .qs-header {
       display: flex; align-items: center; gap: 0.75rem;
       padding: 0.55rem 1rem; background: var(--bg3);
       border-bottom: 1px solid var(--border2);
     }
-    .term-tabs { display: flex; gap: 0.25rem; flex: 1; }
-    .term-tab {
+    .qs-tabs { display: flex; gap: 0.25rem; flex: 1; }
+    .qs-tab {
       background: none; border: none; cursor: pointer;
       font-family: var(--ff-mono); font-size: 0.7rem;
       color: var(--muted2); padding: 0.2rem 0.65rem;
       border-radius: 4px; transition: all 0.15s;
     }
-    .term-tab:hover { color: var(--muted); background: rgba(255,255,255,0.05); }
-    .term-tab.active { color: var(--teal); background: var(--teal-glow); }
-    .term-token-btn {
+    .qs-tab:hover  { color: var(--muted); background: rgba(255,255,255,0.05); }
+    .qs-tab.active { color: var(--teal);  background: var(--teal-glow); }
+    .qs-token-btn {
       background: var(--teal); color: #0d1117; border: none; cursor: pointer;
       font-family: var(--ff); font-size: 0.75rem; font-weight: 600;
-      padding: 0.3rem 0.85rem; border-radius: 5px; white-space: nowrap;
-      animation: teal-pulse 2.5s ease-in-out infinite;
-      transition: background 0.15s;
+      padding: 0.3rem 0.9rem; border-radius: 5px; white-space: nowrap;
+      animation: teal-pulse 2.5s ease-in-out infinite; transition: all 0.15s;
     }
-    .term-token-btn:hover { background: #25c49c; animation: none; }
-    .term-token-btn:disabled { background: var(--teal-dim); animation: none; cursor: default; }
-    .term-body {
-      padding: 1.25rem 1.25rem 1.5rem; min-height: 200px; position: relative;
+    .qs-token-btn:hover    { background: #25c49c; animation: none; }
+    .qs-token-btn.has-token { background: var(--teal-dim); animation: none; }
+    .qs-body { padding: 1.25rem 1.5rem 0.5rem; }
+    .qs-tab-panel { display: none; }
+    .qs-tab-panel.active { display: block; }
+    .qs-comment {
+      font-family: var(--ff-mono); font-size: 0.78rem;
+      color: var(--muted2); margin-bottom: 0.6rem; font-style: italic;
     }
-    .term-screen {
-      font-family: var(--ff-mono); font-size: 0.8rem;
-      line-height: 1.85; white-space: pre-wrap; word-break: break-all;
-      margin: 0; color: var(--white);
+    .qs-line {
+      display: flex; align-items: baseline; gap: 0.6rem;
+      font-family: var(--ff-mono); font-size: 0.82rem;
+      line-height: 1.9; color: var(--white);
     }
-    .term-cursor { color: var(--teal); animation: blink 1s step-end infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .t-prompt  { color: var(--teal); }
-    .t-cmd     { color: var(--white); }
-    .t-comment { color: var(--muted2); }
-    .t-key     { color: var(--muted); }
-    .t-ok      { color: var(--teal); }
-    .t-hl {
+    .qs-indent { padding-left: 1.4rem; }
+    .qs-prompt { color: var(--teal); font-weight: 700; flex-shrink: 0; }
+    .qs-cmd    { color: var(--white); }
+    .qs-str    { color: #a5d6ff; }
+    .qs-var    { color: var(--muted); }
+    .qs-token-hidden { color: var(--muted2); letter-spacing: 0.1em; }
+    .qs-token-revealed {
       color: var(--teal); font-weight: 600;
-      animation: flash-hl 0.7s ease forwards;
+      animation: tok-reveal 1.2s ease forwards;
     }
-    @keyframes flash-hl {
-      0%   { background: rgba(45,212,170,0.35); border-radius: 3px; }
-      100% { background: transparent; }
+    @keyframes tok-reveal {
+      0%   { background: rgba(45,212,170,0.45); border-radius: 3px; padding: 0 3px; color: #0d1117; }
+      60%  { background: rgba(45,212,170,0.15); color: var(--teal); padding: 0 1px; }
+      100% { background: transparent; color: var(--teal); padding: 0; }
     }
-    @keyframes tok-flash-anim {
-      0%   { background: rgba(45,212,170,0.5); color: #0d1117; border-radius: 3px; padding: 0 2px; }
-      70%  { background: rgba(45,212,170,0.15); color: var(--teal); }
-      100% { background: transparent; color: var(--teal); font-weight: 600; }
+    .qs-copy {
+      display: block; margin-top: 0.5rem;
+      width: 100%; background: none; border: none;
+      border-top: 1px solid var(--border2); color: var(--muted2);
+      font-family: var(--ff-mono); font-size: 0.68rem; cursor: pointer;
+      padding: 0.4rem 0; text-align: right; padding-right: 0.25rem;
+      transition: color 0.15s, background 0.15s; margin-left: -1.5rem;
+      width: calc(100% + 3rem); padding-right: 1rem;
     }
-    .tok-flash { color: var(--teal); font-weight: 600; }
-    .term-token-info {
+    .qs-copy:hover  { color: var(--teal); background: var(--teal-glow); }
+    .qs-copy.copied { color: var(--teal); }
+    .qs-footer {
       display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
-      padding: 0.5rem 1.25rem 0.75rem;
+      padding: 0.5rem 1.5rem 0.75rem;
       font-family: var(--ff-mono); font-size: 0.72rem;
       border-top: 1px solid var(--border2);
     }
-    .tok-ok   { color: var(--teal); }
-    .tok-warn { color: var(--muted2); }
+    .qs-tok-ok   { color: var(--teal); }
+    .qs-tok-warn { color: var(--muted2); }
 
         /* ── HOW IT WORKS ── */
     .steps {
@@ -456,54 +464,6 @@
       .paths { grid-template-columns: 1fr; }
     }
 
-    /* ---- TERM STATIC (copyable commands) ---- */
-    .term-static { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .term-static-title { font-family: var(--ff-mono); font-size: 0.7rem; color: var(--muted); flex: 1; }
-    .term-token-btn {
-      background: var(--teal); color: #0d1117; border: none; cursor: pointer;
-      font-family: var(--ff); font-size: 0.75rem; font-weight: 600;
-      padding: 0.3rem 0.85rem; border-radius: 5px;
-      animation: teal-pulse 2.5s ease-in-out infinite;
-      transition: background 0.15s;
-    }
-    .term-token-btn:hover { background: #25c49c; animation: none; }
-    .term-token-btn:disabled { background: var(--muted2); animation: none; cursor: not-allowed; }
-    .term-static-body { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
-    .cmd-block {
-      background: var(--bg); border: 1px solid var(--border2);
-      border-radius: 7px; overflow: hidden;
-    }
-    .cmd-label {
-      font-family: var(--ff-mono); font-size: 0.68rem; color: var(--muted2);
-      padding: 0.4rem 1rem; background: var(--bg3);
-      border-bottom: 1px solid var(--border2);
-    }
-    .cmd-text {
-      font-family: var(--ff-mono); font-size: 0.78rem; color: var(--white);
-      padding: 0.75rem 1rem 0.5rem; margin: 0;
-      white-space: pre-wrap; word-break: break-all; line-height: 1.7;
-    }
-    .cmd-copy {
-      display: block; width: 100%; background: none; border: none;
-      border-top: 1px solid var(--border2); color: var(--muted2);
-      font-family: var(--ff-mono); font-size: 0.68rem; cursor: pointer;
-      padding: 0.35rem; text-align: right; padding-right: 1rem;
-      transition: color 0.15s, background 0.15s;
-    }
-    .cmd-copy:hover { color: var(--teal); background: var(--teal-glow); }
-    .cmd-copy.copied { color: var(--teal); }
-    .term-token-info {
-      display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
-      padding: 0.6rem 1.25rem 0.85rem;
-      font-family: var(--ff-mono); font-size: 0.72rem;
-    }
-    .tok-ok  { color: var(--teal); }
-    .tok-warn { color: var(--muted2); }
-    .term-status {
-      font-family: var(--ff-mono); font-size: 0.65rem; color: var(--muted2);
-      display: flex; align-items: center; gap: 0.3rem;
-    }
-
   </style>
 </head>
 <body>
@@ -551,23 +511,63 @@
       <div class="meta-item"><span class="meta-val">MIT</span><span class="meta-key">License</span></div>
     </div>
 
-    <div class="term-wrap">
-      <div class="term-header">
+    <div class="qs-wrap">
+      <div class="qs-header">
         <div class="code-dots"><span></span><span></span><span></span></div>
-        <div class="term-tabs">
-          <button class="term-tab active" data-tab="submit">submit record</button>
-          <button class="term-tab" data-tab="verify">verify</button>
-          <button class="term-tab" data-tab="ledger">ledger root</button>
+        <div class="qs-tabs">
+          <button class="qs-tab active" data-tab="submit">submit</button>
+          <button class="qs-tab" data-tab="verify">verify</button>
+          <button class="qs-tab" data-tab="ledger">ledger</button>
         </div>
-        <button class="term-token-btn" id="get-token-btn">&#9889; Token</button>
+        <button class="qs-token-btn" id="qs-token-btn">&#9889; Token</button>
       </div>
-      <div class="term-body">
-        <pre class="term-screen" id="term-screen"></pre>
-        <span class="term-cursor" id="term-cursor">&#9608;</span>
+
+      <div class="qs-body">
+
+        <!-- SUBMIT TAB -->
+        <div class="qs-tab-panel active" id="tab-submit">
+          <div class="qs-comment"># Submit AI content for provenance</div>
+          <div class="qs-line">
+            <span class="qs-prompt">$</span>
+            <span class="qs-cmd">curl -X POST https://ai.oooooooooo.se/api/v1/records \</span>
+          </div>
+          <div class="qs-line qs-indent">
+            <span class="qs-cmd">-H <span class="qs-str">"Authorization: Bearer <span class="qs-token-val" id="token-display-1"><span class="qs-token-hidden">••••••••••••••••</span></span>"</span> \</span>
+          </div>
+          <div class="qs-line qs-indent">
+            <span class="qs-cmd">-H <span class="qs-str">"Content-Type: application/json"</span> \</span>
+          </div>
+          <div class="qs-line qs-indent">
+            <span class="qs-cmd">-d <span class="qs-str">'{"content":"paste AI output here","model":"gpt-4"}'</span></span>
+          </div>
+          <button class="qs-copy" data-tab="submit">copy</button>
+        </div>
+
+        <!-- VERIFY TAB -->
+        <div class="qs-tab-panel" id="tab-verify">
+          <div class="qs-comment"># Verify a record is untampered</div>
+          <div class="qs-line">
+            <span class="qs-prompt">$</span>
+            <span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/records/<span class="qs-var">RECORD_ID</span>/verify</span>
+          </div>
+          <button class="qs-copy" data-tab="verify">copy</button>
+        </div>
+
+        <!-- LEDGER TAB -->
+        <div class="qs-tab-panel" id="tab-ledger">
+          <div class="qs-comment"># Check the current Merkle root</div>
+          <div class="qs-line">
+            <span class="qs-prompt">$</span>
+            <span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/ledger/root</span>
+          </div>
+          <button class="qs-copy" data-tab="ledger">copy</button>
+        </div>
+
       </div>
-      <div class="term-token-info" id="term-token-info" style="display:none">
-        <span class="tok-ok">&#10003; Token for <strong id="tok-username"></strong> — injected above</span>
-        <span class="tok-warn">Save it — it cannot be recovered.</span>
+
+      <div class="qs-footer" id="qs-footer" style="display:none">
+        <span class="qs-tok-ok">&#10003; Token for <strong id="qs-username"></strong></span>
+        <span class="qs-tok-warn">Save it — cannot be recovered.</span>
       </div>
     </div>
   </div>
@@ -765,10 +765,10 @@
       <!-- HUMAN PATH -->
       <article class="path" role="listitem" aria-labelledby="path-human">
         <span class="path-badge human">🙋 No terminal needed</span>
-        <h3 id="path-human">Try the browser demo</h3>
-        <p>Paste any text below and see exactly what Helios does to it — SHA-256 hash, Ed25519 signature, and a Merkle proof. No account, no install. Runs entirely in your browser.</p>
-        <p style="font-size:0.8rem;color:var(--muted2);margin-top:-0.25rem">A hosted public API is coming soon. Drop your email on GitHub Discussions to get notified.</p>
-        <a href="https://github.com/fogennnnn/helios-ledger/discussions" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">Join the discussion →</a>
+        <h3 id="path-human">Try the live demo</h3>
+        <p>Paste any AI-generated text below. The browser calls the real Helios API, creates an account for your session, and seals your content on the live ledger — Ed25519 signed, Merkle included, verifiable forever.</p>
+        <p style="font-size:0.8rem;color:var(--teal);margin-top:-0.25rem">✓ Live API at ai.oooooooooo.se — no install required.</p>
+        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
       </article>
     </div>
 
@@ -786,7 +786,7 @@
         <button class="demo-btn" id="demo-run">Generate provenance record →</button>
         <div class="demo-output" id="demo-output"></div>
       </div>
-      <p class="demo-note">This demo hits the real Helios API. A temporary account is created for your session — records are permanently sealed in the D1 ledger on Cloudflare.</p>
+      <p class="demo-note">Calls the real Helios API — records are permanently sealed in the D1 ledger on Cloudflare. Ed25519 signed, independently verifiable by anyone.</p>
     </div>
   </div>
 </section>
@@ -827,242 +827,170 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ---- Terminal: one screen, tabs manual, token button flashes token ----
-  (() => {
-    const TABS = {"submit": [["cmt", "# Submit AI content for provenance"], ["cmd", "curl -X POST https://ai.oooooooooo.se/api/v1/records"], ["con", "     -H \"Authorization: Bearer YOUR_TOKEN\""], ["con", "     -H \"Content-Type: application/json\""], ["con", "     -d '{\"content\":\"paste AI output here\",\"model\":\"gpt-4\"}'"], ["gap", ""], ["out", "{", false], ["out", "  \"id\": \"d4f2a1b3-9c8e-...\",", true], ["out", "  \"content_hash\": \"a3f1e2d4b5c6...\",", true], ["out", "  \"merkle_index\": 4,", true], ["out", "  \"merkle_root\": \"00a1b2c3...\",", true], ["out", "  \"timestamp\": \"2026-03-15T19:16:02Z\"", false], ["out", "}", false]], "verify": [["cmt", "# Verify any record is untampered"], ["cmd", "curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify"], ["gap", ""], ["out", "{", false], ["out", "  \"valid\": true,", true], ["out", "  \"content_hash\": \"a3f1e2d4...\",", false], ["out", "  \"merkle_index\": 4,", true], ["out", "  \"proof_depth\": 3,", false], ["out", "  \"timestamp\": \"2026-03-15T19:16:02Z\"", false], ["out", "}", false]], "ledger": [["cmt", "# Check the current Merkle root"], ["cmd", "curl https://ai.oooooooooo.se/api/v1/ledger/root"], ["gap", ""], ["out", "{", false], ["out", "  \"root\": \"00a1b2c3d4e5f6...\",", true], ["out", "  \"record_count\": 12,", true], ["out", "  \"timestamp\": \"2026-03-15T19:20:00Z\"", false], ["out", "}", false]]};
+  // ---- Quick Start block ----
+  (function() {
+    var liveToken    = null;
+    var liveUsername = null;
 
-    const screen = document.getElementById('term-screen');
-    const cursor = document.getElementById('term-cursor');
-    const tabs   = document.querySelectorAll('.term-tab');
-    let liveToken    = null;
-    let liveUsername = null;
-    let currentTab   = 'submit';
-    let animating    = false;
+    // Tab switching
+    document.querySelectorAll('.qs-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.qs-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.qs-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        var panel = document.getElementById('tab-' + tab.dataset.tab);
+        if (panel) panel.classList.add('active');
+      });
+    });
 
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
-    const esc   = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-    function renderTab(tabKey) {
-      currentTab = tabKey;
-      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
-      if (animating) return; // don't interrupt a running animation
-      playTab(tabKey);
-    }
-
-    async function playTab(tabKey) {
-      animating = true;
-      screen.innerHTML = '';
-      if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
-
-      const lines = TABS[tabKey] || [];
-      for (const line of lines) {
-        const [type, text, hl] = line;
-
-        if (type === 'gap') {
-          screen.insertBefore(document.createTextNode('\n'), cursor);
-          await sleep(80);
-          continue;
+    // Copy buttons
+    document.querySelectorAll('.qs-copy').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tabId = btn.dataset.tab;
+        var text  = '';
+        var tok   = liveToken || 'YOUR_TOKEN';
+        if (tabId === 'submit') {
+          text = 'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n'
+               + '     -H "Authorization: Bearer ' + tok + '" \\\n'
+               + '     -H "Content-Type: application/json" \\\n'
+               + "     -d '{\"content\":\"paste AI output here\",\"model\":\"gpt-4\"}'";
+        } else if (tabId === 'verify') {
+          text = 'curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify';
+        } else {
+          text = 'curl https://ai.oooooooooo.se/api/v1/ledger/root';
         }
-        if (type === 'cmt') {
-          const s = document.createElement('span');
-          s.innerHTML = '<span class="t-comment">' + esc(text) + '</span>\n';
-          screen.insertBefore(s, cursor);
-          await sleep(50);
-          continue;
-        }
-        if (type === 'con') {
-          // If we have a live token, replace YOUR_TOKEN
-          const t2 = liveToken ? text.replace('YOUR_TOKEN', liveToken) : text;
-          const s = document.createElement('span');
-          s.id = (text.indexOf('YOUR_TOKEN') > -1) ? 'term-auth-line' : '';
-          s.innerHTML = '  <span class="t-cmd">' + esc(t2) + '</span>\n';
-          screen.insertBefore(s, cursor);
-          await sleep(35);
-          continue;
-        }
-        if (type === 'cmd') {
-          // typewriter for the main command
-          const wrap    = document.createElement('span');
-          const prompt  = document.createElement('span');
-          const txtSpan = document.createElement('span');
-          prompt.className   = 't-prompt';
-          prompt.textContent = '$ ';
-          txtSpan.className  = 't-cmd';
-          wrap.appendChild(prompt);
-          wrap.appendChild(txtSpan);
-          screen.insertBefore(wrap, cursor);
-          for (let ci = 0; ci <= text.length; ci++) {
-            txtSpan.textContent = text.slice(0, ci);
-            await sleep(16 + Math.random() * 18);
-          }
-          screen.insertBefore(document.createTextNode('\n'), cursor);
-          await sleep(120);
-          continue;
-        }
-        if (type === 'out') {
-          await sleep(65);
-          const s = document.createElement('span');
-          const cls = hl ? 't-hl' : 't-val';
-          const txt = esc(text)
-            .replace(/"([^"]+)":/g, '<span class="t-key">"$1":</span>')
-            .replace(/: (true|false)/g, ': <span class="t-ok">$1</span>');
-          s.innerHTML = '<span class="' + cls + '">' + txt + '</span>\n';
-          screen.insertBefore(s, cursor);
-          if (hl) {
-            const hl_el = s.querySelector('.t-hl');
-            if (hl_el) { hl_el.style.animation='none'; hl_el.offsetHeight; hl_el.style.animation=''; }
-          }
-          continue;
-        }
-      }
-
-      if (cursor) cursor.style.display = 'none';
-      animating = false;
-    }
-
-    // Tab clicks
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => renderTab(tab.dataset.tab));
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = 'copied!';
+          btn.classList.add('copied');
+          setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
     });
 
     // Token button
-    const getBtn = document.getElementById('get-token-btn');
-    if (getBtn) {
-      getBtn.addEventListener('click', async () => {
+    var tokenBtn = document.getElementById('qs-token-btn');
+    if (tokenBtn) {
+      tokenBtn.addEventListener('click', function() {
         if (liveToken) {
-          // Already have token — just flash it in the current view
-          flashTokenInScreen();
+          revealToken(liveToken);
           return;
         }
-        getBtn.disabled = true;
-        getBtn.textContent = 'fetching...';
-        const rnd = 'user_' + Math.random().toString(36).slice(2,9);
-        try {
-          const r = await fetch('https://ai.oooooooooo.se/api/v1/accounts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
-            body: JSON.stringify({ username: rnd })
-          });
-          if (!r.ok) throw new Error('API error ' + r.status);
-          const d = await r.json();
+        tokenBtn.textContent = 'fetching...';
+        tokenBtn.disabled = true;
+        var rnd = 'user_' + Math.random().toString(36).slice(2, 9);
+        fetch('https://ai.oooooooooo.se/api/v1/accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
+          body: JSON.stringify({ username: rnd })
+        }).then(function(r) {
+          if (!r.ok) throw new Error('API ' + r.status);
+          return r.json();
+        }).then(function(d) {
           liveToken    = d.token;
           liveUsername = d.username;
-          getBtn.textContent = '\u26a1 Token';
-          getBtn.disabled = false;
-          getBtn.style.animation = 'none'; // stop pulse
-
-          // Show token info bar
-          const info = document.getElementById('term-token-info');
-          document.getElementById('tok-username').textContent = liveUsername;
-          if (info) info.style.display = 'flex';
-
-          // Replay current tab so token is injected into the command
-          await playTab(currentTab);
-          // Then flash it
-          setTimeout(flashTokenInScreen, 200);
-        } catch(e) {
-          getBtn.textContent = '\u26a1 Token';
-          getBtn.disabled = false;
-        }
+          tokenBtn.textContent = '⚡ Token';
+          tokenBtn.disabled = false;
+          tokenBtn.classList.add('has-token');
+          var footer = document.getElementById('qs-footer');
+          var uname  = document.getElementById('qs-username');
+          if (uname) uname.textContent = liveUsername;
+          if (footer) footer.style.display = 'flex';
+          revealToken(liveToken);
+        }).catch(function() {
+          tokenBtn.textContent = '⚡ Token';
+          tokenBtn.disabled = false;
+        });
       });
     }
 
-    function flashTokenInScreen() {
-      if (!liveToken) return;
-      // Find the auth line in the screen and flash the token value
-      const lines = screen.querySelectorAll('span');
-      lines.forEach(el => {
-        if (el.textContent.includes(liveToken)) {
-          // Wrap the token in a flash span
-          const orig = el.innerHTML;
-          el.innerHTML = orig.replace(
-            esc(liveToken),
-            '<span class="tok-flash" style="animation:tok-flash-anim 1.8s ease forwards">' + esc(liveToken) + '</span>'
-          );
-        }
+    function revealToken(token) {
+      document.querySelectorAll('.qs-token-val').forEach(function(el) {
+        el.innerHTML = '<span class="qs-token-revealed">' + token + '</span>';
+        var sp = el.querySelector('.qs-token-revealed');
+        if (sp) { sp.style.animation = 'none'; sp.offsetHeight; sp.style.animation = ''; }
       });
     }
-
-    // Start with submit tab
-    setTimeout(() => playTab('submit'), 600);
   })();
 
+  // ---- Live browser demo ----
+  var API = 'https://ai.oooooooooo.se/api';
+  var demoToken = null;
+  var demoUser  = null;
 
-  // Live demo against real Helios API
-  const API = 'https://ai.oooooooooo.se/api';
-  let demoToken = null;
-  let demoUser  = null;
-
-  async function ensureAccount() {
-    if (demoToken) return true;
-    const username = 'demo_' + Math.random().toString(36).slice(2, 9);
-    try {
-      const r = await fetch(API + '/accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
+  function ensureAccount() {
+    if (demoToken) return Promise.resolve(true);
+    var username = 'demo_' + Math.random().toString(36).slice(2, 9);
+    return fetch(API + '/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username })
+    }).then(function(r) {
       if (!r.ok) throw new Error('account creation failed: ' + r.status);
-      const d = await r.json();
+      return r.json();
+    }).then(function(d) {
       demoToken = d.token;
       demoUser  = d.username;
       return true;
-    } catch(e) { return false; }
+    }).catch(function() { return false; });
   }
 
-  document.getElementById('demo-run').addEventListener('click', async () => {
-    const text = document.getElementById('demo-input').value.trim();
-    const out  = document.getElementById('demo-output');
-    const btn  = document.getElementById('demo-run');
-
-    if (!text) {
-      out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
+  var demoRunBtn = document.getElementById('demo-run');
+  if (demoRunBtn) {
+    demoRunBtn.addEventListener('click', function() {
+      var text = document.getElementById('demo-input').value.trim();
+      var out  = document.getElementById('demo-output');
+      var btn  = demoRunBtn;
+      if (!text) {
+        out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
+        out.classList.add('visible');
+        return;
+      }
+      btn.textContent = 'Connecting...';
+      btn.disabled = true;
+      out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
       out.classList.add('visible');
-      return;
-    }
-
-    btn.textContent = 'Connecting...';
-    btn.disabled = true;
-    out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
-    out.classList.add('visible');
-
-    if (!await ensureAccount()) {
-      out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
-      btn.textContent = 'Generate provenance record';
-      btn.disabled = false;
-      return;
-    }
-
-    btn.textContent = 'Submitting...';
-
-    try {
-      const r = await fetch(API + '/records', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + demoToken
-        },
-        body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
+      ensureAccount().then(function(ok) {
+        if (!ok) {
+          out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
+          btn.textContent = 'Generate provenance record';
+          btn.disabled = false;
+          return;
+        }
+        btn.textContent = 'Submitting...';
+        return fetch(API + '/records', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + demoToken
+          },
+          body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
+        });
+      }).then(function(r) {
+        if (!r) return;
+        if (!r.ok) throw new Error('API error ' + r.status);
+        return r.json();
+      }).then(function(d) {
+        if (!d) return;
+        out.innerHTML =
+          '<span class="ok">record sealed on Helios Ledger</span>\n' +
+          '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
+          '<span style="color:var(--muted)">content_hash  </span><span class="hash">' + d.content_hash + '</span>\n' +
+          '<span style="color:var(--muted)">signature     </span><span class="hash">' + d.signature + '</span>\n' +
+          '<span style="color:var(--muted)">merkle_index  </span>#' + d.merkle_index + '\n' +
+          '<span style="color:var(--muted)">merkle_root   </span><span class="hash">' + d.merkle_root + '</span>\n' +
+          '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
+          '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
+          '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
+        btn.textContent = 'Generate provenance record';
+        btn.disabled = false;
+      }).catch(function(e) {
+        out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+        btn.textContent = 'Generate provenance record';
+        btn.disabled = false;
       });
-      if (!r.ok) throw new Error('API error ' + r.status);
-      const d = await r.json();
-      out.innerHTML =
-        '<span class="ok">record sealed on Helios Ledger</span>\n' +
-        '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
-        '<span style="color:var(--muted)">content_hash  </span><span class="hash">' + d.content_hash + '</span>\n' +
-        '<span style="color:var(--muted)">signature     </span><span class="hash">' + d.signature + '</span>\n' +
-        '<span style="color:var(--muted)">merkle_index  </span>#' + d.merkle_index + '\n' +
-        '<span style="color:var(--muted)">merkle_root   </span><span class="hash">' + d.merkle_root + '</span>\n' +
-        '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
-        '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
-        '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
-    } catch(e) {
-      out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
-    }
-
-    btn.textContent = 'Generate provenance record';
-    btn.disabled = false;
-  });
+    });
+  }
 </script>
+
 </body>
 </html>
