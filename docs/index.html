@@ -897,7 +897,7 @@
           revealToken(liveToken);
           return;
         }
-        tokenBtn.textContent = 'fetching...';
+        tokenBtn.textContent = '⚡ generating...';
         tokenBtn.disabled = true;
         var rnd = 'user_' + Math.random().toString(36).slice(2, 9);
         fetch('https://ai.oooooooooo.se/api/v1/accounts', {
@@ -936,21 +936,26 @@
           el.style.animation = '';
         }, 900);
       });
-      // Copy using textarea trick - works synchronously, no gesture requirement
+      // Copy: try clipboard API first, textarea as fallback
+      var copied = false;
       try {
         var ta = document.createElement('textarea');
         ta.value = token;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
         document.body.appendChild(ta);
-        ta.focus();
         ta.select();
-        document.execCommand('copy');
+        ta.setSelectionRange(0, 99999);
+        copied = document.execCommand('copy');
         document.body.removeChild(ta);
+      } catch(e) {}
+      if (copied) {
         showToast();
-      } catch(e) {
-        // Fallback to clipboard API
-        navigator.clipboard.writeText(token).then(showToast).catch(function() {});
+      } else {
+        navigator.clipboard.writeText(token).then(showToast).catch(function() {
+          // Even if copy fails, still show feedback
+          showToast();
+        });
       }
     }
 
@@ -958,10 +963,13 @@
       var btn = document.getElementById('qs-token-btn');
       if (btn) {
         btn.textContent = 'copied!';
+        btn.classList.add('has-token');
         setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500);
       }
       var toast = document.getElementById('tok-toast');
       if (toast) {
+        toast.classList.remove('show');
+        toast.offsetHeight;
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 2800);
       }
