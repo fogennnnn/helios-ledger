@@ -1042,30 +1042,28 @@
     }
 
     function injectToken(token, username) {
-      // Update step 1 command to show the username used
-      document.getElementById('cmd-1').textContent =
-        'curl -X POST https://ai.oooooooooo.se/api/v1/accounts \\\n' +
-        '     -H "Content-Type: application/json" \\\n' +
-        '     -d '{"username":"' + username + '"}'';
+      var NL = ' \\\n';
+      var DQ = String.fromCharCode(34);
 
-      // Inject real token into step 2
-      document.getElementById('cmd-2').textContent =
-        'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n' +
-        '     -H "Authorization: Bearer ' + token + '" \\\n' +
-        '     -H "Content-Type: application/json" \\\n' +
-        '     -d '{"content":"paste your AI output here","model":"gpt-4"}'';
+      var cmd1 = 'curl -X POST https://ai.oooooooooo.se/api/v1/accounts' + NL
+               + '     -H ' + DQ + 'Content-Type: application/json' + DQ + NL
+               + '     -d ' + DQ + '{"username":"' + username + '"}' + DQ;
+      document.getElementById('cmd-1').textContent = cmd1;
 
-      // Show token info banner
-      const info = document.getElementById('term-token-info');
+      var cmd2 = 'curl -X POST https://ai.oooooooooo.se/api/v1/records' + NL
+               + '     -H ' + DQ + 'Authorization: Bearer ' + token + DQ + NL
+               + '     -H ' + DQ + 'Content-Type: application/json' + DQ + NL
+               + '     -d ' + DQ + '{"content":"paste your AI output here","model":"gpt-4"}' + DQ;
+      document.getElementById('cmd-2').textContent = cmd2;
+
+      var info = document.getElementById('term-token-info');
       document.getElementById('tok-username').textContent = username;
       if (info) info.style.display = 'flex';
 
-      // Update status label
-      const lbl = document.getElementById('token-status-label');
+      var lbl = document.getElementById('token-status-label');
       if (lbl) { lbl.textContent = 'token injected - just copy and run'; lbl.style.color = 'var(--teal)'; }
 
-      // Update button
-      const btn = document.getElementById('get-token-btn');
+      var btn = document.getElementById('get-token-btn');
       if (btn) { btn.textContent = 'token ready'; btn.style.background = 'var(--teal-dim)'; }
     }
 
