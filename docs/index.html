@@ -837,7 +837,7 @@
       <!-- HUMAN PATH -->
       <article class="path" role="listitem" aria-labelledby="path-human">
         <span class="path-badge human">🙋 No terminal needed</span>
-        <h3 id="path-human">Try the live demo</h3>
+        <h3 id="path-human">Seal content on the live ledger</h3>
         <p>Paste any AI-generated text below. The browser calls the real Helios API, creates an account for your session, and seals your content on the live ledger — Ed25519 signed, Merkle included, verifiable forever.</p>
         <p style="font-size:0.8rem;color:var(--teal);margin-top:-0.25rem">✓ Live API at ai.oooooooooo.se — no install required.</p>
         <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
@@ -847,18 +847,18 @@
     <!-- INTERACTIVE DEMO -->
     <div class="demo-box">
       <div class="demo-header">
-        <span>browser demo — client-side only, nothing is sent anywhere</span>
-        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
+        <span>try it live — paste any AI output, seal it on the ledger</span>
+        <span class="demo-live"><span class="demo-live-dot"></span>live ledger</span>
       </div>
       <div class="demo-body">
         <div>
-          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
+          <label class="demo-label" for="demo-input">Paste any AI-generated text to seal its provenance</label>
           <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
         </div>
-        <button class="demo-btn" id="demo-run">Generate provenance record →</button>
+        <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
         <div class="demo-output" id="demo-output"></div>
       </div>
-      <p class="demo-note">Calls the real Helios API — records are permanently sealed in the D1 ledger on Cloudflare. Ed25519 signed, independently verifiable by anyone.</p>
+      <p class="demo-note">Every submission is permanently sealed — Ed25519 signed, Merkle-included, independently verifiable. This is the real ledger, not a simulation.</p>
     </div>
   </div>
 </section>
@@ -906,23 +906,9 @@
     var currentShell = 'bash';
     var currentTab   = 'submit';
 
-    var CMDS = {
-      submit: {
-        bash:        function(tok) { return 'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n  -H "Authorization: Bearer ' + tok + '" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"content":"paste AI output here","model":"gpt-4"}\''; },
-        powershell:  function(tok) { return 'Invoke-RestMethod `\n  -Uri https://ai.oooooooooo.se/api/v1/records `\n  -Method POST `\n  -Headers @{ "Authorization" = "Bearer ' + tok + '" } `\n  -ContentType "application/json" `\n  -Body \'{"content":"paste AI output here","model":"gpt-4"}\''; },
-        python:      function(tok) { return 'import requests\nrequests.post(\n  "https://ai.oooooooooo.se/api/v1/records",\n  headers={"Authorization": "Bearer ' + tok + '"},\n  json={"content": "paste AI output here", "model": "gpt-4"}\n).json()'; }
-      },
-      verify: {
-        bash:        function()    { return 'curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify'; },
-        powershell:  function()    { return 'Invoke-RestMethod https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify'; },
-        python:      function()    { return 'requests.get("https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify").json()'; }
-      },
-      ledger: {
-        bash:        function()    { return 'curl https://ai.oooooooooo.se/api/v1/ledger/root'; },
-        powershell:  function()    { return 'Invoke-RestMethod https://ai.oooooooooo.se/api/v1/ledger/root'; },
-        python:      function()    { return 'requests.get("https://ai.oooooooooo.se/api/v1/ledger/root").json()'; }
-      }
-    };
+    var BODY_BASH = '-d \'{"content":"paste AI output here","model":"gpt-4"}\'';
+    var BODY_PS   = '-Body \'{"content":"paste AI output here","model":"gpt-4"}\'';
+    var BODY_PY   = 'json={"content": "paste AI output here", "model": "gpt-4"}';
 
     // Tab switching
     document.querySelectorAll('.qs-tab').forEach(function(tab) {
@@ -952,18 +938,67 @@
     document.querySelectorAll('.qs-copy').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var tok  = liveToken || 'YOUR_TOKEN';
-        var fn   = CMDS[btn.dataset.tab] && CMDS[btn.dataset.tab][currentShell];
-        var text = fn ? fn(tok) : '';
-        if (!text) return;
-        var ta = document.createElement('textarea');
-        ta.value = text; ta.setAttribute('readonly', '');
-        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
-        document.execCommand('copy'); document.body.removeChild(ta);
-        btn.textContent = 'copied!'; btn.classList.add('copied');
+        var text = buildCopyText(btn.dataset.tab, tok);
+        copyToClipboard(text);
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
         setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
       });
     });
+
+    function buildCopyText(tab, tok) {
+      var base = 'https://ai.oooooooooo.se/api/v1/';
+      if (tab === 'submit') {
+        if (currentShell === 'bash') {
+          return [
+            'curl -X POST ' + base + 'records \\',
+            '  -H "Authorization: Bearer ' + tok + '" \\',
+            '  -H "Content-Type: application/json" \\',
+            '  ' + BODY_BASH
+          ].join('\n');
+        }
+        if (currentShell === 'powershell') {
+          return [
+            'Invoke-RestMethod \\',
+            '  -Uri ' + base + 'records \\',
+            '  -Method POST \\',
+            '  -Headers @{ "Authorization" = "Bearer ' + tok + '" } \\',
+            '  -ContentType "application/json" \\',
+            '  ' + BODY_PS
+          ].join('\n').replace(/\\/g, '`');
+        }
+        return [
+          'import requests',
+          'requests.post(',
+          '  "' + base + 'records",',
+          '  headers={"Authorization": "Bearer ' + tok + '"},',
+          '  ' + BODY_PY,
+          ').json()'
+        ].join('\n');
+      }
+      if (tab === 'verify') {
+        var url = base + 'records/RECORD_ID/verify';
+        if (currentShell === 'powershell') return 'Invoke-RestMethod ' + url;
+        if (currentShell === 'python')     return 'requests.get("' + url + '").json()';
+        return 'curl ' + url;
+      }
+      var url = base + 'ledger/root';
+      if (currentShell === 'powershell') return 'Invoke-RestMethod ' + url;
+      if (currentShell === 'python')     return 'requests.get("' + url + '").json()';
+      return 'curl ' + url;
+    }
+
+    function copyToClipboard(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
 
     // Token button
     var tokenBtn = document.getElementById('qs-token-btn');
@@ -981,20 +1016,23 @@
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         }).then(function(d) {
-          liveToken = d.token; liveUsername = d.username;
-          tokenBtn.textContent = '⚡ Token';
-          tokenBtn.disabled = false; tokenBtn.classList.add('has-token');
+          liveToken = d.token;
+          liveUsername = d.username;
+          tokenBtn.textContent = '\u26a1 Token';
+          tokenBtn.disabled = false;
+          tokenBtn.classList.add('has-token');
           var footer = document.getElementById('qs-footer');
           var uname  = document.getElementById('qs-username');
           if (uname) uname.textContent = liveUsername;
           if (footer) footer.style.display = 'flex';
           revealToken(liveToken);
         }).catch(function(e) {
-          tokenBtn.textContent = '⚡ Token'; tokenBtn.disabled = false;
+          tokenBtn.textContent = '\u26a1 Token';
+          tokenBtn.disabled = false;
           var footer = document.getElementById('qs-footer');
           if (footer) {
             footer.style.display = 'flex';
-            footer.innerHTML = '<span class="qs-tok-warn">Error: ' + e.message + ' — try again in a minute.</span>';
+            footer.innerHTML = '<span class="qs-tok-warn">Error: ' + e.message + ' \u2014 try again in a minute.</span>';
           }
         });
       });
@@ -1002,22 +1040,27 @@
 
     function revealToken(token) {
       document.querySelectorAll('.qs-token-badge').forEach(function(el) {
-        el.style.background = 'rgba(45,212,170,0.6)'; el.style.color = '#0d1117';
+        el.style.background = 'rgba(45,212,170,0.6)';
+        el.style.color = '#0d1117';
         setTimeout(function() { el.style.background = ''; el.style.color = ''; }, 900);
       });
-      var ta = document.createElement('textarea');
-      ta.value = token; ta.setAttribute('readonly', '');
-      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
-      document.execCommand('copy'); document.body.removeChild(ta);
+      copyToClipboard(token);
       showToast();
     }
 
     function showToast() {
       var btn = document.getElementById('qs-token-btn');
-      if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500); }
+      if (btn) {
+        btn.textContent = 'copied!';
+        setTimeout(function() { btn.textContent = '\u26a1 Token'; }, 2500);
+      }
       var toast = document.getElementById('tok-toast');
-      if (toast) { toast.classList.remove('show'); toast.offsetHeight; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 2800); }
+      if (toast) {
+        toast.classList.remove('show');
+        toast.offsetHeight;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2800);
+      }
     }
   })();
 
@@ -1037,7 +1080,9 @@
       if (!r.ok) throw new Error('account creation failed: ' + r.status);
       return r.json();
     }).then(function(d) {
-      demoToken = d.token; demoUser = d.username; return true;
+      demoToken = d.token;
+      demoUser  = d.username;
+      return true;
     }).catch(function() { return false; });
   }
 
@@ -1049,15 +1094,19 @@
       var btn  = demoRunBtn;
       if (!text) {
         out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
-        out.classList.add('visible'); return;
+        out.classList.add('visible');
+        return;
       }
-      btn.textContent = 'Connecting...'; btn.disabled = true;
+      btn.textContent = 'Connecting...';
+      btn.disabled = true;
       out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
       out.classList.add('visible');
       ensureAccount().then(function(ok) {
         if (!ok) {
           out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
-          btn.textContent = 'Generate provenance record'; btn.disabled = false; return;
+          btn.textContent = 'Generate provenance record';
+          btn.disabled = false;
+          return Promise.resolve(null);
         }
         btn.textContent = 'Submitting...';
         return fetch(API + '/records', {
@@ -1066,9 +1115,9 @@
           body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
         });
       }).then(function(r) {
-        if (!r) return; if (!r.ok) throw new Error('API error ' + r.status); return r.json();
+        if (!r || !r.ok) throw new Error(r ? 'API error ' + r.status : 'skipped');
+        return r.json();
       }).then(function(d) {
-        if (!d) return;
         out.innerHTML =
           '<span class="ok">record sealed on Helios Ledger</span>\n' +
           '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
@@ -1079,10 +1128,14 @@
           '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
           '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
           '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
-        btn.textContent = 'Generate provenance record'; btn.disabled = false;
+        btn.textContent = 'Generate provenance record';
+        btn.disabled = false;
       }).catch(function(e) {
-        out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
-        btn.textContent = 'Generate provenance record'; btn.disabled = false;
+        if (e.message !== 'skipped') {
+          out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+        }
+        btn.textContent = 'Generate provenance record';
+        btn.disabled = false;
       });
     });
   }
