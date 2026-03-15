@@ -924,31 +924,47 @@
         });
       });
     }
-
     function revealToken(token) {
-      // Flash $TOKEN in place rather than replacing it
+      // Flash $TOKEN badge
       document.querySelectorAll('.qs-token-badge').forEach(function(el) {
         el.style.animation = 'none';
-        el.offsetHeight;
-        el.style.background = 'rgba(45,212,170,0.5)';
+        el.style.background = 'rgba(45,212,170,0.6)';
         el.style.color = '#0d1117';
         setTimeout(function() {
           el.style.background = '';
           el.style.color = '';
           el.style.animation = '';
-        }, 800);
+        }, 900);
       });
-      // Copy to clipboard
-      navigator.clipboard.writeText(token).then(function() {
-        var btn = document.getElementById('qs-token-btn');
-        if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = '⚡ Token'; }, 2000); }
-        // Show toast
-        var toast = document.getElementById('tok-toast');
-        if (toast) {
-          toast.classList.add('show');
-          setTimeout(function() { toast.classList.remove('show'); }, 2800);
-        }
-      }).catch(function() {});
+      // Copy using textarea trick - works synchronously, no gesture requirement
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = token;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast();
+      } catch(e) {
+        // Fallback to clipboard API
+        navigator.clipboard.writeText(token).then(showToast).catch(function() {});
+      }
+    }
+
+    function showToast() {
+      var btn = document.getElementById('qs-token-btn');
+      if (btn) {
+        btn.textContent = 'copied!';
+        setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500);
+      }
+      var toast = document.getElementById('tok-toast');
+      if (toast) {
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2800);
+      }
     }
   })();
 
