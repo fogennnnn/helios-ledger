@@ -507,6 +507,19 @@
     /* ════════════════════
        RESPONSIVE
     ════════════════════ */
+    /* ════════════════════
+       SCROLL ANIMATIONS — content visible by default, animates when JS loads
+    ════════════════════ */
+    body.js-loaded .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    body.js-loaded .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (max-width: 768px) {
       .bento { grid-template-columns: 1fr; }
       .bento-card.wide { grid-column: span 1; }
@@ -589,22 +602,22 @@
       <h2 id="hiw-heading">Provenance in <em>Four Steps</em></h2>
       <p class="section-lead">From raw AI output to cryptographically sealed, independently verifiable record — in under a second.</p>
       <div class="steps-grid" role="list">
-        <article class="step" role="listitem">
+        <article class="step animate-on-scroll" role="listitem">
           <span class="step-num">01</span>
           <h3>Submit Content</h3>
           <p>Send any AI-generated text, image hash, or code snippet to the Helios API. Metadata — model name, timestamp, author — is attached automatically.</p>
         </article>
-        <article class="step" role="listitem">
+        <article class="step animate-on-scroll" role="listitem">
           <span class="step-num">02</span>
           <h3>Hash &amp; Sign</h3>
           <p>Helios computes a SHA-256 content hash and signs it with Ed25519. The private key never leaves the signing node; only the public key is distributed.</p>
         </article>
-        <article class="step" role="listitem">
+        <article class="step animate-on-scroll" role="listitem">
           <span class="step-num">03</span>
           <h3>Merkle Inclusion</h3>
           <p>The signed hash is inserted into the append-only Merkle tree. Each new leaf produces an updated root hash — any tampering with historical entries breaks the root.</p>
         </article>
-        <article class="step" role="listitem">
+        <article class="step animate-on-scroll" role="listitem">
           <span class="step-num">04</span>
           <h3>Verify Anywhere</h3>
           <p>Anyone can independently verify a provenance record using the public key and Merkle proof — no trust in Helios required. Pure cryptographic truth.</p>
@@ -624,7 +637,7 @@
       <h2 id="features-heading">Everything You Need for <em>AI Trust Infrastructure</em></h2>
       <div class="bento" role="list">
 
-        <article class="bento-card wide" role="listitem" aria-labelledby="f-api">
+        <article class="bento-card wide animate-on-scroll" role="listitem" aria-labelledby="f-api">
           <span class="bento-icon" aria-hidden="true">⚡</span>
           <h3 id="f-api">REST API — Zero Friction Integration</h3>
           <p>Submit, verify, and audit provenance records from any language or platform. JSON in, JSON out.</p>
@@ -639,31 +652,31 @@ curl https://ai.oooooooooo.se/api/records/<span class="k">{id}</span>/verify
           </div>
         </article>
 
-        <article class="bento-card" role="listitem" aria-labelledby="f-sign">
+        <article class="bento-card animate-on-scroll" role="listitem" aria-labelledby="f-sign">
           <span class="bento-icon" aria-hidden="true">🔑</span>
           <h3 id="f-sign">Ed25519 Signatures</h3>
           <p>Modern, fast, and battle-tested elliptic-curve cryptography. Signatures are 64 bytes and verify in microseconds.</p>
         </article>
 
-        <article class="bento-card" role="listitem" aria-labelledby="f-merkle">
+        <article class="bento-card animate-on-scroll" role="listitem" aria-labelledby="f-merkle">
           <span class="bento-icon" aria-hidden="true">🌳</span>
           <h3 id="f-merkle">Merkle-Tree Attestations</h3>
           <p>Append-only Merkle structure. Historical records are mathematically immutable — no database admin can alter them silently.</p>
         </article>
 
-        <article class="bento-card" role="listitem" aria-labelledby="f-reward">
+        <article class="bento-card animate-on-scroll" role="listitem" aria-labelledby="f-reward">
           <span class="bento-icon" aria-hidden="true">🏅</span>
           <h3 id="f-reward">Reward System</h3>
           <p>Incentivize contributors who submit provenance records. Configurable reward logic with per-account balance tracking.</p>
         </article>
 
-        <article class="bento-card" role="listitem" aria-labelledby="f-consensus">
+        <article class="bento-card animate-on-scroll" role="listitem" aria-labelledby="f-consensus">
           <span class="bento-icon" aria-hidden="true">🤝</span>
           <h3 id="f-consensus">Multi-Node Consensus</h3>
           <p>Run a network of Helios nodes. Consensus ensures the ledger state is agreed on before new records are committed.</p>
         </article>
 
-        <article class="bento-card" role="listitem" aria-labelledby="f-oss">
+        <article class="bento-card animate-on-scroll" role="listitem" aria-labelledby="f-oss">
           <span class="bento-icon" aria-hidden="true">📖</span>
           <h3 id="f-oss">Fully Open Source</h3>
           <p>MIT licensed. Audit every line. Self-host on your own infrastructure or contribute to the public instance.</p>
@@ -684,32 +697,32 @@ curl https://ai.oooooooooo.se/api/records/<span class="k">{id}</span>/verify
       <h2 id="uc-heading">Built for Every Industry That Touches <em>AI Content</em></h2>
       <p class="section-lead">Wherever accountability for AI-generated material matters, Helios Ledger provides the cryptographic layer of truth.</p>
       <div class="usecases" role="list">
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">📰</span>
           <h3>Journalism</h3>
           <p>Prove AI-assisted articles weren't altered after publication.</p>
         </article>
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">⚖️</span>
           <h3>Legal</h3>
           <p>Provide court-admissible provenance chains for AI-generated evidence.</p>
         </article>
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">🏥</span>
           <h3>Healthcare</h3>
           <p>Audit AI diagnostic outputs against their original generation context.</p>
         </article>
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">🏦</span>
           <h3>Finance</h3>
           <p>Regulatory-ready audit trails for AI-generated reports and advisories.</p>
         </article>
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">🎓</span>
           <h3>Academia</h3>
           <p>Verify AI disclosure in research papers with immutable provenance.</p>
         </article>
-        <article class="usecase" role="listitem">
+        <article class="usecase animate-on-scroll" role="listitem">
           <span class="usecase-icon" aria-hidden="true">🎨</span>
           <h3>Creative</h3>
           <p>Certify AI co-creation credit for artists and content studios.</p>
@@ -728,27 +741,27 @@ curl https://ai.oooooooooo.se/api/records/<span class="k">{id}</span>/verify
       <span class="section-tag">Questions</span>
       <h2 id="faq-heading"><em>Frequently</em> Asked Questions</h2>
       <div class="faq-grid" role="list">
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>What is AI provenance?</h3>
           <p>AI provenance is the ability to cryptographically prove the origin, creation context, and post-creation integrity of AI-generated content. Helios Ledger records a tamper-proof signed entry for each piece of content, creating an immutable audit trail.</p>
         </article>
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>How does content verification work?</h3>
           <p>Helios hashes your content and signs the hash using Ed25519. The signature and metadata are stored in a Merkle tree, so any tampering is immediately detectable by anyone holding the public key.</p>
         </article>
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>Is Helios Ledger free and open source?</h3>
           <p>Yes. Helios Ledger is MIT-licensed and freely available on GitHub. You can self-host it on your own infrastructure or use the public instance at ai.oooooooooo.se.</p>
         </article>
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>Which AI models are supported?</h3>
           <p>All of them. Helios Ledger is model-agnostic — it works with output from GPT-4, Claude, Gemini, Llama, Mistral, or any custom model. Only the content hash matters, not how it was produced.</p>
         </article>
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>Can I run my own Helios node?</h3>
           <p>Absolutely. Clone the repo, configure your environment, and start a local or networked Helios node in minutes. Multi-node consensus lets you run a private provenance network within your organization.</p>
         </article>
-        <article class="faq-item" role="listitem">
+        <article class="faq-item animate-on-scroll" role="listitem">
           <h3>Does Helios store the actual content?</h3>
           <p>No. Helios only stores cryptographic hashes and metadata — never the raw content itself. Your data stays with you; Helios only records proof of its existence and integrity.</p>
         </article>
@@ -796,22 +809,19 @@ curl https://ai.oooooooooo.se/api/records/<span class="k">{id}</span>/verify
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Intersection-based fade-in
+    // Only animate if JS loads — content is visible by default via CSS
+    // Add .js-loaded class to body, then CSS handles the rest
+    document.body.classList.add('js-loaded');
+
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          e.target.style.opacity = 1;
-          e.target.style.transform = 'translateY(0)';
+          e.target.classList.add('visible');
         }
       });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.08 });
 
-    document.querySelectorAll('section, .step, .bento-card, .usecase, .faq-item').forEach(el => {
-      el.style.opacity = 0;
-      el.style.transform = 'translateY(24px)';
-      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      io.observe(el);
-    });
+    document.querySelectorAll('.animate-on-scroll').forEach(el => io.observe(el));
   </script>
 </body>
 </html>
