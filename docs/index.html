@@ -499,7 +499,7 @@
       <div class="term-header">
         <div class="code-dots"><span></span><span></span><span></span></div>
         <div class="term-tabs">
-          <button class="term-tab active" data-scene="0">health</button>
+          <button class="term-tab active" data-scene="0">get token</button>
           <button class="term-tab" data-scene="1">submit</button>
           <button class="term-tab" data-scene="2">verify</button>
         </div>
@@ -768,34 +768,40 @@
   document.getElementById('year').textContent = new Date().getFullYear();
 
   // ---- Animated terminal ----
-  (function() {
-    var SCENES = [
-      { label:'health', lines:[
-        {t:'cmd', s:'curl https://ai.oooooooooo.se/api/health'},
+  (function()    var SCENES = [
+      { label:'get token', lines:[
+        {t:'cmt', s:'# Step 1: create an account, get your token'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/accounts'},
+        {t:'con', s:'     -H "Content-Type: application/json"'},
+        {t:'con', s:'     -d '{"username":"alice"}''},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  "status": "ok",',             hl:true, d:70},
-        {t:'out', s:'  "service": "helios-ledger",',  d:60},
-        {t:'out', s:'  "version": "1.0.0",',          d:60},
-        {t:'out', s:'  "record_count": 4,',           hl:true, d:60},
-        {t:'out', s:'  "timestamp": "2026-03-15T19:15:56Z"', d:60},
-        {t:'out', s:'}', d:60}
+        {t:'out', s:'  "id": "f3a1b2c4-...",',      d:70},
+        {t:'out', s:'  "username": "alice",',         d:60},
+        {t:'out', s:'  "token": "9f3c1a2b4d5e...",', hl:true, d:60},
+        {t:'out', s:'  "created_at": "2026-03-15T19:15:00Z"', d:60},
+        {t:'out', s:'}', d:60},
+        {t:'gap'},
+        {t:'cmt', s:'# Save that token. Use it in every request.'}
       ]},
       { label:'submit', lines:[
-        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/records \\'},
-        {t:'cmd', s:'  -H "Authorization: Bearer $TOKEN" \\'},
-        {t:'cmd', s:'  -d \'{"content":"AI output text","model":"claude-sonnet-4"}\''},
+        {t:'cmt', s:'# Step 2: submit AI content for provenance'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/records'},
+        {t:'con', s:'     -H "Authorization: Bearer 9f3c1a2b4d5e..."'},
+        {t:'con', s:'     -H "Content-Type: application/json"'},
+        {t:'con', s:'     -d '{"content":"AI output text","model":"claude-sonnet-4"}''},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  "id": "d4f2a1b3-9c8e-...",',           hl:true, d:70},
-        {t:'out', s:'  "content_hash": "a3f1e2d4b5c6...",',   hl:true, d:70},
-        {t:'out', s:'  "signature": "9f3c1a2b4d5e...",',       d:70},
-        {t:'out', s:'  "merkle_index": 4,',                    hl:true, d:70},
-        {t:'out', s:'  "merkle_root": "00a1b2c3d4e5...",',     hl:true, d:70},
-        {t:'out', s:'  "timestamp": "2026-03-15T19:16:02Z"',   d:70},
+        {t:'out', s:'  "id": "d4f2a1b3-9c8e-...",',          hl:true, d:70},
+        {t:'out', s:'  "content_hash": "a3f1e2d4b5c6...",',  hl:true, d:70},
+        {t:'out', s:'  "signature": "9f3c1a2b4d5e...",',      d:70},
+        {t:'out', s:'  "merkle_index": 4,',                   hl:true, d:70},
+        {t:'out', s:'  "merkle_root": "00a1b2c3d4e5...",',    hl:true, d:70},
+        {t:'out', s:'  "timestamp": "2026-03-15T19:16:02Z"',  d:70},
         {t:'out', s:'}', d:70}
       ]},
       { label:'verify', lines:[
+        {t:'cmt', s:'# Step 3: verify any record by its id'},
         {t:'cmd', s:'curl https://ai.oooooooooo.se/api/records/d4f2a1b3.../verify'},
         {t:'gap'},
         {t:'out', s:'{'},
@@ -807,7 +813,7 @@
         {t:'out', s:'  "timestamp": "2026-03-15T19:16:02Z"', d:65},
         {t:'out', s:'}', d:65}
       ]}
-    ];
+    ]; ];
 
     var screen  = document.getElementById('term-screen');
     var cursor  = document.getElementById('term-cursor');
@@ -822,13 +828,24 @@
     function makeLine(line) {
       if (line.t === 'gap') return '\n';
       var span = document.createElement('span');
+      if (line.t === 'cmt') {
+        span.innerHTML = '<span class="t-comment">' + line.s.replace(/</g,'&lt;') + '</span>\n';
+        return span;
+      }
       if (line.t === 'cmd') {
         span.innerHTML = '<span class="t-prompt">$ </span><span class="t-cmd"></span>\n';
         return span;
       }
+      if (line.t === 'con') {
+        // continuation line — no $ prompt, indented
+        var txt = line.s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        txt = txt.replace(/(-[A-Za-z])/g,'<span class="t-flag">$1</span>');
+        txt = txt.replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;|"[^"]*")/g,'<span class="t-str">$1</span>');
+        span.innerHTML = '  <span class="t-cmd">' + txt + '</span>\n';
+        return span;
+      }
       if (line.t === 'out') {
         var cls = line.hl ? 't-hl' : 't-val';
-        // color JSON keys
         var txt = line.s
           .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/"([^"]+)":/g,'<span class="t-key">"$1":</span>')
@@ -855,6 +872,18 @@
           await sleep(100);
           continue;
         }
+        if (line.t === 'cmt') {
+          var el = makeLine(line);
+          if (el) screen.insertBefore(el, cursor || null);
+          await sleep(60);
+          continue;
+        }
+        if (line.t === 'con') {
+          var el = makeLine(line);
+          if (el) screen.insertBefore(el, cursor || null);
+          await sleep(40);
+          continue;
+        }
         if (line.t === 'cmd') {
           var wrap = document.createElement('span');
           wrap.innerHTML = '<span class="t-prompt">$ </span>';
@@ -862,14 +891,13 @@
           txtSpan.className = 't-cmd';
           wrap.appendChild(txtSpan);
           screen.insertBefore(wrap, cursor || null);
-          // typewriter
           for (var ci = 0; ci <= line.s.length; ci++) {
             if (stopFlag) break;
             txtSpan.textContent = line.s.slice(0, ci);
             await sleep(20 + Math.random()*18);
           }
           screen.insertBefore(document.createTextNode('\n'), cursor || null);
-          await sleep(li === 0 ? 200 : 30);
+          await sleep(li === 0 ? 180 : 30);
           continue;
         }
         if (line.t === 'out') {
