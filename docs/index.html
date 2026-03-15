@@ -449,30 +449,53 @@
       .paths { grid-template-columns: 1fr; }
     }
 
-    /* ---- ROTATING BANNER ---- */
-    .banner-wrap { position: relative; min-height: 7rem; margin-bottom: 1.25rem; }
-    .banner-slide {
-      position: absolute; top: 0; left: 0; width: 100%;
-      font-size: clamp(1.9rem, 4.5vw, 3rem);
-      font-weight: 700; line-height: 1.2;
-      letter-spacing: -0.03em; color: var(--white);
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-      pointer-events: none;
+    /* ---- TERM STATIC (copyable commands) ---- */
+    .term-static { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .term-static-title { font-family: var(--ff-mono); font-size: 0.7rem; color: var(--muted); flex: 1; }
+    .term-token-btn {
+      background: var(--teal); color: #0d1117; border: none; cursor: pointer;
+      font-family: var(--ff); font-size: 0.75rem; font-weight: 600;
+      padding: 0.3rem 0.85rem; border-radius: 5px;
+      animation: teal-pulse 2.5s ease-in-out infinite;
+      transition: background 0.15s;
     }
-    .banner-slide.active {
-      opacity: 1; transform: translateY(0);
-      pointer-events: auto; position: relative;
+    .term-token-btn:hover { background: #25c49c; animation: none; }
+    .term-token-btn:disabled { background: var(--muted2); animation: none; cursor: not-allowed; }
+    .term-static-body { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
+    .cmd-block {
+      background: var(--bg); border: 1px solid var(--border2);
+      border-radius: 7px; overflow: hidden;
     }
-    .banner-slide span { color: var(--teal); }
-    .banner-dots {
-      display: flex; gap: 0.4rem; margin-bottom: 1.5rem;
+    .cmd-label {
+      font-family: var(--ff-mono); font-size: 0.68rem; color: var(--muted2);
+      padding: 0.4rem 1rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
     }
-    .bdot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--border); transition: background 0.3s, transform 0.3s;
+    .cmd-text {
+      font-family: var(--ff-mono); font-size: 0.78rem; color: var(--white);
+      padding: 0.75rem 1rem 0.5rem; margin: 0;
+      white-space: pre-wrap; word-break: break-all; line-height: 1.7;
     }
-    .bdot.active { background: var(--teal); transform: scale(1.3); }
+    .cmd-copy {
+      display: block; width: 100%; background: none; border: none;
+      border-top: 1px solid var(--border2); color: var(--muted2);
+      font-family: var(--ff-mono); font-size: 0.68rem; cursor: pointer;
+      padding: 0.35rem; text-align: right; padding-right: 1rem;
+      transition: color 0.15s, background 0.15s;
+    }
+    .cmd-copy:hover { color: var(--teal); background: var(--teal-glow); }
+    .cmd-copy.copied { color: var(--teal); }
+    .term-token-info {
+      display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+      padding: 0.6rem 1.25rem 0.85rem;
+      font-family: var(--ff-mono); font-size: 0.72rem;
+    }
+    .tok-ok  { color: var(--teal); }
+    .tok-warn { color: var(--muted2); }
+    .term-status {
+      font-family: var(--ff-mono); font-size: 0.65rem; color: var(--muted2);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
 
   </style>
 </head>
@@ -502,20 +525,7 @@
       <span class="hero-badge-dot"></span>
       Open-source · MIT License · v1.0.0
     </div>
-    <div class="banner-wrap" aria-live="polite" aria-atomic="true">
-    <h1 class="banner-slide active" id="banner-0">Your AI output. <span>Cryptographically sealed.</span></h1>
-    <h1 class="banner-slide" id="banner-1">Every AI output <span>deserves a paper trail.</span></h1>
-    <h1 class="banner-slide" id="banner-2">Stop trusting AI output blindly. <span>Give every agent a paper trail.</span></h1>
-    <h1 class="banner-slide" id="banner-3">Your AI runs autonomously. <span>Its output should be verifiable the same way.</span></h1>
-    <h1 class="banner-slide" id="banner-4">One API call. Every output <span>your agents produce, sealed forever.</span></h1>
-    <h1 class="banner-slide" id="banner-5">AI agents move fast. <span>Helios makes sure their output can be trusted.</span></h1>
-    <h1 class="banner-slide" id="banner-6">Autonomous AI needs <span>accountable output. One webhook away.</span></h1>
-  </div>
-  <div class="banner-dots" aria-hidden="true">
-    <span class="bdot active"></span><span class="bdot"></span><span class="bdot"></span>
-    <span class="bdot"></span><span class="bdot"></span><span class="bdot"></span>
-    <span class="bdot"></span>
-  </div>
+    <h1>Prove where your<br/><span>AI content</span> came from</h1>
     <p class="hero-sub">
       Helios Ledger cryptographically seals the origin and integrity of AI-generated content using Ed25519 signatures and Merkle-tree attestations. Tamper-proof. Independently verifiable. No trust required.
     </p>
@@ -534,19 +544,62 @@
       <div class="meta-item"><span class="meta-val">MIT</span><span class="meta-key">License</span></div>
     </div>
 
-    <div class="term-wrap">
-      <div class="term-header">
-        <div class="code-dots"><span></span><span></span><span></span></div>
-        <div class="term-tabs">
-          <button class="term-tab active" data-scene="0">get token</button>
-          <button class="term-tab" data-scene="1">submit</button>
-          <button class="term-tab" data-scene="2">verify</button>
+    <div class="term-wrap" id="term-root">
+      <!-- Animated intro (plays once) -->
+      <div class="term-anim" id="term-anim">
+        <div class="term-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <div class="term-tabs">
+            <button class="term-tab active" data-scene="0">get token</button>
+            <button class="term-tab" data-scene="1">submit</button>
+            <button class="term-tab" data-scene="2">verify</button>
+          </div>
+          <span class="term-status" id="term-status">playing</span>
         </div>
-        <button class="term-replay" id="term-replay" title="Replay">&#8635;</button>
+        <div class="term-body">
+          <pre class="term-screen" id="term-screen"></pre>
+          <span class="term-cursor" id="term-cursor">&#9608;</span>
+        </div>
       </div>
-      <div class="term-body">
-        <pre class="term-screen" id="term-screen"></pre>
-        <span class="term-cursor" id="term-cursor">&#9608;</span>
+
+      <!-- Static copyable commands (shown after animation) -->
+      <div class="term-static" id="term-static" style="display:none">
+        <div class="term-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="term-static-title">copy &amp; run — <span id="token-status-label">get your token first</span></span>
+          <button class="term-token-btn" id="get-token-btn">&#9889; Generate my token</button>
+        </div>
+        <div class="term-static-body">
+
+          <div class="cmd-block">
+            <div class="cmd-label">step 1 &mdash; create account &amp; get token</div>
+            <pre class="cmd-text" id="cmd-1">curl -X POST https://ai.oooooooooo.se/api/v1/accounts      -H "Content-Type: application/json"      -d '{"username":"YOUR_USERNAME"}'</pre>
+            <button class="cmd-copy" data-target="cmd-1">copy</button>
+          </div>
+
+          <div class="cmd-block" id="cmd-block-2">
+            <div class="cmd-label">step 2 &mdash; submit a provenance record</div>
+            <pre class="cmd-text" id="cmd-2">curl -X POST https://ai.oooooooooo.se/api/v1/records      -H "Authorization: Bearer YOUR_TOKEN"      -H "Content-Type: application/json"      -d '{"content":"paste your AI output here","model":"gpt-4"}'</pre>
+            <button class="cmd-copy" data-target="cmd-2">copy</button>
+          </div>
+
+          <div class="cmd-block">
+            <div class="cmd-label">step 3 &mdash; verify a record</div>
+            <pre class="cmd-text" id="cmd-3">curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify</pre>
+            <button class="cmd-copy" data-target="cmd-3">copy</button>
+          </div>
+
+          <div class="cmd-block">
+            <div class="cmd-label">check ledger root</div>
+            <pre class="cmd-text" id="cmd-4">curl https://ai.oooooooooo.se/api/v1/ledger/root</pre>
+            <button class="cmd-copy" data-target="cmd-4">copy</button>
+          </div>
+
+        </div>
+        <div class="term-token-info" id="term-token-info" style="display:none">
+          <span class="tok-ok">&#10003; Token generated for <strong id="tok-username"></strong></span>
+          <span class="tok-warn">Save it — it cannot be recovered.</span>
+        </div>
       </div>
     </div>
   </div>
@@ -806,50 +859,19 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ---- Rotating banner ----
-  (() => {
-    const slides = document.querySelectorAll('.banner-slide');
-    const dots   = document.querySelectorAll('.bdot');
-    let cur      = 0;
-    let timer    = null;
-
-    function goTo(n) {
-      slides[cur].classList.remove('active');
-      dots[cur].classList.remove('active');
-      cur = (n + slides.length) % slides.length;
-      slides[cur].classList.add('active');
-      dots[cur].classList.add('active');
-    }
-
-    function next() { goTo(cur + 1); }
-
-    function start() {
-      clearInterval(timer);
-      timer = setInterval(next, 30000);
-    }
-
-    dots.forEach((dot, i) => {
-      dot.style.cursor = 'pointer';
-      dot.addEventListener('click', () => { goTo(i); start(); });
-    });
-
-    start();
-  })();
-
-
-  // ---- Animated terminal ----
+  // ---- Terminal: play once, then show static copyable commands ----
   (() => {
     const SCENES = [
       { label:'get token', lines:[
         {t:'cmt', s:'# Step 1: create an account to get your token'},
-        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/accounts'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/v1/accounts'},
         {t:'con', s:'     -H Content-Type: application/json'},
         {t:'con', s:'     -d {username: alice}'},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  id: f3a1b2c4-...',        d:70},
-        {t:'out', s:'  username: alice',           d:60},
-        {t:'out', s:'  token: 9f3c1a2b4d5e...',   hl:true, d:60},
+        {t:'out', s:'  id: f3a1b2c4-...',       d:70},
+        {t:'out', s:'  username: alice',          d:60},
+        {t:'out', s:'  token: 9f3c1a2b4d5e...',  hl:true, d:60},
         {t:'out', s:'  created_at: 2026-03-15T19:15:00Z', d:60},
         {t:'out', s:'}', d:60},
         {t:'gap'},
@@ -857,7 +879,7 @@
       ]},
       { label:'submit', lines:[
         {t:'cmt', s:'# Step 2: seal AI content on the ledger'},
-        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/records'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/v1/records'},
         {t:'con', s:'     -H Authorization: Bearer 9f3c1a2b4d5e...'},
         {t:'con', s:'     -H Content-Type: application/json'},
         {t:'con', s:'     -d {content: AI output, model: claude-sonnet-4}'},
@@ -873,49 +895,41 @@
       ]},
       { label:'verify', lines:[
         {t:'cmt', s:'# Step 3: verify any record is untampered'},
-        {t:'cmd', s:'curl https://ai.oooooooooo.se/api/records/d4f2a1b3.../verify'},
+        {t:'cmd', s:'curl https://ai.oooooooooo.se/api/v1/records/d4f2a1b3.../verify'},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  record_id: d4f2a1b3-...',  d:65},
-        {t:'out', s:'  valid: true',               hl:true, d:65},
-        {t:'out', s:'  content_hash: a3f1e2d4...', d:65},
-        {t:'out', s:'  merkle_index: 4',            hl:true, d:65},
-        {t:'out', s:'  merkle_proof: [...]',        d:65},
+        {t:'out', s:'  record_id: d4f2a1b3-...',   d:65},
+        {t:'out', s:'  valid: true',                hl:true, d:65},
+        {t:'out', s:'  content_hash: a3f1e2d4...',  d:65},
+        {t:'out', s:'  merkle_index: 4',             hl:true, d:65},
+        {t:'out', s:'  merkle_proof: [...]',         d:65},
         {t:'out', s:'  timestamp: 2026-03-15T19:16:02Z', d:65},
         {t:'out', s:'}', d:65}
       ]}
     ];
 
-    const screen = document.getElementById('term-screen');
-    const cursor = document.getElementById('term-cursor');
-    const tabs   = document.querySelectorAll('.term-tab');
-    const replay = document.getElementById('term-replay');
-    let current  = 0;
-    let stopFlag = false;
+    const screen  = document.getElementById('term-screen');
+    const cursor  = document.getElementById('term-cursor');
+    const tabs    = document.querySelectorAll('.term-tab');
+    const status  = document.getElementById('term-status');
+    let stopFlag  = false;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    function esc(s) {
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     function makeOutSpan(line) {
       const span = document.createElement('span');
       const cls  = line.hl ? 't-hl' : 't-val';
-      let txt = esc(line.s);
-      if (line.s === 'true' || line.s.endsWith(': true') || line.s.includes(' true')) {
-        txt = txt.replace(/: (true|false)/, ': <span class="t-ok">$1</span>');
-      }
+      let txt = esc(line.s).replace(/: (true|false)/, ': <span class="t-ok">$1</span>');
       span.innerHTML = '<span class="' + cls + '">' + txt + '</span>\n';
       return span;
     }
-
     function makeCmtSpan(line) {
       const span = document.createElement('span');
       span.innerHTML = '<span class="t-comment">' + esc(line.s) + '</span>\n';
       return span;
     }
-
     function makeConSpan(line) {
       const span = document.createElement('span');
       span.innerHTML = '  <span class="t-cmd">' + esc(line.s) + '</span>\n';
@@ -923,9 +937,9 @@
     }
 
     async function runScene(idx) {
-      stopFlag = false;
       screen.innerHTML = '';
       if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
+      tabs.forEach((t,i) => t.classList.toggle('active', i === idx));
 
       for (let li = 0; li < SCENES[idx].lines.length; li++) {
         if (stopFlag) return;
@@ -934,30 +948,28 @@
 
         if (line.t === 'gap') {
           screen.insertBefore(document.createTextNode('\n'), cursor);
-          await sleep(100);
+          await sleep(80);
         } else if (line.t === 'cmt') {
           screen.insertBefore(makeCmtSpan(line), cursor);
-          await sleep(60);
+          await sleep(50);
         } else if (line.t === 'con') {
           screen.insertBefore(makeConSpan(line), cursor);
-          await sleep(40);
+          await sleep(35);
         } else if (line.t === 'cmd') {
-          const wrap    = document.createElement('span');
-          const prompt  = document.createElement('span');
+          const wrap = document.createElement('span');
+          const prompt = document.createElement('span');
           const txtSpan = document.createElement('span');
-          prompt.className   = 't-prompt';
-          prompt.textContent = '$ ';
-          txtSpan.className  = 't-cmd';
-          wrap.appendChild(prompt);
-          wrap.appendChild(txtSpan);
+          prompt.className = 't-prompt'; prompt.textContent = '$ ';
+          txtSpan.className = 't-cmd';
+          wrap.appendChild(prompt); wrap.appendChild(txtSpan);
           screen.insertBefore(wrap, cursor);
           for (let ci = 0; ci <= line.s.length; ci++) {
             if (stopFlag) return;
             txtSpan.textContent = line.s.slice(0, ci);
-            await sleep(18 + Math.random() * 20);
+            await sleep(16 + Math.random() * 18);
           }
           screen.insertBefore(document.createTextNode('\n'), cursor);
-          await sleep(li === 0 ? 180 : 30);
+          await sleep(li === 0 ? 150 : 25);
         } else if (line.t === 'out') {
           await sleep(delay);
           if (stopFlag) return;
@@ -965,30 +977,110 @@
           screen.insertBefore(el, cursor);
           if (line.hl) {
             const hl = el.querySelector('.t-hl');
-            if (hl) { hl.style.animation = 'none'; hl.offsetHeight; hl.style.animation = ''; }
+            if (hl) { hl.style.animation='none'; hl.offsetHeight; hl.style.animation=''; }
           }
         }
       }
-      await sleep(1500);
       if (cursor) cursor.style.display = 'none';
     }
 
-    function startScene(idx) {
-      stopFlag = true;
-      current  = idx;
-      tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
-      setTimeout(() => runScene(idx), 80);
+    // Play all scenes once, then switch to static view
+    (async () => {
+      const delays = [3800, 4500, 3500];
+      for (let i = 0; i < SCENES.length; i++) {
+        if (stopFlag) break;
+        await runScene(i);
+        if (i < SCENES.length - 1) await sleep(delays[i]);
+      }
+      if (!stopFlag) showStatic();
+    })();
+
+    function showStatic() {
+      const anim   = document.getElementById('term-anim');
+      const stat   = document.getElementById('term-static');
+      if (anim) anim.style.display = 'none';
+      if (stat) stat.style.display = 'block';
+      setupStatic();
     }
 
-    tabs.forEach((tab, i) => tab.addEventListener('click', () => startScene(i)));
-    if (replay) replay.addEventListener('click', () => startScene(current));
+    // ---- Static copyable section ----
+    function setupStatic() {
+      // Copy buttons
+      document.querySelectorAll('.cmd-copy').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pre = document.getElementById(btn.dataset.target);
+          if (!pre) return;
+          navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+            btn.textContent = 'copied!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+          });
+        });
+      });
 
-    (async () => {
-      for (let i = 0; i < SCENES.length; i++) {
-        startScene(i);
-        await sleep(1200 + SCENES[i].lines.length * 260);
-      }
-    })();
+      // Token generation
+      const getBtn = document.getElementById('get-token-btn');
+      if (!getBtn) return;
+      getBtn.addEventListener('click', async () => {
+        getBtn.disabled = true;
+        getBtn.textContent = 'Creating account...';
+        const rnd = 'user_' + Math.random().toString(36).slice(2,9);
+        try {
+          const r = await fetch('https://ai.oooooooooo.se/api/v1/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
+            body: JSON.stringify({ username: rnd })
+          });
+          if (!r.ok) throw new Error('API error ' + r.status);
+          const d = await r.json();
+          injectToken(d.token, d.username);
+        } catch(e) {
+          getBtn.textContent = 'Error - try again';
+          getBtn.disabled = false;
+        }
+      });
+    }
+
+    function injectToken(token, username) {
+      // Update step 1 command to show the username used
+      document.getElementById('cmd-1').textContent =
+        'curl -X POST https://ai.oooooooooo.se/api/v1/accounts \\\n' +
+        '     -H "Content-Type: application/json" \\\n' +
+        '     -d '{"username":"' + username + '"}'';
+
+      // Inject real token into step 2
+      document.getElementById('cmd-2').textContent =
+        'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n' +
+        '     -H "Authorization: Bearer ' + token + '" \\\n' +
+        '     -H "Content-Type: application/json" \\\n' +
+        '     -d '{"content":"paste your AI output here","model":"gpt-4"}'';
+
+      // Show token info banner
+      const info = document.getElementById('term-token-info');
+      document.getElementById('tok-username').textContent = username;
+      if (info) info.style.display = 'flex';
+
+      // Update status label
+      const lbl = document.getElementById('token-status-label');
+      if (lbl) { lbl.textContent = 'token injected - just copy and run'; lbl.style.color = 'var(--teal)'; }
+
+      // Update button
+      const btn = document.getElementById('get-token-btn');
+      if (btn) { btn.textContent = 'token ready'; btn.style.background = 'var(--teal-dim)'; }
+    }
+
+    // Allow clicking tabs to replay a scene during animation
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        const stat = document.getElementById('term-static');
+        if (stat && stat.style.display !== 'none') return; // already in static mode
+        stopFlag = true;
+        setTimeout(async () => {
+          stopFlag = false;
+          await runScene(i);
+        }, 60);
+      });
+    });
   })();
 
 
