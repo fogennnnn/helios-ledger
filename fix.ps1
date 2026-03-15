@@ -1,3 +1,53 @@
+# fix.ps1 - Run from C:\Users\fogen\HELIOS
+# Double-click or run: powershell -ExecutionPolicy Bypass -File fix.ps1
+
+Write-Host "Step 1/3 - Creating site files..." -ForegroundColor Cyan
+New-Item -ItemType Directory -Force -Path docs | Out-Null
+
+Set-Content -Path docs\CNAME -Value 'ai.oooooooooo.se' -NoNewline
+
+Set-Content -Path docs\robots.txt -Value @'
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://ai.oooooooooo.se/sitemap.xml
+
+# Crawl-delay hint for polite bots
+Crawl-delay: 1
+'@
+
+Set-Content -Path docs\sitemap.xml -Value @'
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://ai.oooooooooo.se/</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ai.oooooooooo.se/"/>
+  </url>
+
+  <url>
+    <loc>https://ai.oooooooooo.se/docs/</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ai.oooooooooo.se/api/</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
+'@
+
+Set-Content -Path docs\index.html -Value @'
 <!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
@@ -815,3 +865,13 @@ curl https://ai.oooooooooo.se/api/records/<span class="k">{id}</span>/verify
   </script>
 </body>
 </html>
+'@
+
+Write-Host "Step 2/3 - Committing..." -ForegroundColor Cyan
+git add .
+git commit -m "fix: restore site files to docs root"
+
+Write-Host "Step 3/3 - Pushing to GitHub..." -ForegroundColor Cyan
+git push
+
+Write-Host "ALL DONE! Site will be live at https://ai.oooooooooo.se in ~1 minute" -ForegroundColor Green
