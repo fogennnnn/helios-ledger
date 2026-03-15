@@ -464,6 +464,28 @@
       .paths { grid-template-columns: 1fr; }
     }
 
+    .qs-token-badge {
+      color: var(--teal); font-family: var(--ff-mono); font-size: 0.82rem; font-weight: 700;
+      background: var(--teal-glow); border: 1px solid rgba(45,212,170,0.3);
+      border-radius: 4px; padding: 0 8px; cursor: pointer;
+      animation: tok-badge-pulse 2s ease-in-out infinite;
+      transition: background 0.2s, color 0.2s;
+    }
+    @keyframes tok-badge-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(45,212,170,0.3); }
+      50%      { box-shadow: 0 0 0 4px rgba(45,212,170,0); }
+    }
+    #tok-toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+      background: var(--teal); color: #0d1117;
+      font-family: var(--ff-mono); font-size: 1rem; font-weight: 700;
+      padding: 0.85rem 1.5rem; border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(45,212,170,0.4);
+      opacity: 0; pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    #tok-toast.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -532,7 +554,7 @@
             <span class="qs-cmd">curl -X POST https://ai.oooooooooo.se/api/v1/records \</span>
           </div>
           <div class="qs-line qs-indent">
-            <span class="qs-cmd">-H <span class="qs-str">"Authorization: Bearer "</span> <span class="qs-token-val" id="token-display-1"><span class="qs-token-badge">[ ⚡ Token ]</span></span> \</span>
+            <span class="qs-cmd">-H <span class="qs-str">"Authorization: Bearer "</span> <span class="qs-token-val" id="token-display-1"><span class="qs-token-badge">$TOKEN</span></span> \</span>
           </div>
           <div class="qs-line qs-indent">
             <span class="qs-cmd">-H <span class="qs-str">"Content-Type: application/json"</span> \</span>
@@ -904,16 +926,27 @@
     }
 
     function revealToken(token) {
-      document.querySelectorAll('.qs-token-val').forEach(function(el) {
-        el.innerHTML = '<span class="qs-token-revealed">' + token + '</span>';
-        var sp = el.querySelector('.qs-token-revealed');
-        if (sp) { sp.style.animation = 'none'; sp.offsetHeight; sp.style.animation = ''; }
+      // Flash $TOKEN in place rather than replacing it
+      document.querySelectorAll('.qs-token-badge').forEach(function(el) {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.background = 'rgba(45,212,170,0.5)';
+        el.style.color = '#0d1117';
+        setTimeout(function() {
+          el.style.background = '';
+          el.style.color = '';
+          el.style.animation = '';
+        }, 800);
       });
+      // Copy to clipboard
       navigator.clipboard.writeText(token).then(function() {
         var btn = document.getElementById('qs-token-btn');
-        if (btn) {
-          btn.textContent = 'copied!';
-          setTimeout(function() { btn.textContent = '⚡ Token'; }, 2000);
+        if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = '⚡ Token'; }, 2000); }
+        // Show toast
+        var toast = document.getElementById('tok-toast');
+        if (toast) {
+          toast.classList.add('show');
+          setTimeout(function() { toast.classList.remove('show'); }, 2800);
         }
       }).catch(function() {});
     }
@@ -999,5 +1032,6 @@
   }
 </script>
 
+<div id="tok-toast">TOKEN copied to clipboard</div>
 </body>
 </html>
