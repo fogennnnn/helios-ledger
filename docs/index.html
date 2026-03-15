@@ -497,6 +497,14 @@
       display: flex; align-items: center; gap: 0.3rem;
     }
 
+
+    /* ---- TOKEN FLASH ---- */
+    @keyframes tok-flash-anim {
+      0%   { background: rgba(45,212,170,0.5); color: #0d1117; border-radius: 3px; padding: 0 2px; }
+      60%  { background: rgba(45,212,170,0.2); color: var(--teal); }
+      100% { background: transparent; color: var(--teal); }
+    }
+    .tok-flash { color: var(--teal); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -567,7 +575,7 @@
         <div class="term-header">
           <div class="code-dots"><span></span><span></span><span></span></div>
           <span class="term-static-title">copy &amp; run — <span id="token-status-label">get your token first</span></span>
-          <button class="term-token-btn" id="get-token-btn" style="display:none">&#9889; Generate my token</button>
+          <button class="term-token-btn" id="get-token-btn">&#9889; Token</button>
         </div>
         <div class="term-static-body">
 
@@ -859,248 +867,152 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ---- Terminal: plays once with LIVE API call, auto-injects real token ----
+  // ---- Terminal: play once, then show static copyable commands ----
   (() => {
-    var liveToken    = null;
-    var liveUsername = null;
-    var liveRecordId = null;
+    const SCENES = [
+      { label:'get token', lines:[
+        {t:'cmt', s:'# Step 1: create an account to get your token'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/v1/accounts'},
+        {t:'con', s:'     -H Content-Type: application/json'},
+        {t:'con', s:'     -d {username: alice}'},
+        {t:'gap'},
+        {t:'out', s:'{'},
+        {t:'out', s:'  id: f3a1b2c4-...',       d:70},
+        {t:'out', s:'  username: alice',          d:60},
+        {t:'out', s:'  token: 9f3c1a2b4d5e...',  hl:true, d:60},
+        {t:'out', s:'  created_at: 2026-03-15T19:15:00Z', d:60},
+        {t:'out', s:'}', d:60},
+        {t:'gap'},
+        {t:'cmt', s:'# Save that token - use it in every request'}
+      ]},
+      { label:'submit', lines:[
+        {t:'cmt', s:'# Step 2: seal AI content on the ledger'},
+        {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/v1/records'},
+        {t:'con', s:'     -H Authorization: Bearer 9f3c1a2b4d5e...'},
+        {t:'con', s:'     -H Content-Type: application/json'},
+        {t:'con', s:'     -d {content: AI output, model: claude-sonnet-4}'},
+        {t:'gap'},
+        {t:'out', s:'{'},
+        {t:'out', s:'  id: d4f2a1b3-9c8e-...',         hl:true, d:70},
+        {t:'out', s:'  content_hash: a3f1e2d4b5c6...',  hl:true, d:70},
+        {t:'out', s:'  signature: 9f3c1a2b4d5e...',      d:70},
+        {t:'out', s:'  merkle_index: 4',                 hl:true, d:70},
+        {t:'out', s:'  merkle_root: 00a1b2c3d4e5...',   hl:true, d:70},
+        {t:'out', s:'  timestamp: 2026-03-15T19:16:02Z', d:70},
+        {t:'out', s:'}', d:70}
+      ]},
+      { label:'verify', lines:[
+        {t:'cmt', s:'# Step 3: verify any record is untampered'},
+        {t:'cmd', s:'curl https://ai.oooooooooo.se/api/v1/records/d4f2a1b3.../verify'},
+        {t:'gap'},
+        {t:'out', s:'{'},
+        {t:'out', s:'  record_id: d4f2a1b3-...',   d:65},
+        {t:'out', s:'  valid: true',                hl:true, d:65},
+        {t:'out', s:'  content_hash: a3f1e2d4...',  d:65},
+        {t:'out', s:'  merkle_index: 4',             hl:true, d:65},
+        {t:'out', s:'  merkle_proof: [...]',         d:65},
+        {t:'out', s:'  timestamp: 2026-03-15T19:16:02Z', d:65},
+        {t:'out', s:'}', d:65}
+      ]}
+    ];
 
-    const screen = document.getElementById('term-screen');
-    const cursor = document.getElementById('term-cursor');
-    const tabs   = document.querySelectorAll('.term-tab');
-    let stopFlag = false;
+    const screen  = document.getElementById('term-screen');
+    const cursor  = document.getElementById('term-cursor');
+    const tabs    = document.querySelectorAll('.term-tab');
+    const status  = document.getElementById('term-status');
+    let stopFlag  = false;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
-    const esc   = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-    function appendText(text) {
-      screen.insertBefore(document.createTextNode(text), cursor);
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function makeOutSpan(line) {
+      const span = document.createElement('span');
+      const cls  = line.hl ? 't-hl' : 't-val';
+      let txt = esc(line.s).replace(/: (true|false)/, ': <span class="t-ok">$1</span>');
+      span.innerHTML = '<span class="' + cls + '">' + txt + '</span>\n';
+      return span;
     }
-    function appendSpan(html) {
-      const s = document.createElement('span');
-      s.innerHTML = html;
-      screen.insertBefore(s, cursor);
+    function makeCmtSpan(line) {
+      const span = document.createElement('span');
+      span.innerHTML = '<span class="t-comment">' + esc(line.s) + '</span>\n';
+      return span;
     }
-    function appendHl(text) {
-      const s = document.createElement('span');
-      s.className = 't-hl';
-      s.textContent = text;
-      screen.insertBefore(s, cursor);
-      // re-trigger flash
-      s.style.animation = 'none';
-      s.offsetHeight;
-      s.style.animation = '';
-      return s;
+    function makeConSpan(line) {
+      const span = document.createElement('span');
+      span.innerHTML = '  <span class="t-cmd">' + esc(line.s) + '</span>\n';
+      return span;
     }
 
-    async function typeCmd(text) {
-      const wrap    = document.createElement('span');
-      const prompt  = document.createElement('span');
-      const txtSpan = document.createElement('span');
-      prompt.className   = 't-prompt';
-      prompt.textContent = '$ ';
-      txtSpan.className  = 't-cmd';
-      wrap.appendChild(prompt);
-      wrap.appendChild(txtSpan);
-      screen.insertBefore(wrap, cursor);
-      for (let ci = 0; ci <= text.length; ci++) {
+    async function runScene(idx) {
+      screen.innerHTML = '';
+      if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
+      tabs.forEach((t,i) => t.classList.toggle('active', i === idx));
+
+      for (let li = 0; li < SCENES[idx].lines.length; li++) {
         if (stopFlag) return;
-        txtSpan.textContent = text.slice(0, ci);
-        await sleep(16 + Math.random() * 18);
+        const line  = SCENES[idx].lines[li];
+        const delay = line.d || 80;
+
+        if (line.t === 'gap') {
+          screen.insertBefore(document.createTextNode('\n'), cursor);
+          await sleep(80);
+        } else if (line.t === 'cmt') {
+          screen.insertBefore(makeCmtSpan(line), cursor);
+          await sleep(50);
+        } else if (line.t === 'con') {
+          screen.insertBefore(makeConSpan(line), cursor);
+          await sleep(35);
+        } else if (line.t === 'cmd') {
+          const wrap = document.createElement('span');
+          const prompt = document.createElement('span');
+          const txtSpan = document.createElement('span');
+          prompt.className = 't-prompt'; prompt.textContent = '$ ';
+          txtSpan.className = 't-cmd';
+          wrap.appendChild(prompt); wrap.appendChild(txtSpan);
+          screen.insertBefore(wrap, cursor);
+          for (let ci = 0; ci <= line.s.length; ci++) {
+            if (stopFlag) return;
+            txtSpan.textContent = line.s.slice(0, ci);
+            await sleep(16 + Math.random() * 18);
+          }
+          screen.insertBefore(document.createTextNode('\n'), cursor);
+          await sleep(li === 0 ? 150 : 25);
+        } else if (line.t === 'out') {
+          await sleep(delay);
+          if (stopFlag) return;
+          const el = makeOutSpan(line);
+          screen.insertBefore(el, cursor);
+          if (line.hl) {
+            const hl = el.querySelector('.t-hl');
+            if (hl) { hl.style.animation='none'; hl.offsetHeight; hl.style.animation=''; }
+          }
+        }
       }
-      appendText('\n');
-    }
-
-    function cmt(text)  { appendSpan('<span class="t-comment">' + esc(text) + '</span>\n'); }
-    function con(text)  { appendSpan('  <span class="t-cmd">'     + esc(text) + '</span>\n'); }
-    function out(text)  { appendSpan('<span class="t-val">'       + esc(text) + '</span>\n'); }
-    function outHl(text){ appendHl(text); appendText('\n'); }
-
-    // ── Scene 1: LIVE get token ───────────────────────────────────────
-    async function sceneGetToken() {
-      tabs.forEach((t,i) => t.classList.toggle('active', i === 0));
-      screen.innerHTML = '';
-      if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
-
-      const rnd = 'user_' + Math.random().toString(36).slice(2,8);
-      cmt('# Step 1: create an account to get your token');
-      await sleep(300);
-      await typeCmd('curl -X POST https://ai.oooooooooo.se/api/v1/accounts');
-      con('     -H Content-Type: application/json');
-      con('     -d {username: ' + rnd + '}');
-      await sleep(600);
-      appendSpan('<span class="t-comment">  # calling live API...</span>\n');
-
-      // Real API call
-      let data = null;
-      try {
-        const r = await fetch('https://ai.oooooooooo.se/api/v1/accounts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
-          body: JSON.stringify({ username: rnd })
-        });
-        data = await r.json();
-        liveToken    = data.token;
-        liveUsername = data.username;
-      } catch(e) {
-        data = { error: 'could not reach API' };
-      }
-
-      appendText('\n');
-      out('{');
-      await sleep(60);
-      out('  id: ' + (data.id      ? data.id.slice(0,18) + '...'  : 'error'));
-      await sleep(55);
-      out('  username: ' + (data.username || 'error'));
-      await sleep(55);
-      if (data.token) {
-        const shortTok = data.token.slice(0,16) + '...';
-        outHl('  token: ' + shortTok + '  ← your real token!');
-      } else {
-        out('  error: ' + data.error);
-      }
-      await sleep(55);
-      out('  created_at: ' + (data.created_at ? data.created_at.slice(0,19) : '--'));
-      await sleep(55);
-      out('}');
-      await sleep(400);
-      cmt('# Token saved — injecting into all commands below...');
       if (cursor) cursor.style.display = 'none';
     }
 
-    // ── Scene 2: LIVE submit record ───────────────────────────────────
-    async function sceneSubmit() {
-      if (!liveToken) { await sleep(200); return; }
-      tabs.forEach((t,i) => t.classList.toggle('active', i === 1));
-      screen.innerHTML = '';
-      if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
-
-      const shortTok = liveToken.slice(0,16) + '...';
-      cmt('# Step 2: seal AI content on the ledger');
-      await sleep(300);
-      await typeCmd('curl -X POST https://ai.oooooooooo.se/api/v1/records');
-      con('     -H Authorization: Bearer ' + shortTok);
-      con('     -H Content-Type: application/json');
-      con('     -d {content: AI output, model: claude-sonnet-4}');
-      await sleep(600);
-      appendSpan('<span class="t-comment">  # submitting to live ledger...</span>\n');
-
-      let data = null;
-      try {
-        const r = await fetch('https://ai.oooooooooo.se/api/v1/records', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + liveToken,
-            'Origin': 'https://ai.oooooooooo.se'
-          },
-          body: JSON.stringify({ content: 'Demo AI output sealed by Helios Ledger ' + Date.now(), model: 'claude-sonnet-4' })
-        });
-        data = await r.json();
-        liveRecordId = data.id;
-      } catch(e) {
-        data = { error: 'could not reach API' };
-      }
-
-      appendText('\n');
-      out('{');
-      await sleep(60);
-      if (data.id) {
-        outHl('  id: ' + data.id.slice(0,18) + '...');
-        await sleep(65);
-        outHl('  content_hash: ' + data.content_hash.slice(0,20) + '...');
-        await sleep(65);
-        out( '  signature: ' + data.signature.slice(0,20) + '...');
-        await sleep(65);
-        outHl('  merkle_index: ' + data.merkle_index);
-        await sleep(65);
-        outHl('  merkle_root: ' + data.merkle_root.slice(0,20) + '...');
-        await sleep(65);
-        out( '  timestamp: ' + data.timestamp.slice(0,19));
-      } else {
-        out('  error: ' + (data.error || 'unknown'));
-      }
-      out('}');
-      if (cursor) cursor.style.display = 'none';
-    }
-
-    // ── Scene 3: LIVE verify ──────────────────────────────────────────
-    async function sceneVerify() {
-      if (!liveRecordId) { await sleep(200); return; }
-      tabs.forEach((t,i) => t.classList.toggle('active', i === 2));
-      screen.innerHTML = '';
-      if (cursor) { cursor.style.display = 'inline'; screen.appendChild(cursor); }
-
-      cmt('# Step 3: verify the record is untampered');
-      await sleep(300);
-      await typeCmd('curl https://ai.oooooooooo.se/api/v1/records/' + liveRecordId.slice(0,8) + '.../verify');
-      await sleep(500);
-
-      let data = null;
-      try {
-        const r = await fetch('https://ai.oooooooooo.se/api/v1/records/' + liveRecordId + '/verify', {
-          headers: { 'Origin': 'https://ai.oooooooooo.se' }
-        });
-        data = await r.json();
-      } catch(e) {
-        data = { error: 'could not reach API' };
-      }
-
-      appendText('\n');
-      out('{');
-      await sleep(60);
-      if (data.record_id) {
-        out( '  record_id: ' + data.record_id.slice(0,18) + '...');
-        await sleep(55);
-        outHl('  valid: ' + data.valid);
-        await sleep(55);
-        out( '  content_hash: ' + data.content_hash.slice(0,20) + '...');
-        await sleep(55);
-        outHl('  merkle_index: ' + data.merkle_index);
-        await sleep(55);
-        out( '  proof_depth: ' + data.proof_depth + ' hashes (log2 N)');
-        await sleep(55);
-        out( '  timestamp: ' + data.timestamp.slice(0,19));
-      } else {
-        out('  error: ' + (data.error || 'unknown'));
-      }
-      out('}');
-      if (cursor) cursor.style.display = 'none';
-    }
-
-    // ── Main sequence ─────────────────────────────────────────────────
+    // Play all scenes once, then switch to static view
     (async () => {
-      await sceneGetToken();
-      if (stopFlag) return;
-      await sleep(2000);
-      await sceneSubmit();
-      if (stopFlag) return;
-      await sleep(2000);
-      await sceneVerify();
-      if (stopFlag) return;
-      await sleep(1500);
-      showStatic();
+      const delays = [3800, 4500, 3500];
+      for (let i = 0; i < SCENES.length; i++) {
+        if (stopFlag) break;
+        await runScene(i);
+        if (i < SCENES.length - 1) await sleep(delays[i]);
+      }
+      if (!stopFlag) showStatic();
     })();
 
-    // ── Transition to static copyable view ────────────────────────────
     function showStatic() {
-      const anim = document.getElementById('term-anim');
-      const stat = document.getElementById('term-static');
+      const anim   = document.getElementById('term-anim');
+      const stat   = document.getElementById('term-static');
       if (anim) anim.style.display = 'none';
       if (stat) stat.style.display = 'block';
       setupStatic();
     }
 
+    // ---- Static copyable section ----
     function setupStatic() {
-      // Auto-inject token if we got one live
-      if (liveToken) {
-        injectToken(liveToken, liveUsername);
-      } else {
-        // Show button for manual generation
-        const btn = document.getElementById('get-token-btn');
-        if (btn) btn.style.display = 'inline-flex';
-      }
-
       // Copy buttons
       document.querySelectorAll('.cmd-copy').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1114,7 +1026,7 @@
         });
       });
 
-      // Manual token generation (fallback if animation API call failed)
+      // Token generation
       const getBtn = document.getElementById('get-token-btn');
       if (!getBtn) return;
       getBtn.addEventListener('click', async () => {
@@ -1131,7 +1043,7 @@
           const d = await r.json();
           injectToken(d.token, d.username);
         } catch(e) {
-          getBtn.textContent = 'Error — try again';
+          getBtn.textContent = 'Error - try again';
           getBtn.disabled = false;
         }
       });
@@ -1152,27 +1064,43 @@
                + '     -d ' + DQ + '{"content":"paste your AI output here","model":"gpt-4"}' + DQ;
       document.getElementById('cmd-2').textContent = cmd2;
 
-      if (liveRecordId) {
-        document.getElementById('cmd-3').textContent =
-          'curl https://ai.oooooooooo.se/api/v1/records/' + liveRecordId + '/verify';
-      }
-
       var info = document.getElementById('term-token-info');
       document.getElementById('tok-username').textContent = username;
       if (info) info.style.display = 'flex';
 
       var lbl = document.getElementById('token-status-label');
-      if (lbl) { lbl.textContent = 'real token injected — just copy and run'; lbl.style.color = 'var(--teal)'; }
+      if (lbl) { lbl.textContent = 'token injected — just copy and run'; lbl.style.color = 'var(--teal)'; }
 
       var btn = document.getElementById('get-token-btn');
-      if (btn) { btn.textContent = 'token ready'; btn.style.background = 'var(--teal-dim)'; btn.disabled = true; btn.style.animation = 'none'; }
+      if (btn) { btn.textContent = '⚡ Token'; btn.style.background = 'var(--teal-dim)'; btn.disabled = true; btn.style.animation = 'none'; }
+
+      // Flash the token value inside cmd-2 so the eye goes right to it
+      var pre2 = document.getElementById('cmd-2');
+      if (pre2) {
+        var html = pre2.innerHTML || '';
+        // Replace the token in the text with a highlighted span
+        pre2.innerHTML = pre2.textContent
+          .replace(token, '<span class="tok-flash">' + token + '</span>');
+        // Trigger flash animation
+        var fl = pre2.querySelector('.tok-flash');
+        if (fl) {
+          fl.style.animation = 'none';
+          fl.offsetHeight;
+          fl.style.animation = 'tok-flash-anim 1.8s ease forwards';
+        }
+      }
     }
 
-    // Tab clicks replay that scene
+    // Allow clicking tabs to replay a scene during animation
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => {
         const stat = document.getElementById('term-static');
-        if (stat && stat.style.display !== 'none') return;
+        if (stat && stat.style.display !== 'none') return; // already in static mode
+        stopFlag = true;
+        setTimeout(async () => {
+          stopFlag = false;
+          await runScene(i);
+        }, 60);
       });
     });
   })();
