@@ -411,6 +411,63 @@
     @media (max-width: 700px) {
       .paths { grid-template-columns: 1fr; }
     }
+
+    /* ---- ANIMATED TERMINAL ---- */
+    .term-wrap {
+      margin-top: 2.5rem;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .term-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 1rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+    }
+    .term-tabs { display: flex; gap: 0.25rem; flex: 1; }
+    .term-tab {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--ff-mono); font-size: 0.7rem;
+      color: var(--muted2); padding: 0.2rem 0.65rem;
+      border-radius: 4px; transition: all 0.15s;
+    }
+    .term-tab:hover { color: var(--muted); background: rgba(255,255,255,0.05); }
+    .term-tab.active { color: var(--teal); background: var(--teal-glow); }
+    .term-replay {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted2); font-size: 1rem; padding: 0.1rem 0.4rem;
+      border-radius: 4px; transition: all 0.15s; line-height: 1;
+    }
+    .term-replay:hover { color: var(--teal); transform: rotate(-30deg); }
+    .term-body {
+      padding: 1.25rem 1.25rem 1.5rem;
+      font-family: var(--ff-mono); font-size: 0.8rem;
+      line-height: 1.85; min-height: 200px;
+      position: relative;
+    }
+    .term-screen { white-space: pre-wrap; word-break: break-all; }
+    .term-cursor {
+      display: inline-block; color: var(--teal);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .t-prompt  { color: var(--teal); }
+    .t-cmd     { color: var(--white); }
+    .t-flag    { color: #79c0ff; }
+    .t-str     { color: #a5d6ff; }
+    .t-comment { color: var(--muted2); }
+    .t-key     { color: var(--muted); }
+    .t-val     { color: var(--white); }
+    .t-hl {
+      color: var(--teal); font-weight: 600;
+      animation: flash-hl 0.6s ease forwards;
+    }
+    @keyframes flash-hl {
+      0%   { background: rgba(45,212,170,0.35); border-radius:3px; }
+      100% { background: transparent; }
+    }
+    .t-ok  { color: var(--teal); }
+    .t-err { color: #f85149; }
+
   </style>
 </head>
 <body>
@@ -427,25 +484,21 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#use-cases">Use cases</a></li>
       <li><a href="#faq">FAQ</a></li>
-      <li><a href="https://github.com/fogennnnn/helios-ledger" class="nav-cta" rel="noopener">GitHub ↗</a></li>
-    </ul>
-  </div>
-</nav>
-
-<!-- HERO -->
-<header class="hero" role="banner">
-  <div class="container">
-    <div class="hero-badge">
-      <span class="hero-badge-dot"></span>
-      Open-source · MIT License · v1.0.0
-    </div>
-    <h1>Prove where your<br/><span>AI content</span> came from</h1>
-    <p class="hero-sub">
-      Helios Ledger cryptographically seals the origin and integrity of AI-generated content using Ed25519 signatures and Merkle-tree attestations. Tamper-proof. Independently verifiable. No trust required.
-    </p>
-    <div class="hero-actions">
-      <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener noreferrer">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      <li><a href="https://github.com/fogennnnn/helios-ledger"<div class="term-wrap">
+      <div class="term-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <div class="term-tabs">
+          <button class="term-tab active" data-scene="0">health check</button>
+          <button class="term-tab" data-scene="1">submit record</button>
+          <button class="term-tab" data-scene="2">verify</button>
+        </div>
+        <button class="term-replay" id="term-replay" title="Replay">&#8635;</button>
+      </div>
+      <div class="term-body">
+        <div class="term-screen" id="term-screen"></div>
+        <span class="term-cursor" id="term-cursor">&#9608;</span>
+      </div>
+    </div>lor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
         View on GitHub
       </a>
       <a href="#how-it-works" class="btn btn-secondary">How it works →</a>
@@ -688,7 +741,7 @@ curl https://ai.oooooooooo.se/<span class="f">api/records</span>/<span class="p"
         <button class="demo-btn" id="demo-run">Generate provenance record →</button>
         <div class="demo-output" id="demo-output"></div>
       </div>
-      <p class="demo-note">This demo runs in your browser using the Web Crypto API — no server involved. Real deployments use Ed25519 server-side signing with a persistent Merkle tree.</p>
+      <p class="demo-note">This demo hits the real Helios API. A temporary account is created for your session — records are permanently sealed in the D1 ledger on Cloudflare.</p>
     </div>
   </div>
 </section>
@@ -729,37 +782,264 @@ curl https://ai.oooooooooo.se/<span class="f">api/records</span>/<span class="p"
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // ── Browser demo using Web Crypto SHA-256 ──
+  // ---- Animated terminal ----
+  const SCENES = [
+    {
+      label: 'health check',
+      lines: [
+        { type: 'cmd', text: 'curl https://ai.oooooooooo.se/api/health' },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 80 },
+        { type: 'out', text: '  "status": "ok",',            hl: 'ok',    delay: 60 },
+        { type: 'out', text: '  "service": "helios-ledger",', hl: 'svc',   delay: 60 },
+        { type: 'out', text: '  "version": "1.0.0",',         hl: 'ver',   delay: 60 },
+        { type: 'out', text: '  "record_count": 4,',          hl: 'count', delay: 60 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:15:56Z"', delay: 60 },
+        { type: 'out', text: '}', delay: 60 },
+      ]
+    },
+    {
+      label: 'submit record',
+      lines: [
+        { type: 'cmd', text: 'curl -X POST https://ai.oooooooooo.se/api/records \\' },
+        { type: 'cmd', text: '  -H "Authorization: Bearer $TOKEN" \\', indent: true },
+        { type: 'cmd', text: '  -d \'{"content":"The patient presents with fever"}\' ', indent: true },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 120 },
+        { type: 'out', text: '  "id": "d4f2a1b3-...",',                           hl: 'id',    delay: 70 },
+        { type: 'out', text: '  "content_hash": "a3f1e2d4b5c6...",',              hl: 'hash',  delay: 70 },
+        { type: 'out', text: '  "signature": "9f3c1a2b...",',                     hl: 'sig',   delay: 70 },
+        { type: 'out', text: '  "merkle_index": 4,',                              hl: 'mrkl',  delay: 70 },
+        { type: 'out', text: '  "merkle_root": "00a1b2c3d4e5...",',               hl: 'root',  delay: 70 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:16:02Z"', delay: 70 },
+        { type: 'out', text: '}', delay: 70 },
+      ]
+    },
+    {
+      label: 'verify',
+      lines: [
+        { type: 'cmd', text: 'curl https://ai.oooooooooo.se/api/records/d4f2a1b3.../verify' },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 90 },
+        { type: 'out', text: '  "record_id": "d4f2a1b3-...",', delay: 65 },
+        { type: 'out', text: '  "valid": true,',               hl: 'valid', delay: 65 },
+        { type: 'out', text: '  "content_hash": "a3f1e2d4...",', delay: 65 },
+        { type: 'out', text: '  "merkle_index": 4,',            hl: 'mrkl', delay: 65 },
+        { type: 'out', text: '  "merkle_proof": [ ... ],',       delay: 65 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:16:02Z"', delay: 65 },
+        { type: 'out', text: '}', delay: 65 },
+      ]
+    }
+  ];
+
+  // highlight keys based on scene
+  const HL_COLORS = {
+    ok: 'var(--teal)', svc: 'var(--teal)', ver: 'var(--teal)',
+    count: 'var(--teal)', id: 'var(--teal)', hash: 'var(--teal)',
+    sig: 'var(--teal)', mrkl: 'var(--teal)', root: 'var(--teal)',
+    valid: 'var(--teal)'
+  };
+
+  const screen = document.getElementById('term-screen');
+  const cursor = document.getElementById('term-cursor');
+  const tabs   = document.querySelectorAll('.term-tab');
+  const replay = document.getElementById('term-replay');
+
+  let animHandle = null;
+  let currentScene = 0;
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderLine(line) {
+    if (line.type === 'gap') return '\n';
+    if (line.type === 'cmd') {
+      // Colorize flags and strings
+      let t = escHtml(line.text);
+      t = t.replace(/(-[A-Za-z])/g, '<span class="t-flag">$1</span>');
+      t = t.replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g, '<span class="t-str">$1</span>');
+      return '<span class="t-prompt">$ </span><span class="t-cmd">' + t + '</span>\n';
+    }
+    if (line.type === 'out') {
+      let t = escHtml(line.text);
+      // Color JSON keys
+      t = t.replace(/"([^"]+)":/g, '<span class="t-key">"$1":</span>');
+      // Color values
+      t = t.replace(/: (true|false)/g, ': <span class="t-ok">$1</span>');
+      if (line.hl) {
+        // Wrap whole line in highlight span
+        return '<span class="t-hl">' + t + '</span>\n';
+      }
+      return '<span class="t-val">' + t + '</span>\n';
+    }
+    return '';
+  }
+
+  async function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function typeText(text, el) {
+    for (let i = 0; i <= text.length; i++) {
+      el.textContent = text.slice(0, i);
+      await sleep(28 + Math.random() * 22);
+    }
+  }
+
+  async function runScene(sceneIdx) {
+    const scene = SCENES[sceneIdx];
+    screen.innerHTML = '';
+    cursor.style.display = 'inline';
+
+    for (const line of scene.lines) {
+      if (animHandle === null) return; // cancelled
+
+      if (line.type === 'gap') {
+        screen.innerHTML += '\n';
+        await sleep(120);
+        continue;
+      }
+
+      if (line.type === 'cmd') {
+        // Type cmd character by character
+        const span = document.createElement('span');
+        screen.appendChild(span);
+        span.innerHTML = '<span class="t-prompt">$ </span>';
+        const textSpan = document.createElement('span');
+        textSpan.className = 't-cmd';
+        span.appendChild(textSpan);
+        screen.appendChild(document.createTextNode(''));
+
+        // type it
+        const raw = line.text;
+        for (let i = 0; i <= raw.length; i++) {
+          if (animHandle === null) return;
+          textSpan.textContent = raw.slice(0, i);
+          await sleep(22 + Math.random() * 18);
+        }
+        screen.appendChild(document.createTextNode('\n'));
+        await sleep(line.indent ? 0 : 50);
+        continue;
+      }
+
+      if (line.type === 'out') {
+        await sleep(line.delay || 80);
+        if (animHandle === null) return;
+        const div = document.createElement('span');
+        div.innerHTML = renderLine(line);
+        screen.appendChild(div);
+        continue;
+      }
+    }
+
+    // Done — hide cursor after a moment
+    await sleep(1200);
+    cursor.style.display = 'none';
+  }
+
+  function startScene(idx) {
+    // Cancel any running animation
+    animHandle = null;
+    setTimeout(() => {
+      animHandle = {};
+      currentScene = idx;
+      tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+      runScene(idx);
+    }, 50);
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => startScene(i));
+  });
+
+  replay.addEventListener('click', () => startScene(currentScene));
+
+  // Auto-advance scenes
+  async function autoAdvance() {
+    for (let i = 0; i < SCENES.length; i++) {
+      startScene(i);
+      await sleep(4000 + SCENES[i].lines.length * 200);
+    }
+  }
+
+  // Start on load
+  setTimeout(() => autoAdvance(), 800);
+
+
+  // Live demo against real Helios API
+  const API = 'https://ai.oooooooooo.se/api';
+  let demoToken = null;
+  let demoUser  = null;
+
+  async function ensureAccount() {
+    if (demoToken) return true;
+    const username = 'demo_' + Math.random().toString(36).slice(2, 9);
+    try {
+      const r = await fetch(API + '/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      if (!r.ok) throw new Error('account creation failed: ' + r.status);
+      const d = await r.json();
+      demoToken = d.token;
+      demoUser  = d.username;
+      return true;
+    } catch(e) { return false; }
+  }
+
   document.getElementById('demo-run').addEventListener('click', async () => {
     const text = document.getElementById('demo-input').value.trim();
     const out  = document.getElementById('demo-output');
-    if (!text) { out.innerHTML = '<span style="color:var(--red)">⚠ Please enter some text first.</span>'; out.classList.add('visible'); return; }
+    const btn  = document.getElementById('demo-run');
 
-    const btn = document.getElementById('demo-run');
-    btn.textContent = 'Hashing…';
+    if (!text) {
+      out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
+      out.classList.add('visible');
+      return;
+    }
+
+    btn.textContent = 'Connecting...';
     btn.disabled = true;
-
-    const encoder = new TextEncoder();
-    const data    = encoder.encode(text);
-    const hashBuf = await crypto.subtle.digest('SHA-256', data);
-    const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
-
-    // Simulate a Merkle leaf index and a fake sig (real signing is server-side Ed25519)
-    const leafIndex = Math.floor(Math.random() * 10000);
-    const fakeSig   = hashHex.split('').reverse().join('').substring(0, 64) + hashHex.substring(0, 64);
-    const ts        = new Date().toISOString();
-
-    out.innerHTML = `<span class="ok">✓ record created (browser simulation)</span>
-<br>
-<span style="color:var(--muted)">content_hash  </span><span class="hash">${hashHex}</span>
-<span style="color:var(--muted)">timestamp     </span>${ts}
-<span style="color:var(--muted)">merkle_leaf   </span>#${leafIndex}
-<span style="color:var(--muted)">signature     </span><span class="hash">${fakeSig}</span>
-<span style="color:var(--muted)">model         </span>not specified
-<span style="color:var(--muted)">valid         </span><span class="ok">true</span>`;
+    out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
     out.classList.add('visible');
 
-    btn.textContent = 'Generate provenance record →';
+    if (!await ensureAccount()) {
+      out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
+      btn.textContent = 'Generate provenance record';
+      btn.disabled = false;
+      return;
+    }
+
+    btn.textContent = 'Submitting...';
+
+    try {
+      const r = await fetch(API + '/records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + demoToken
+        },
+        body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
+      });
+      if (!r.ok) throw new Error('API error ' + r.status);
+      const d = await r.json();
+      out.innerHTML =
+        '<span class="ok">record sealed on Helios Ledger</span>\n' +
+        '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
+        '<span style="color:var(--muted)">content_hash  </span><span class="hash">' + d.content_hash + '</span>\n' +
+        '<span style="color:var(--muted)">signature     </span><span class="hash">' + d.signature + '</span>\n' +
+        '<span style="color:var(--muted)">merkle_index  </span>#' + d.merkle_index + '\n' +
+        '<span style="color:var(--muted)">merkle_root   </span><span class="hash">' + d.merkle_root + '</span>\n' +
+        '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
+        '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
+        '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
+    } catch(e) {
+      out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+    }
+
+    btn.textContent = 'Generate provenance record';
     btn.disabled = false;
   });
 </script>
