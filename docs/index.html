@@ -486,6 +486,19 @@
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
     #tok-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ---- SHELL TABS ---- */
+    .qs-shell-tabs { display: flex; gap: 0.2rem; margin-left: auto; }
+    .qs-shell {
+      background: none; border: 1px solid var(--border2); cursor: pointer;
+      font-family: var(--ff-mono); font-size: 0.68rem;
+      color: var(--muted2); padding: 0.15rem 0.55rem;
+      border-radius: 4px; transition: all 0.15s;
+    }
+    .qs-shell:hover  { color: var(--muted); border-color: var(--border); }
+    .qs-shell.active { color: var(--teal); border-color: var(--teal); background: var(--teal-glow); }
+    .qs-shell-panel { display: none; }
+    .qs-shell-panel.active { display: block; }
   </style>
 </head>
 <body>
@@ -541,6 +554,11 @@
           <button class="qs-tab" data-tab="verify">verify</button>
           <button class="qs-tab" data-tab="ledger">ledger</button>
         </div>
+        <div class="qs-shell-tabs">
+          <button class="qs-shell active" data-shell="bash">bash</button>
+          <button class="qs-shell" data-shell="powershell">powershell</button>
+          <button class="qs-shell" data-shell="python">python</button>
+        </div>
         <button class="qs-token-btn" id="qs-token-btn">&#9889; Token</button>
       </div>
 
@@ -548,39 +566,71 @@
 
         <!-- SUBMIT TAB -->
         <div class="qs-tab-panel active" id="tab-submit">
-          <div class="qs-comment"># Submit AI content for provenance</div>
-          <div class="qs-line">
-            <span class="qs-prompt">$</span>
-            <span class="qs-cmd">curl -X POST https://ai.oooooooooo.se/api/v1/records \</span>
+
+          <!-- bash -->
+          <div class="qs-shell-panel active" data-shell="bash">
+            <div class="qs-comment"># Submit AI content for provenance</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">curl -X POST https://ai.oooooooooo.se/api/v1/records \</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-H <span class="qs-str">"Authorization: Bearer <span class="qs-token-val" id="token-display-bash"><span class="qs-token-badge">$TOKEN</span></span>"</span> \</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-H <span class="qs-str">"Content-Type: application/json"</span> \</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-d <span class="qs-str">'{"content":"paste AI output here","model":"gpt-4"}'</span></span></div>
           </div>
-          <div class="qs-line qs-indent">
-            <span class="qs-cmd">-H <span class="qs-str">"Authorization: Bearer "</span> <span class="qs-token-val" id="token-display-1"><span class="qs-token-badge">$TOKEN</span></span> \</span>
+
+          <!-- powershell -->
+          <div class="qs-shell-panel" data-shell="powershell">
+            <div class="qs-comment"># Submit AI content for provenance</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">Invoke-RestMethod `</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-Uri https://ai.oooooooooo.se/api/v1/records `</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-Method POST `</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-Headers @{ <span class="qs-str">"Authorization"</span> = <span class="qs-str">"Bearer <span class="qs-token-val" id="token-display-ps"><span class="qs-token-badge">$TOKEN</span></span>"</span> } `</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-ContentType <span class="qs-str">"application/json"</span> `</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">-Body <span class="qs-str">'{"content":"paste AI output here","model":"gpt-4"}'</span></span></div>
           </div>
-          <div class="qs-line qs-indent">
-            <span class="qs-cmd">-H <span class="qs-str">"Content-Type: application/json"</span> \</span>
+
+          <!-- python -->
+          <div class="qs-shell-panel" data-shell="python">
+            <div class="qs-comment"># Submit AI content for provenance</div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd">import requests</span></div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd">requests.post(</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd"><span class="qs-str">"https://ai.oooooooooo.se/api/v1/records"</span>,</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">headers={<span class="qs-str">"Authorization"</span>: <span class="qs-str">"Bearer <span class="qs-token-val" id="token-display-py"><span class="qs-token-badge">$TOKEN</span></span>"</span>},</span></div>
+            <div class="qs-line qs-indent"><span class="qs-cmd">json={<span class="qs-str">"content"</span>: <span class="qs-str">"paste AI output here"</span>, <span class="qs-str">"model"</span>: <span class="qs-str">"gpt-4"</span>}</span></div>
+            <div class="qs-line"><span class="qs-cmd">).json()</span></div>
           </div>
-          <div class="qs-line qs-indent">
-            <span class="qs-cmd">-d <span class="qs-str">'{"content":"paste AI output here","model":"gpt-4"}'</span></span>
-          </div>
+
           <button class="qs-copy" data-tab="submit">copy</button>
         </div>
 
         <!-- VERIFY TAB -->
         <div class="qs-tab-panel" id="tab-verify">
-          <div class="qs-comment"># Verify a record is untampered</div>
-          <div class="qs-line">
-            <span class="qs-prompt">$</span>
-            <span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/records/<span class="qs-var">RECORD_ID</span>/verify</span>
+          <div class="qs-shell-panel active" data-shell="bash">
+            <div class="qs-comment"># Verify a record is untampered</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/records/<span class="qs-var">RECORD_ID</span>/verify</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="powershell">
+            <div class="qs-comment"># Verify a record is untampered</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">Invoke-RestMethod https://ai.oooooooooo.se/api/v1/records/<span class="qs-var">RECORD_ID</span>/verify</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="python">
+            <div class="qs-comment"># Verify a record is untampered</div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd">requests.get(<span class="qs-str">"https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify"</span>).json()</span></div>
           </div>
           <button class="qs-copy" data-tab="verify">copy</button>
         </div>
 
         <!-- LEDGER TAB -->
         <div class="qs-tab-panel" id="tab-ledger">
-          <div class="qs-comment"># Check the current Merkle root</div>
-          <div class="qs-line">
-            <span class="qs-prompt">$</span>
-            <span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/ledger/root</span>
+          <div class="qs-shell-panel active" data-shell="bash">
+            <div class="qs-comment"># Check the current Merkle root</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">curl https://ai.oooooooooo.se/api/v1/ledger/root</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="powershell">
+            <div class="qs-comment"># Check the current Merkle root</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">Invoke-RestMethod https://ai.oooooooooo.se/api/v1/ledger/root</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="python">
+            <div class="qs-comment"># Check the current Merkle root</div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd">requests.get(<span class="qs-str">"https://ai.oooooooooo.se/api/v1/ledger/root"</span>).json()</span></div>
           </div>
           <button class="qs-copy" data-tab="ledger">copy</button>
         </div>
@@ -589,7 +639,7 @@
 
       <div class="qs-footer" id="qs-footer" style="display:none">
         <span class="qs-tok-ok">&#10003; Token for <strong id="qs-username"></strong></span>
-        <span class="qs-tok-warn">Save it — cannot be recovered.</span>
+        <span class="qs-tok-warn">Save it &mdash; cannot be recovered.</span>
       </div>
     </div>
   </div>
@@ -853,39 +903,65 @@
   (function() {
     var liveToken    = null;
     var liveUsername = null;
+    var currentShell = 'bash';
+    var currentTab   = 'submit';
+
+    var CMDS = {
+      submit: {
+        bash:        function(tok) { return 'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n  -H "Authorization: Bearer ' + tok + '" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"content":"paste AI output here","model":"gpt-4"}\''; },
+        powershell:  function(tok) { return 'Invoke-RestMethod `\n  -Uri https://ai.oooooooooo.se/api/v1/records `\n  -Method POST `\n  -Headers @{ "Authorization" = "Bearer ' + tok + '" } `\n  -ContentType "application/json" `\n  -Body \'{"content":"paste AI output here","model":"gpt-4"}\''; },
+        python:      function(tok) { return 'import requests\nrequests.post(\n  "https://ai.oooooooooo.se/api/v1/records",\n  headers={"Authorization": "Bearer ' + tok + '"},\n  json={"content": "paste AI output here", "model": "gpt-4"}\n).json()'; }
+      },
+      verify: {
+        bash:        function()    { return 'curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify'; },
+        powershell:  function()    { return 'Invoke-RestMethod https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify'; },
+        python:      function()    { return 'requests.get("https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify").json()'; }
+      },
+      ledger: {
+        bash:        function()    { return 'curl https://ai.oooooooooo.se/api/v1/ledger/root'; },
+        powershell:  function()    { return 'Invoke-RestMethod https://ai.oooooooooo.se/api/v1/ledger/root'; },
+        python:      function()    { return 'requests.get("https://ai.oooooooooo.se/api/v1/ledger/root").json()'; }
+      }
+    };
 
     // Tab switching
     document.querySelectorAll('.qs-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
+        currentTab = tab.dataset.tab;
         document.querySelectorAll('.qs-tab').forEach(function(t) { t.classList.remove('active'); });
         document.querySelectorAll('.qs-tab-panel').forEach(function(p) { p.classList.remove('active'); });
         tab.classList.add('active');
-        var panel = document.getElementById('tab-' + tab.dataset.tab);
+        var panel = document.getElementById('tab-' + currentTab);
         if (panel) panel.classList.add('active');
       });
     });
 
-    // Copy buttons
+    // Shell switching
+    document.querySelectorAll('.qs-shell').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        currentShell = btn.dataset.shell;
+        document.querySelectorAll('.qs-shell').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        document.querySelectorAll('.qs-shell-panel').forEach(function(p) {
+          p.classList.toggle('active', p.dataset.shell === currentShell);
+        });
+      });
+    });
+
+    // Copy
     document.querySelectorAll('.qs-copy').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var tabId = btn.dataset.tab;
-        var text  = '';
-        var tok   = liveToken || 'YOUR_TOKEN';
-        if (tabId === 'submit') {
-          text = 'curl -X POST https://ai.oooooooooo.se/api/v1/records \\\n'
-               + '     -H "Authorization: Bearer ' + tok + '" \\\n'
-               + '     -H "Content-Type: application/json" \\\n'
-               + "     -d '{\"content\":\"paste AI output here\",\"model\":\"gpt-4\"}'";
-        } else if (tabId === 'verify') {
-          text = 'curl https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify';
-        } else {
-          text = 'curl https://ai.oooooooooo.se/api/v1/ledger/root';
-        }
-        navigator.clipboard.writeText(text).then(function() {
-          btn.textContent = 'copied!';
-          btn.classList.add('copied');
-          setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
-        });
+        var tok  = liveToken || 'YOUR_TOKEN';
+        var fn   = CMDS[btn.dataset.tab] && CMDS[btn.dataset.tab][currentShell];
+        var text = fn ? fn(tok) : '';
+        if (!text) return;
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
+        document.execCommand('copy'); document.body.removeChild(ta);
+        btn.textContent = 'copied!'; btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
       });
     });
 
@@ -893,11 +969,8 @@
     var tokenBtn = document.getElementById('qs-token-btn');
     if (tokenBtn) {
       tokenBtn.addEventListener('click', function() {
-        if (liveToken) {
-          revealToken(liveToken);
-          return;
-        }
-        tokenBtn.textContent = '⚡ generating...';
+        if (liveToken) { revealToken(liveToken); return; }
+        tokenBtn.textContent = 'generating...';
         tokenBtn.disabled = true;
         var rnd = 'user_' + Math.random().toString(36).slice(2, 9);
         fetch('https://ai.oooooooooo.se/api/v1/accounts', {
@@ -905,74 +978,46 @@
           headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
           body: JSON.stringify({ username: rnd })
         }).then(function(r) {
-          if (!r.ok) throw new Error('API ' + r.status);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         }).then(function(d) {
-          liveToken    = d.token;
-          liveUsername = d.username;
+          liveToken = d.token; liveUsername = d.username;
           tokenBtn.textContent = '⚡ Token';
-          tokenBtn.disabled = false;
-          tokenBtn.classList.add('has-token');
+          tokenBtn.disabled = false; tokenBtn.classList.add('has-token');
           var footer = document.getElementById('qs-footer');
           var uname  = document.getElementById('qs-username');
           if (uname) uname.textContent = liveUsername;
           if (footer) footer.style.display = 'flex';
           revealToken(liveToken);
-        }).catch(function() {
-          tokenBtn.textContent = '⚡ Token';
-          tokenBtn.disabled = false;
+        }).catch(function(e) {
+          tokenBtn.textContent = '⚡ Token'; tokenBtn.disabled = false;
+          var footer = document.getElementById('qs-footer');
+          if (footer) {
+            footer.style.display = 'flex';
+            footer.innerHTML = '<span class="qs-tok-warn">Error: ' + e.message + ' — try again in a minute.</span>';
+          }
         });
       });
     }
+
     function revealToken(token) {
-      // Flash $TOKEN badge
       document.querySelectorAll('.qs-token-badge').forEach(function(el) {
-        el.style.animation = 'none';
-        el.style.background = 'rgba(45,212,170,0.6)';
-        el.style.color = '#0d1117';
-        setTimeout(function() {
-          el.style.background = '';
-          el.style.color = '';
-          el.style.animation = '';
-        }, 900);
+        el.style.background = 'rgba(45,212,170,0.6)'; el.style.color = '#0d1117';
+        setTimeout(function() { el.style.background = ''; el.style.color = ''; }, 900);
       });
-      // Copy: try clipboard API first, textarea as fallback
-      var copied = false;
-      try {
-        var ta = document.createElement('textarea');
-        ta.value = token;
-        ta.setAttribute('readonly', '');
-        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-        document.body.appendChild(ta);
-        ta.select();
-        ta.setSelectionRange(0, 99999);
-        copied = document.execCommand('copy');
-        document.body.removeChild(ta);
-      } catch(e) {}
-      if (copied) {
-        showToast();
-      } else {
-        navigator.clipboard.writeText(token).then(showToast).catch(function() {
-          // Even if copy fails, still show feedback
-          showToast();
-        });
-      }
+      var ta = document.createElement('textarea');
+      ta.value = token; ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast();
     }
 
     function showToast() {
       var btn = document.getElementById('qs-token-btn');
-      if (btn) {
-        btn.textContent = 'copied!';
-        btn.classList.add('has-token');
-        setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500);
-      }
+      if (btn) { btn.textContent = 'copied!'; setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500); }
       var toast = document.getElementById('tok-toast');
-      if (toast) {
-        toast.classList.remove('show');
-        toast.offsetHeight;
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); }, 2800);
-      }
+      if (toast) { toast.classList.remove('show'); toast.offsetHeight; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 2800); }
     }
   })();
 
@@ -992,9 +1037,7 @@
       if (!r.ok) throw new Error('account creation failed: ' + r.status);
       return r.json();
     }).then(function(d) {
-      demoToken = d.token;
-      demoUser  = d.username;
-      return true;
+      demoToken = d.token; demoUser = d.username; return true;
     }).catch(function() { return false; });
   }
 
@@ -1006,33 +1049,24 @@
       var btn  = demoRunBtn;
       if (!text) {
         out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
-        out.classList.add('visible');
-        return;
+        out.classList.add('visible'); return;
       }
-      btn.textContent = 'Connecting...';
-      btn.disabled = true;
+      btn.textContent = 'Connecting...'; btn.disabled = true;
       out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
       out.classList.add('visible');
       ensureAccount().then(function(ok) {
         if (!ok) {
           out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
-          btn.textContent = 'Generate provenance record';
-          btn.disabled = false;
-          return;
+          btn.textContent = 'Generate provenance record'; btn.disabled = false; return;
         }
         btn.textContent = 'Submitting...';
         return fetch(API + '/records', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + demoToken
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + demoToken },
           body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
         });
       }).then(function(r) {
-        if (!r) return;
-        if (!r.ok) throw new Error('API error ' + r.status);
-        return r.json();
+        if (!r) return; if (!r.ok) throw new Error('API error ' + r.status); return r.json();
       }).then(function(d) {
         if (!d) return;
         out.innerHTML =
@@ -1045,16 +1079,15 @@
           '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
           '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
           '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
-        btn.textContent = 'Generate provenance record';
-        btn.disabled = false;
+        btn.textContent = 'Generate provenance record'; btn.disabled = false;
       }).catch(function(e) {
         out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
-        btn.textContent = 'Generate provenance record';
-        btn.disabled = false;
+        btn.textContent = 'Generate provenance record'; btn.disabled = false;
       });
     });
   }
 </script>
+
 
 <div id="tok-toast">TOKEN copied to clipboard</div>
 </body>
