@@ -773,32 +773,32 @@
       { label:'get token', lines:[
         {t:'cmt', s:'# Step 1: create an account to get your token'},
         {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/accounts'},
-        {t:'con', s:'     -H "Content-Type: application/json"'},
-        {t:'con', s:"     -d '{"username":"alice"}'"},
+        {t:'con', s:'     -H Content-Type: application/json'},
+        {t:'con', s:'     -d {username: alice}'},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  "id": "f3a1b2c4-...",',       d:70},
-        {t:'out', s:'  "username": "alice",',          d:60},
-        {t:'out', s:'  "token": "9f3c1a2b4d5e...",',  hl:true, d:60},
-        {t:'out', s:'  "created_at": "2026-03-15T19:15:00Z"', d:60},
+        {t:'out', s:'  id: f3a1b2c4-...',        d:70},
+        {t:'out', s:'  username: alice',           d:60},
+        {t:'out', s:'  token: 9f3c1a2b4d5e...',   hl:true, d:60},
+        {t:'out', s:'  created_at: 2026-03-15T19:15:00Z', d:60},
         {t:'out', s:'}', d:60},
         {t:'gap'},
-        {t:'cmt', s:'# Save that token — use it in every request'}
+        {t:'cmt', s:'# Save that token - use it in every request'}
       ]},
       { label:'submit', lines:[
         {t:'cmt', s:'# Step 2: seal AI content on the ledger'},
         {t:'cmd', s:'curl -X POST https://ai.oooooooooo.se/api/records'},
-        {t:'con', s:'     -H "Authorization: Bearer 9f3c1a2b4d5e..."'},
-        {t:'con', s:'     -H "Content-Type: application/json"'},
-        {t:'con', s:"     -d '{"content":"AI output text","model":"claude-sonnet-4"}'"},
+        {t:'con', s:'     -H Authorization: Bearer 9f3c1a2b4d5e...'},
+        {t:'con', s:'     -H Content-Type: application/json'},
+        {t:'con', s:'     -d {content: AI output, model: claude-sonnet-4}'},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  "id": "d4f2a1b3-9c8e-...",',         hl:true, d:70},
-        {t:'out', s:'  "content_hash": "a3f1e2d4b5c6...",', hl:true, d:70},
-        {t:'out', s:'  "signature": "9f3c1a2b4d5e...",',     d:70},
-        {t:'out', s:'  "merkle_index": 4,',                  hl:true, d:70},
-        {t:'out', s:'  "merkle_root": "00a1b2c3d4e5...",',   hl:true, d:70},
-        {t:'out', s:'  "timestamp": "2026-03-15T19:16:02Z"', d:70},
+        {t:'out', s:'  id: d4f2a1b3-9c8e-...',         hl:true, d:70},
+        {t:'out', s:'  content_hash: a3f1e2d4b5c6...',  hl:true, d:70},
+        {t:'out', s:'  signature: 9f3c1a2b4d5e...',      d:70},
+        {t:'out', s:'  merkle_index: 4',                 hl:true, d:70},
+        {t:'out', s:'  merkle_root: 00a1b2c3d4e5...',   hl:true, d:70},
+        {t:'out', s:'  timestamp: 2026-03-15T19:16:02Z', d:70},
         {t:'out', s:'}', d:70}
       ]},
       { label:'verify', lines:[
@@ -806,22 +806,22 @@
         {t:'cmd', s:'curl https://ai.oooooooooo.se/api/records/d4f2a1b3.../verify'},
         {t:'gap'},
         {t:'out', s:'{'},
-        {t:'out', s:'  "record_id": "d4f2a1b3-...",',   d:65},
-        {t:'out', s:'  "valid": true,',                  hl:true, d:65},
-        {t:'out', s:'  "content_hash": "a3f1e2d4...",',  d:65},
-        {t:'out', s:'  "merkle_index": 4,',               hl:true, d:65},
-        {t:'out', s:'  "merkle_proof": [...],',           d:65},
-        {t:'out', s:'  "timestamp": "2026-03-15T19:16:02Z"', d:65},
+        {t:'out', s:'  record_id: d4f2a1b3-...',  d:65},
+        {t:'out', s:'  valid: true',               hl:true, d:65},
+        {t:'out', s:'  content_hash: a3f1e2d4...', d:65},
+        {t:'out', s:'  merkle_index: 4',            hl:true, d:65},
+        {t:'out', s:'  merkle_proof: [...]',        d:65},
+        {t:'out', s:'  timestamp: 2026-03-15T19:16:02Z', d:65},
         {t:'out', s:'}', d:65}
       ]}
     ];
 
-    const screen  = document.getElementById('term-screen');
-    const cursor  = document.getElementById('term-cursor');
-    const tabs    = document.querySelectorAll('.term-tab');
-    const replay  = document.getElementById('term-replay');
-    let current   = 0;
-    let stopFlag  = false;
+    const screen = document.getElementById('term-screen');
+    const cursor = document.getElementById('term-cursor');
+    const tabs   = document.querySelectorAll('.term-tab');
+    const replay = document.getElementById('term-replay');
+    let current  = 0;
+    let stopFlag = false;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -832,28 +832,23 @@
     function makeOutSpan(line) {
       const span = document.createElement('span');
       const cls  = line.hl ? 't-hl' : 't-val';
-      const txt  = esc(line.s)
-        .replace(/"([^"]+)":/g, '<span class="t-key">"$1":</span>')
-        .replace(/: (true|false)/g, ': <span class="t-ok">$1</span>');
-      span.innerHTML = '<span class="' + cls + '">' + txt + '</span>
-';
+      let txt = esc(line.s);
+      if (line.s === 'true' || line.s.endsWith(': true') || line.s.includes(' true')) {
+        txt = txt.replace(/: (true|false)/, ': <span class="t-ok">$1</span>');
+      }
+      span.innerHTML = '<span class="' + cls + '">' + txt + '</span>\n';
       return span;
     }
 
     function makeCmtSpan(line) {
       const span = document.createElement('span');
-      span.innerHTML = '<span class="t-comment">' + esc(line.s) + '</span>
-';
+      span.innerHTML = '<span class="t-comment">' + esc(line.s) + '</span>\n';
       return span;
     }
 
     function makeConSpan(line) {
       const span = document.createElement('span');
-      let txt = esc(line.s)
-        .replace(/(-[A-Za-z])/g, '<span class="t-flag">$1</span>')
-        .replace(/(&quot;[^&]*&quot;|&#39;[^&#]*&#39;)/g, '<span class="t-str">$1</span>');
-      span.innerHTML = '  <span class="t-cmd">' + txt + '</span>
-';
+      span.innerHTML = '  <span class="t-cmd">' + esc(line.s) + '</span>\n';
       return span;
     }
 
@@ -868,25 +863,21 @@
         const delay = line.d || 80;
 
         if (line.t === 'gap') {
-          screen.insertBefore(document.createTextNode('
-'), cursor);
+          screen.insertBefore(document.createTextNode('\n'), cursor);
           await sleep(100);
-
         } else if (line.t === 'cmt') {
           screen.insertBefore(makeCmtSpan(line), cursor);
           await sleep(60);
-
         } else if (line.t === 'con') {
           screen.insertBefore(makeConSpan(line), cursor);
           await sleep(40);
-
         } else if (line.t === 'cmd') {
           const wrap    = document.createElement('span');
           const prompt  = document.createElement('span');
           const txtSpan = document.createElement('span');
-          prompt.className  = 't-prompt';
+          prompt.className   = 't-prompt';
           prompt.textContent = '$ ';
-          txtSpan.className = 't-cmd';
+          txtSpan.className  = 't-cmd';
           wrap.appendChild(prompt);
           wrap.appendChild(txtSpan);
           screen.insertBefore(wrap, cursor);
@@ -895,10 +886,8 @@
             txtSpan.textContent = line.s.slice(0, ci);
             await sleep(18 + Math.random() * 20);
           }
-          screen.insertBefore(document.createTextNode('
-'), cursor);
+          screen.insertBefore(document.createTextNode('\n'), cursor);
           await sleep(li === 0 ? 180 : 30);
-
         } else if (line.t === 'out') {
           await sleep(delay);
           if (stopFlag) return;
@@ -910,7 +899,6 @@
           }
         }
       }
-
       await sleep(1500);
       if (cursor) cursor.style.display = 'none';
     }
@@ -925,7 +913,6 @@
     tabs.forEach((tab, i) => tab.addEventListener('click', () => startScene(i)));
     if (replay) replay.addEventListener('click', () => startScene(current));
 
-    // auto-advance once on load
     (async () => {
       for (let i = 0; i < SCENES.length; i++) {
         startScene(i);
