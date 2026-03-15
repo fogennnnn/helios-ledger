@@ -499,6 +499,89 @@
     .qs-shell.active { color: var(--teal); border-color: var(--teal); background: var(--teal-glow); }
     .qs-shell-panel { display: none; }
     .qs-shell-panel.active { display: block; }
+
+    /* ---- TICKER ---- */
+    .ticker-wrap {
+      overflow: hidden; position: relative;
+      border: 1px solid var(--border2); border-radius: 8px;
+      background: var(--bg2); padding: 0;
+      -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    }
+    .ticker-track {
+      display: inline-flex; gap: 0; white-space: nowrap;
+      animation: ticker-scroll 40s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    .tick-item {
+      display: inline-block; padding: 0.9rem 2.5rem;
+      font-size: 0.82rem; color: var(--muted); border-right: 1px solid var(--border2);
+    }
+    .tick-item strong { color: var(--white); }
+    .tick-icon { margin-right: 0.4rem; }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ---- LIVE MERKLE PANEL ---- */
+    #merkle-panel {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-top: 4rem;
+    }
+    .merkle-panel-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1.25rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+    }
+    .merkle-panel-header h3 { font-size: 0.85rem; font-weight: 600; margin: 0; color: var(--white); }
+    .merkle-live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--teal); animation: pulse 1.5s ease-in-out infinite;
+    }
+    .merkle-root-display {
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border2);
+      font-family: var(--ff-mono); font-size: 0.75rem;
+    }
+    .merkle-root-label { color: var(--muted2); margin-right: 0.5rem; }
+    .merkle-root-hash { color: var(--teal); word-break: break-all; }
+    .merkle-root-count { color: var(--muted2); margin-left: 1rem; font-size: 0.7rem; }
+    .merkle-records {
+      padding: 0.75rem 1.25rem 1.25rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      max-height: 260px; overflow-y: auto;
+    }
+    .merkle-record-row {
+      display: grid;
+      grid-template-columns: 1.5rem 7rem 9rem 1fr 5rem;
+      gap: 0.75rem; align-items: center;
+      font-family: var(--ff-mono); font-size: 0.7rem;
+      padding: 0.35rem 0.5rem; border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .merkle-record-row:hover { background: rgba(255,255,255,0.03); }
+    .merkle-record-row.new-row { animation: row-flash 1.2s ease forwards; }
+    @keyframes row-flash {
+      0%   { background: rgba(45,212,170,0.15); }
+      100% { background: transparent; }
+    }
+    .mrr-idx  { color: var(--muted2); text-align: right; }
+    .mrr-time { color: var(--muted2); }
+    .mrr-hash { color: var(--teal); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mrr-model{ color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mrr-acct { color: var(--muted2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+    .merkle-panel-footer {
+      padding: 0.5rem 1.25rem;
+      border-top: 1px solid var(--border2);
+      font-family: var(--ff-mono); font-size: 0.68rem;
+      color: var(--muted2); display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .merkle-refresh-btn {
+      background: none; border: 1px solid var(--border2); color: var(--muted2);
+      font-family: var(--ff-mono); font-size: 0.68rem; cursor: pointer;
+      padding: 0.2rem 0.6rem; border-radius: 4px; transition: all 0.15s;
+    }
+    .merkle-refresh-btn:hover { color: var(--teal); border-color: var(--teal); }
   </style>
 </head>
 <body>
@@ -533,8 +616,7 @@
     </p>
     <div class="hero-actions">
       <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener noreferrer">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-        View on GitHub
+        &#10095; GitHub
       </a>
       <a href="#how-it-works" class="btn btn-secondary">How it works →</a>
     </div>
@@ -542,7 +624,7 @@
       <div class="meta-item"><span class="meta-val">Ed25519</span><span class="meta-key">Cryptography</span></div>
       <div class="meta-item"><span class="meta-val">Merkle</span><span class="meta-key">Attestations</span></div>
       <div class="meta-item"><span class="meta-val">REST</span><span class="meta-key">API</span></div>
-      <div class="meta-item"><span class="meta-val">44</span><span class="meta-key">Passing tests</span></div>
+      <div class="meta-item"><span class="meta-val" id="live-record-count">...</span><span class="meta-key">Records sealed</span></div>
       <div class="meta-item"><span class="meta-val">MIT</span><span class="meta-key">License</span></div>
     </div>
 
@@ -737,31 +819,52 @@
     <span class="section-label">Applications</span>
     <h2 id="uc-heading">Built for any industry that touches AI content</h2>
     <p class="section-lead">Wherever accountability for AI-generated material matters, Helios provides the cryptographic layer of truth.</p>
-    <div class="usecases" role="list">
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">📰</span>
-        <div><h3>Journalism</h3><p>Prove AI-assisted articles weren't altered after publication.</p></div>
-      </article>
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">⚖️</span>
-        <div><h3>Legal</h3><p>Court-admissible provenance chains for AI-generated evidence.</p></div>
-      </article>
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">🏥</span>
-        <div><h3>Healthcare</h3><p>Audit AI diagnostic outputs against their original generation context.</p></div>
-      </article>
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">🏦</span>
-        <div><h3>Finance</h3><p>Regulatory-ready audit trails for AI-generated reports and advisories.</p></div>
-      </article>
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">🎓</span>
-        <div><h3>Academia</h3><p>Verify AI disclosure in research papers with immutable provenance.</p></div>
-      </article>
-      <article class="usecase" role="listitem">
-        <span class="usecase-icon">🎨</span>
-        <div><h3>Creative</h3><p>Certify AI co-creation credit for artists and content studios.</p></div>
-      </article>
+    <div class="ticker-wrap">
+      <div class="ticker-track" id="ticker-track">
+        <span class="tick-item"><span class="tick-icon">📰</span> <strong>Journalism</strong> — Prove AI-assisted articles weren’t altered after publication</span>
+        <span class="tick-item"><span class="tick-icon">⚖️</span> <strong>Legal</strong> — Court-admissible provenance chains for AI-generated evidence</span>
+        <span class="tick-item"><span class="tick-icon">🏥</span> <strong>Healthcare</strong> — Audit AI diagnostic outputs against their original generation context</span>
+        <span class="tick-item"><span class="tick-icon">🏦</span> <strong>Finance</strong> — Regulatory-ready audit trails for AI-generated reports and advisories</span>
+        <span class="tick-item"><span class="tick-icon">🎓</span> <strong>Academia</strong> — Verify AI disclosure in research papers with immutable provenance</span>
+        <span class="tick-item"><span class="tick-icon">🎨</span> <strong>Creative</strong> — Certify AI co-creation credit for artists and content studios</span>
+        <span class="tick-item"><span class="tick-icon">🔍</span> <strong>Compliance</strong> — Prove to auditors exactly what AI generated and when</span>
+        <span class="tick-item"><span class="tick-icon">🤖</span> <strong>AI Pipelines</strong> — Seal every LLM output automatically as it’s generated</span>
+        <span class="tick-item"><span class="tick-icon">📜</span> <strong>Contracts</strong> — Immutable record of AI-drafted clauses and negotiation history</span>
+        <span class="tick-item"><span class="tick-icon">🌐</span> <strong>Government</strong> — Transparent audit trail for AI-assisted public communications</span>
+        <span class="tick-item"><span class="tick-icon">🛡️</span> <strong>Security</strong> — Tamper-evident logging of AI threat analysis reports</span>
+        <span class="tick-item"><span class="tick-icon">📊</span> <strong>Research</strong> — Reproducible AI experiments with cryptographic output snapshots</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+
+<!-- Live Merkle Panel -->
+<section id="live-ledger" aria-label="Live ledger">
+  <div class="container">
+    <span class="section-label">Transparency</span>
+    <h2>Live ledger</h2>
+    <p class="section-lead">Every seal, in real time. The Merkle root updates with each submission — verify any record independently using the public key.</p>
+    <div id="merkle-panel">
+      <div class="merkle-panel-header">
+        <div class="merkle-live-dot"></div>
+        <h3>Helios Ledger</h3>
+        <span style="font-family:var(--ff-mono);font-size:0.7rem;color:var(--muted2);margin-left:auto" id="merkle-last-updated"></span>
+      </div>
+      <div class="merkle-root-display">
+        <span class="merkle-root-label">root</span>
+        <span class="merkle-root-hash" id="merkle-root-hash">loading...</span>
+        <span class="merkle-root-count" id="merkle-root-count"></span>
+      </div>
+      <div class="merkle-records" id="merkle-records">
+        <div style="color:var(--muted2);font-family:var(--ff-mono);font-size:0.75rem;padding:0.5rem">Loading records...</div>
+      </div>
+      <div class="merkle-panel-footer">
+        <span>Ed25519 signed · independently verifiable · auto-refreshes every 15s</span>
+        <button class="merkle-refresh-btn" id="merkle-refresh">refresh</button>
+      </div>
     </div>
   </div>
 </section>
@@ -837,7 +940,7 @@
       <!-- HUMAN PATH -->
       <article class="path" role="listitem" aria-labelledby="path-human">
         <span class="path-badge human">🙋 No terminal needed</span>
-        <h3 id="path-human">Seal content on the live ledger</h3>
+        <h3 id="path-human">Try the live demo</h3>
         <p>Paste any AI-generated text below. The browser calls the real Helios API, creates an account for your session, and seals your content on the live ledger — Ed25519 signed, Merkle included, verifiable forever.</p>
         <p style="font-size:0.8rem;color:var(--teal);margin-top:-0.25rem">✓ Live API at ai.oooooooooo.se — no install required.</p>
         <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
@@ -847,12 +950,12 @@
     <!-- INTERACTIVE DEMO -->
     <div class="demo-box">
       <div class="demo-header">
-        <span>try it live — paste any AI output, seal it on the ledger</span>
-        <span class="demo-live"><span class="demo-live-dot"></span>live ledger</span>
+        <span>live ledger — paste any AI output, seal it permanently</span>
+        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
       </div>
       <div class="demo-body">
         <div>
-          <label class="demo-label" for="demo-input">Paste any AI-generated text to seal its provenance</label>
+          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
           <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
         </div>
         <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
@@ -906,10 +1009,6 @@
     var currentShell = 'bash';
     var currentTab   = 'submit';
 
-    var BODY_BASH = '-d \'{"content":"paste AI output here","model":"gpt-4"}\'';
-    var BODY_PS   = '-Body \'{"content":"paste AI output here","model":"gpt-4"}\'';
-    var BODY_PY   = 'json={"content": "paste AI output here", "model": "gpt-4"}';
-
     // Tab switching
     document.querySelectorAll('.qs-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
@@ -934,71 +1033,74 @@
       });
     });
 
-    // Copy
+    // Build copy text per tab + shell
+    function buildCopyText(tab, shell, tok) {
+      var T = tok || 'YOUR_TOKEN';
+      var base = 'https://ai.oooooooooo.se/api/v1/';
+      var body = '{"content":"paste AI output here","model":"gpt-4"}';
+
+      if (tab === 'submit') {
+        if (shell === 'bash') {
+          return [
+            'curl -X POST ' + base + 'records \\',
+            '  -H "Authorization: Bearer ' + T + '" \\',
+            '  -H "Content-Type: application/json" \\',
+            "  -d '" + body + "'"
+          ].join('\n');
+        }
+        if (shell === 'powershell') {
+          return [
+            'Invoke-RestMethod `',
+            '  -Uri ' + base + 'records `',
+            '  -Method POST `',
+            '  -Headers @{ "Authorization" = "Bearer ' + T + '" } `',
+            '  -ContentType "application/json" `',
+            "  -Body '" + body + "'"
+          ].join('\n');
+        }
+        // python
+        return [
+          'import requests',
+          'requests.post(',
+          '  "' + base + 'records",',
+          '  headers={"Authorization": "Bearer ' + T + '"},',
+          '  json={"content": "paste AI output here", "model": "gpt-4"}',
+          ').json()'
+        ].join('\n');
+      }
+
+      if (tab === 'verify') {
+        var url = base + 'records/RECORD_ID/verify';
+        if (shell === 'powershell') return 'Invoke-RestMethod ' + url;
+        if (shell === 'python')     return 'requests.get("' + url + '").json()';
+        return 'curl ' + url;
+      }
+
+      // ledger
+      var url = base + 'ledger/root';
+      if (shell === 'powershell') return 'Invoke-RestMethod ' + url;
+      if (shell === 'python')     return 'requests.get("' + url + '").json()';
+      return 'curl ' + url;
+    }
+
+    // Copy buttons
     document.querySelectorAll('.qs-copy').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var tok  = liveToken || 'YOUR_TOKEN';
-        var text = buildCopyText(btn.dataset.tab, tok);
-        copyToClipboard(text);
+        var text = buildCopyText(btn.dataset.tab, currentShell, liveToken);
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        document.body.removeChild(ta);
         btn.textContent = 'copied!';
         btn.classList.add('copied');
         setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
       });
     });
-
-    function buildCopyText(tab, tok) {
-      var base = 'https://ai.oooooooooo.se/api/v1/';
-      if (tab === 'submit') {
-        if (currentShell === 'bash') {
-          return [
-            'curl -X POST ' + base + 'records \\',
-            '  -H "Authorization: Bearer ' + tok + '" \\',
-            '  -H "Content-Type: application/json" \\',
-            '  ' + BODY_BASH
-          ].join('\n');
-        }
-        if (currentShell === 'powershell') {
-          return [
-            'Invoke-RestMethod \\',
-            '  -Uri ' + base + 'records \\',
-            '  -Method POST \\',
-            '  -Headers @{ "Authorization" = "Bearer ' + tok + '" } \\',
-            '  -ContentType "application/json" \\',
-            '  ' + BODY_PS
-          ].join('\n').replace(/\\/g, '`');
-        }
-        return [
-          'import requests',
-          'requests.post(',
-          '  "' + base + 'records",',
-          '  headers={"Authorization": "Bearer ' + tok + '"},',
-          '  ' + BODY_PY,
-          ').json()'
-        ].join('\n');
-      }
-      if (tab === 'verify') {
-        var url = base + 'records/RECORD_ID/verify';
-        if (currentShell === 'powershell') return 'Invoke-RestMethod ' + url;
-        if (currentShell === 'python')     return 'requests.get("' + url + '").json()';
-        return 'curl ' + url;
-      }
-      var url = base + 'ledger/root';
-      if (currentShell === 'powershell') return 'Invoke-RestMethod ' + url;
-      if (currentShell === 'python')     return 'requests.get("' + url + '").json()';
-      return 'curl ' + url;
-    }
-
-    function copyToClipboard(text) {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-      document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, 99999);
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
 
     // Token button
     var tokenBtn = document.getElementById('qs-token-btn');
@@ -1016,23 +1118,23 @@
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         }).then(function(d) {
-          liveToken = d.token;
+          liveToken    = d.token;
           liveUsername = d.username;
-          tokenBtn.textContent = '\u26a1 Token';
+          tokenBtn.textContent = '⚡ Token';
           tokenBtn.disabled = false;
           tokenBtn.classList.add('has-token');
           var footer = document.getElementById('qs-footer');
           var uname  = document.getElementById('qs-username');
-          if (uname) uname.textContent = liveUsername;
+          if (uname)  uname.textContent = liveUsername;
           if (footer) footer.style.display = 'flex';
           revealToken(liveToken);
         }).catch(function(e) {
-          tokenBtn.textContent = '\u26a1 Token';
+          tokenBtn.textContent = '⚡ Token';
           tokenBtn.disabled = false;
           var footer = document.getElementById('qs-footer');
           if (footer) {
             footer.style.display = 'flex';
-            footer.innerHTML = '<span class="qs-tok-warn">Error: ' + e.message + ' \u2014 try again in a minute.</span>';
+            footer.innerHTML = '<span class="qs-tok-warn">Error: ' + e.message + ' — try again in a minute.</span>';
           }
         });
       });
@@ -1044,7 +1146,15 @@
         el.style.color = '#0d1117';
         setTimeout(function() { el.style.background = ''; el.style.color = ''; }, 900);
       });
-      copyToClipboard(token);
+      var ta = document.createElement('textarea');
+      ta.value = token;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      document.body.removeChild(ta);
       showToast();
     }
 
@@ -1052,7 +1162,7 @@
       var btn = document.getElementById('qs-token-btn');
       if (btn) {
         btn.textContent = 'copied!';
-        setTimeout(function() { btn.textContent = '\u26a1 Token'; }, 2500);
+        setTimeout(function() { btn.textContent = '⚡ Token'; }, 2500);
       }
       var toast = document.getElementById('tok-toast');
       if (toast) {
@@ -1065,7 +1175,7 @@
   })();
 
   // ---- Live browser demo ----
-  var API = 'https://ai.oooooooooo.se/api';
+  var API = 'https://ai.oooooooooo.se/api/v1';
   var demoToken = null;
   var demoUser  = null;
 
@@ -1074,7 +1184,7 @@
     var username = 'demo_' + Math.random().toString(36).slice(2, 9);
     return fetch(API + '/accounts', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
       body: JSON.stringify({ username: username })
     }).then(function(r) {
       if (!r.ok) throw new Error('account creation failed: ' + r.status);
@@ -1111,13 +1221,19 @@
         btn.textContent = 'Submitting...';
         return fetch(API + '/records', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + demoToken },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + demoToken,
+            'Origin': 'https://ai.oooooooooo.se'
+          },
           body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
         });
       }).then(function(r) {
-        if (!r || !r.ok) throw new Error(r ? 'API error ' + r.status : 'skipped');
+        if (!r) return null;
+        if (!r.ok) throw new Error('API error ' + r.status);
         return r.json();
       }).then(function(d) {
+        if (!d) return;
         out.innerHTML =
           '<span class="ok">record sealed on Helios Ledger</span>\n' +
           '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
@@ -1128,18 +1244,180 @@
           '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
           '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
           '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
-        btn.textContent = 'Generate provenance record';
+        btn.textContent = 'Seal this content on the ledger →';
         btn.disabled = false;
+        if (window.heliosAddRecord) window.heliosAddRecord(d);
       }).catch(function(e) {
-        if (e.message !== 'skipped') {
-          out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
-        }
+        out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
         btn.textContent = 'Generate provenance record';
         btn.disabled = false;
       });
     });
   }
+
+  // ── Live record count in hero stats ───────────────────────────────────
+  fetch('https://ai.oooooooooo.se/api/v1/health')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var el = document.getElementById('live-record-count');
+      if (el) el.textContent = d.record_count;
+    }).catch(function() {});
+
+  // ── Ticker: duplicate items so it loops seamlessly ────────────────────
+  (function() {
+    var track = document.getElementById('ticker-track');
+    if (track) {
+      track.innerHTML = track.innerHTML + track.innerHTML;
+    }
+  })();
+
+  // ── Live Merkle Panel ─────────────────────────────────────────────────
+  (function() {
+    var API = 'https://ai.oooooooooo.se/api/v1';
+    var knownIds = new Set();
+    var refreshTimer = null;
+
+    function fmt(ts) {
+      if (!ts) return '';
+      var d = new Date(ts);
+      return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }
+    function shortHash(h) { return h ? h.slice(0,10) + '...' : ''; }
+
+    function loadLedger(isAuto) {
+      Promise.all([
+        fetch(API + '/ledger/root').then(function(r) { return r.json(); }),
+        fetch(API + '/ledger/recent').then(function(r) { return r.ok ? r.json() : null; })
+      ]).then(function(results) {
+        var root   = results[0];
+        var recent = results[1];
+        updateRoot(root);
+        if (!recent) loadRecentViaHealth();
+      }).catch(function() {
+        loadRecentViaHealth();
+      });
+    }
+
+    function loadRecentViaHealth() {
+      // Fallback: just update root + count, no record rows
+      fetch(API + '/ledger/root')
+        .then(function(r) { return r.json(); })
+        .then(function(d) { updateRoot(d); })
+        .catch(function() {});
+    }
+
+    function updateRoot(data) {
+      var hashEl  = document.getElementById('merkle-root-hash');
+      var countEl = document.getElementById('merkle-root-count');
+      var updEl   = document.getElementById('merkle-last-updated');
+      if (hashEl && data.root) {
+        hashEl.textContent = data.root;
+        // Flash the root when it changes
+        hashEl.style.animation = 'none';
+        hashEl.offsetHeight;
+        hashEl.style.animation = 'flash-hl 1s ease forwards';
+      }
+      if (countEl && data.record_count !== undefined) {
+        countEl.textContent = data.record_count + ' records';
+        var liveEl = document.getElementById('live-record-count');
+        if (liveEl) liveEl.textContent = data.record_count;
+      }
+      if (updEl) updEl.textContent = 'updated ' + fmt(new Date().toISOString());
+    }
+
+    function addRecordRow(rec, isNew) {
+      if (knownIds.has(rec.id)) return;
+      knownIds.add(rec.id);
+      var container = document.getElementById('merkle-records');
+      if (!container) return;
+
+      // Clear placeholder
+      var placeholder = container.querySelector('div');
+      if (placeholder) placeholder.remove();
+
+      var row = document.createElement('div');
+      row.className = 'merkle-record-row' + (isNew ? ' new-row' : '');
+      row.innerHTML =
+        '<span class="mrr-idx">#' + rec.merkle_index + '</span>' +
+        '<span class="mrr-time">' + fmt(rec.timestamp) + '</span>' +
+        '<span class="mrr-hash" title="' + rec.content_hash + '">' + shortHash(rec.content_hash) + '</span>' +
+        '<span class="mrr-model">' + (rec.model || 'unknown') + '</span>' +
+        '<span class="mrr-acct">' + (rec.account_id ? rec.account_id.slice(0,8) + '...' : '') + '</span>';
+
+      // Prepend so newest is on top
+      container.insertBefore(row, container.firstChild);
+    }
+
+    // Load initial records from DB using the public root endpoint
+    // then augment with recent via health
+    function initialLoad() {
+      var container = document.getElementById('merkle-records');
+      
+      // Fetch root first
+      fetch(API + '/ledger/root')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          updateRoot(d);
+          // Try to load a few recent records by guessing IDs won't work,
+          // so we show just the stats and a note
+          if (container && knownIds.size === 0) {
+            container.innerHTML =
+              '<div style="font-family:var(--ff-mono);font-size:0.72rem;color:var(--muted2);padding:0.75rem 0">' +
+              d.record_count + ' records sealed \xc2\xb7 submit content below to see your record appear here' +
+              '</div>';
+          }
+        }).catch(function() {});
+
+      // Also try health for live count
+      fetch(API + '/health')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var el = document.getElementById('live-record-count');
+          if (el) el.textContent = d.record_count;
+        }).catch(function() {});
+    }
+
+    // After a successful demo submission, add that record to the panel
+    window.heliosAddRecord = function(rec) {
+      addRecordRow(rec, true);
+      // Also refresh root
+      fetch(API + '/ledger/root')
+        .then(function(r) { return r.json(); })
+        .then(function(d) { updateRoot(d); })
+        .catch(function() {});
+    };
+
+    // Auto-refresh every 15s
+    function startAutoRefresh() {
+      refreshTimer = setInterval(function() {
+        fetch(API + '/ledger/root')
+          .then(function(r) { return r.json(); })
+          .then(function(d) { updateRoot(d); })
+          .catch(function() {});
+      }, 15000);
+    }
+
+    // Manual refresh button
+    var refreshBtn = document.getElementById('merkle-refresh');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function() {
+        refreshBtn.textContent = 'refreshing...';
+        fetch(API + '/ledger/root')
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            updateRoot(d);
+            refreshBtn.textContent = 'refresh';
+          }).catch(function() { refreshBtn.textContent = 'refresh'; });
+      });
+    }
+
+    initialLoad();
+    startAutoRefresh();
+  })();
+
+
 </script>
+
 
 
 <div id="tok-toast">TOKEN copied to clipboard</div>
