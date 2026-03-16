@@ -12,3 +12,7 @@ bots/
 # OS junk
 .DS_Store
 Thumbs.db
+
+helios-worker/wrangler.local.toml
+helios-worker/worker-v4.js
+index.html
