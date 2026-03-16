@@ -94,13 +94,12 @@ Requirements: Node.js 18+, Cloudflare account with Workers and D1.
 ```bash
 git clone https://github.com/fogennnnn/helios-ledger.git
 cd helios-ledger/helios-worker
-npm install
+npm install --save-dev wrangler
 npx wrangler login
 npx wrangler d1 create helios-ledger
-# Update database_id in wrangler.toml with the ID from above
-npx wrangler d1 execute helios-ledger --file=schema.sql
-node keygen.js  # Outputs two JSON lines: private key, then public key
-# Set secrets (paste the JSON from keygen.js):
+# Update database_id in wrangler.toml
+node keygen.js  # Generate Ed25519 signing keys
+# Set secrets:
 echo '<private_key_jwk>' | npx wrangler secret put SIGNING_PRIVATE_KEY
 echo '<public_key_jwk>' | npx wrangler secret put SIGNING_PUBLIC_KEY
 npx wrangler deploy

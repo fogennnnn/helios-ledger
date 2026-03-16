@@ -1,0 +1,1060 @@
+# update4.ps1 - Animated terminal update
+# Run from C:\Users\fogen\HELIOS
+
+Write-Host 'Deploying animated terminal...' -ForegroundColor Cyan
+
+Set-Content -Path docs\index.html -Value @'
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helios Ledger — AI Provenance & Content Authenticity Platform</title>
+  <meta name="description" content="Helios Ledger is an open-source AI provenance platform. Cryptographically verify the origin, integrity, and authenticity of AI-generated content using Ed25519 signatures and Merkle-tree attestations." />
+  <meta name="keywords" content="AI provenance, content authenticity, AI content verification, cryptographic provenance, Ed25519, Merkle tree, AI watermarking, digital content integrity, AI transparency, content origin tracking, AI audit trail, provenance ledger, open source AI tools" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://ai.oooooooooo.se/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Helios Ledger — AI Provenance & Content Authenticity Platform" />
+  <meta property="og:description" content="Cryptographically verify the origin and integrity of AI-generated content. Open-source provenance ledger." />
+  <meta property="og:url" content="https://ai.oooooooooo.se/" />
+  <meta property="og:image" content="https://ai.oooooooooo.se/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Helios Ledger — AI Provenance & Content Authenticity" />
+  <meta name="twitter:description" content="Open-source cryptographic provenance for AI-generated content." />
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+  <meta name="theme-color" content="#0d1117" />
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Helios Ledger","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows","url":"https://ai.oooooooooo.se/","description":"Open-source AI provenance and content authenticity platform using Ed25519 and Merkle-tree attestations.","license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/fogennnnn/helios-ledger","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+  </script>
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is AI provenance?","acceptedAnswer":{"@type":"Answer","text":"AI provenance is the ability to cryptographically prove the origin, creation context, and integrity of AI-generated content using Ed25519 signatures and Merkle-tree attestations."}},{"@type":"Question","name":"Is Helios Ledger free and open source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Helios Ledger is MIT-licensed and freely available on GitHub. Self-host or use the public API at ai.oooooooooo.se."}},{"@type":"Question","name":"Does Helios Ledger work with any AI model?","acceptedAnswer":{"@type":"Answer","text":"Yes. Helios Ledger is model-agnostic and works with GPT-4, Claude, Gemini, Llama, Mistral, or any custom model."}}]}
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #1c2128;
+      --border:    #30363d;
+      --border2:   #21262d;
+      --teal:      #2dd4aa;
+      --teal-dim:  #1a9e7f;
+      --teal-glow: rgba(45,212,170,0.12);
+      --white:     #e6edf3;
+      --muted:     #7d8590;
+      --muted2:    #484f58;
+      --red:       #f85149;
+      --ff:        'Sora', sans-serif;
+      --ff-mono:   'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--ff);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border2);
+      height: 56px;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 100%;
+    }
+    .nav-logo {
+      font-family: var(--ff-mono); font-size: 0.9rem; font-weight: 500;
+      color: var(--white); letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+      display: inline-block;
+    }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); font-size: 0.82rem; padding: 0.35rem 0.75rem;
+      border-radius: 6px; transition: color 0.15s, background 0.15s;
+    }
+    .nav-links a:hover { color: var(--white); background: var(--bg3); }
+    .nav-links .nav-cta {
+      background: var(--bg3); color: var(--white) !important;
+      border: 1px solid var(--border); margin-left: 0.5rem;
+      font-size: 0.82rem;
+    }
+    .nav-links .nav-cta:hover { border-color: var(--teal); color: var(--teal) !important; background: var(--teal-glow); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 5rem 0; }
+    .section-label {
+      font-family: var(--ff-mono); font-size: 0.72rem; font-weight: 500;
+      color: var(--teal); letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.75rem; display: block;
+    }
+    h2 {
+      font-size: 1.65rem; font-weight: 700; line-height: 1.3;
+      color: var(--white); margin-bottom: 0.75rem; letter-spacing: -0.02em;
+    }
+    .section-lead { color: var(--muted); max-width: 520px; font-size: 0.95rem; }
+    .divider { height: 1px; background: var(--border2); margin: 0 1.5rem; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 6rem 0 5rem;
+      border-bottom: 1px solid var(--border2);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 0.3rem 0.9rem;
+      font-family: var(--ff-mono); font-size: 0.72rem; color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+    h1 {
+      font-size: clamp(1.9rem, 4.5vw, 3rem);
+      font-weight: 700; line-height: 1.2;
+      letter-spacing: -0.03em; color: var(--white);
+      max-width: 680px; margin-bottom: 1.25rem;
+    }
+    h1 span { color: var(--teal); }
+    .hero-sub {
+      font-size: 1rem; color: var(--muted);
+      max-width: 560px; margin-bottom: 2.5rem; line-height: 1.75;
+    }
+    .hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.25rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500; transition: all 0.15s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--teal); color: #0d1117;
+      border: 1px solid var(--teal);
+    }
+    .btn-primary:hover { background: #25c49c; border-color: #25c49c; }
+    .btn-secondary {
+      background: var(--bg2); color: var(--white);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+
+    .hero-meta {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+      padding-top: 2.5rem; border-top: 1px solid var(--border2);
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 0.15rem; }
+    .meta-val {
+      font-family: var(--ff-mono); font-size: 1.1rem; font-weight: 500;
+      color: var(--teal);
+    }
+    .meta-key { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-top: 2.5rem;
+    }
+    .code-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.65rem 1rem; border-bottom: 1px solid var(--border2);
+      background: var(--bg3);
+    }
+    .code-dots { display: flex; gap: 0.4rem; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+    .code-tab { font-family: var(--ff-mono); font-size: 0.72rem; color: var(--muted); }
+    .code-block pre {
+      padding: 1.25rem 1.25rem;
+      font-family: var(--ff-mono); font-size: 0.8rem;
+      line-height: 1.8; overflow-x: auto; color: var(--white);
+    }
+    .c  { color: var(--muted2); }
+    .k  { color: #79c0ff; }
+    .s  { color: #a5d6ff; }
+    .f  { color: var(--teal); }
+    .p  { color: #ffa657; }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border2);
+      border: 1px solid var(--border2); border-radius: 10px;
+      overflow: hidden; margin-top: 2.5rem;
+    }
+    .step {
+      background: var(--bg2); padding: 1.75rem 1.5rem;
+      transition: background 0.15s;
+    }
+    .step:hover { background: var(--bg3); }
+    .step-num {
+      font-family: var(--ff-mono); font-size: 0.7rem; color: var(--muted2);
+      margin-bottom: 1rem; display: block;
+    }
+    .step-icon { font-size: 1.4rem; margin-bottom: 0.75rem; display: block; }
+    .step h3 { font-size: 0.9rem; font-weight: 600; color: var(--white); margin-bottom: 0.5rem; }
+    .step p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border2);
+      border: 1px solid var(--border2); border-radius: 10px;
+      overflow: hidden; margin-top: 2.5rem;
+    }
+    .feature {
+      background: var(--bg2); padding: 1.75rem 1.5rem;
+      transition: background 0.15s; position: relative;
+    }
+    .feature:hover { background: var(--bg3); }
+    .feature-icon { font-size: 1.2rem; margin-bottom: 0.9rem; display: block; }
+    .feature h3 { font-size: 0.88rem; font-weight: 600; color: var(--white); margin-bottom: 0.4rem; }
+    .feature p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+    .feature-tag {
+      display: inline-block; margin-top: 0.75rem;
+      font-family: var(--ff-mono); font-size: 0.68rem;
+      color: var(--teal); background: var(--teal-glow);
+      border: 1px solid rgba(45,212,170,0.2);
+      padding: 0.15rem 0.5rem; border-radius: 4px;
+    }
+
+    /* ── USE CASES ── */
+    .usecases {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem; margin-top: 2.5rem;
+    }
+    .usecase {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 1.25rem 1.25rem;
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      transition: border-color 0.15s;
+    }
+    .usecase:hover { border-color: var(--border); }
+    .usecase-icon { font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0; }
+    .usecase h3 { font-size: 0.85rem; font-weight: 600; color: var(--white); margin-bottom: 0.25rem; }
+    .usecase p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── FAQ ── */
+    .faq { display: flex; flex-direction: column; gap: 1px; margin-top: 2.5rem; }
+    .faq-item {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 0; padding: 1.25rem 1.5rem;
+      transition: background 0.15s;
+    }
+    .faq-item:first-child { border-radius: 10px 10px 0 0; }
+    .faq-item:last-child  { border-radius: 0 0 10px 10px; }
+    .faq-item:only-child  { border-radius: 10px; }
+    .faq-item:hover { background: var(--bg3); }
+    .faq-item h3 { font-size: 0.88rem; font-weight: 600; color: var(--white); margin-bottom: 0.4rem; }
+    .faq-item p  { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── CTA ── */
+    .cta-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 3.5rem 3rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-box::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 300px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    }
+    .cta-box h2 { max-width: 500px; margin: 0 auto 0.75rem; }
+    .cta-box p { color: var(--muted); max-width: 420px; margin: 0 auto 2rem; font-size: 0.9rem; }
+    .cta-box .hero-actions { justify-content: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border2);
+      padding: 2rem 0;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo { font-family: var(--ff-mono); font-size: 0.82rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+    .footer-links a { font-size: 0.8rem; color: var(--muted); transition: color 0.15s; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy { font-size: 0.75rem; color: var(--muted2); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .steps { grid-template-columns: 1fr 1fr; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .usecases { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 580px) {
+      .steps { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .usecases { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      h1 { font-size: 1.7rem; }
+      .hero-meta { gap: 1.5rem; }
+    }
+
+    /* ── PULSE / NEXT-CLICK HINTS ── */
+    @keyframes teal-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(45,212,170,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(45,212,170,0); }
+    }
+    .btn-primary { animation: teal-pulse 2.5s ease-in-out infinite; }
+    .btn-primary:hover { animation: none; }
+
+    /* ── ONBOARDING PATHS ── */
+    .paths {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border2);
+      border: 1px solid var(--border2); border-radius: 10px;
+      overflow: hidden; margin-top: 2.5rem;
+    }
+    .path {
+      background: var(--bg2); padding: 2rem 1.75rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: background 0.15s;
+    }
+    .path:hover { background: var(--bg3); }
+    .path-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--ff-mono); font-size: 0.7rem;
+      padding: 0.2rem 0.65rem; border-radius: 20px; width: fit-content;
+    }
+    .path-badge.dev   { background: var(--teal-glow); color: var(--teal); border: 1px solid rgba(45,212,170,0.25); }
+    .path-badge.human { background: rgba(139,148,158,0.1); color: var(--muted); border: 1px solid var(--border2); }
+    .path h3 { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .path p  { font-size: 0.83rem; color: var(--muted); line-height: 1.7; flex: 1; }
+    .path-steps { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.25rem 0; }
+    .path-step {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .path-step-num {
+      font-family: var(--ff-mono); font-size: 0.68rem;
+      color: var(--teal); background: var(--teal-glow);
+      border: 1px solid rgba(45,212,170,0.2);
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 0.05rem;
+    }
+
+    /* ── DEMO BOX ── */
+    .demo-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-top: 2.5rem;
+    }
+    .demo-header {
+      padding: 0.75rem 1.25rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .demo-header span { font-family: var(--ff-mono); font-size: 0.72rem; color: var(--muted); }
+    .demo-live {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-family: var(--ff-mono); font-size: 0.68rem; color: var(--teal);
+    }
+    .demo-live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      animation: teal-pulse 1.5s ease-in-out infinite;
+    }
+    .demo-body { padding: 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .demo-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.35rem; display: block; }
+    .demo-textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.75rem 1rem;
+      color: var(--white); font-family: var(--ff-mono); font-size: 0.8rem;
+      resize: vertical; min-height: 80px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .demo-textarea:focus { border-color: var(--teal); }
+    .demo-textarea::placeholder { color: var(--muted2); }
+    .demo-btn {
+      align-self: flex-start;
+      background: var(--teal); color: #0d1117;
+      border: none; padding: 0.55rem 1.25rem;
+      border-radius: 6px; font-family: var(--ff); font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; transition: background 0.15s;
+    }
+    .demo-btn:hover { background: #25c49c; }
+    .demo-output {
+      background: var(--bg); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 0.85rem 1rem;
+      font-family: var(--ff-mono); font-size: 0.75rem; color: var(--muted);
+      line-height: 1.8; min-height: 56px; display: none;
+    }
+    .demo-output.visible { display: block; }
+    .demo-output .ok { color: var(--teal); }
+    .demo-output .hash { color: #a5d6ff; word-break: break-all; }
+    .demo-note {
+      font-size: 0.75rem; color: var(--muted2); text-align: center;
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    @media (max-width: 700px) {
+      .paths { grid-template-columns: 1fr; }
+    }
+
+    /* ---- ANIMATED TERMINAL ---- */
+    .term-wrap {
+      margin-top: 2.5rem;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .term-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 1rem; background: var(--bg3);
+      border-bottom: 1px solid var(--border2);
+    }
+    .term-tabs { display: flex; gap: 0.25rem; flex: 1; }
+    .term-tab {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--ff-mono); font-size: 0.7rem;
+      color: var(--muted2); padding: 0.2rem 0.65rem;
+      border-radius: 4px; transition: all 0.15s;
+    }
+    .term-tab:hover { color: var(--muted); background: rgba(255,255,255,0.05); }
+    .term-tab.active { color: var(--teal); background: var(--teal-glow); }
+    .term-replay {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted2); font-size: 1rem; padding: 0.1rem 0.4rem;
+      border-radius: 4px; transition: all 0.15s; line-height: 1;
+    }
+    .term-replay:hover { color: var(--teal); transform: rotate(-30deg); }
+    .term-body {
+      padding: 1.25rem 1.25rem 1.5rem;
+      font-family: var(--ff-mono); font-size: 0.8rem;
+      line-height: 1.85; min-height: 200px;
+      position: relative;
+    }
+    .term-screen { white-space: pre-wrap; word-break: break-all; }
+    .term-cursor {
+      display: inline-block; color: var(--teal);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .t-prompt  { color: var(--teal); }
+    .t-cmd     { color: var(--white); }
+    .t-flag    { color: #79c0ff; }
+    .t-str     { color: #a5d6ff; }
+    .t-comment { color: var(--muted2); }
+    .t-key     { color: var(--muted); }
+    .t-val     { color: var(--white); }
+    .t-hl {
+      color: var(--teal); font-weight: 600;
+      animation: flash-hl 0.6s ease forwards;
+    }
+    @keyframes flash-hl {
+      0%   { background: rgba(45,212,170,0.35); border-radius:3px; }
+      100% { background: transparent; }
+    }
+    .t-ok  { color: var(--teal); }
+    .t-err { color: #f85149; }
+
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="Helios Ledger home">
+      <span class="nav-logo-dot"></span>
+      helios-ledger
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#use-cases">Use cases</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://github.com/fogennnnn/helios-ledger"<div class="term-wrap">
+      <div class="term-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <div class="term-tabs">
+          <button class="term-tab active" data-scene="0">health check</button>
+          <button class="term-tab" data-scene="1">submit record</button>
+          <button class="term-tab" data-scene="2">verify</button>
+        </div>
+        <button class="term-replay" id="term-replay" title="Replay">&#8635;</button>
+      </div>
+      <div class="term-body">
+        <div class="term-screen" id="term-screen"></div>
+        <span class="term-cursor" id="term-cursor">&#9608;</span>
+      </div>
+    </div>lor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#how-it-works" class="btn btn-secondary">How it works →</a>
+    </div>
+    <div class="hero-meta" aria-label="Key facts">
+      <div class="meta-item"><span class="meta-val">Ed25519</span><span class="meta-key">Cryptography</span></div>
+      <div class="meta-item"><span class="meta-val">Merkle</span><span class="meta-key">Attestations</span></div>
+      <div class="meta-item"><span class="meta-val">REST</span><span class="meta-key">API</span></div>
+      <div class="meta-item"><span class="meta-val">44</span><span class="meta-key">Passing tests</span></div>
+      <div class="meta-item"><span class="meta-val">MIT</span><span class="meta-key">License</span></div>
+    </div>
+
+    <div class="code-block" role="img" aria-label="Quick start code example">
+      <div class="code-block-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-tab">quick start</span>
+      </div>
+      <pre><span class="c"># Submit content for provenance</span>
+curl -X POST https://ai.oooooooooo.se/<span class="f">api/records</span> \
+  -H <span class="s">"Authorization: Bearer $TOKEN"</span> \
+  -d <span class="s">&apos;{"content": "AI output here", "model": "claude-sonnet-4"}&apos;</span>
+
+<span class="c"># Verify a record</span>
+curl https://ai.oooooooooo.se/<span class="f">api/records</span>/<span class="p">{id}</span>/verify
+<span class="c"># → { "valid": true, "merkle_proof": [...] }</span></pre>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" aria-labelledby="hiw-heading">
+  <div class="container">
+    <span class="section-label">The process</span>
+    <h2 id="hiw-heading">Provenance in four steps</h2>
+    <p class="section-lead">From raw AI output to cryptographically sealed, independently verifiable record — in under a second.</p>
+    <div class="steps" role="list">
+      <article class="step" role="listitem">
+        <span class="step-num">01</span>
+        <span class="step-icon">📤</span>
+        <h3>Submit content</h3>
+        <p>Send any AI-generated text, image hash, or code to the API with model name and metadata attached.</p>
+      </article>
+      <article class="step" role="listitem">
+        <span class="step-num">02</span>
+        <span class="step-icon">🔑</span>
+        <h3>Hash &amp; sign</h3>
+        <p>Helios computes a SHA-256 hash and signs it with Ed25519. The private key never leaves the node.</p>
+      </article>
+      <article class="step" role="listitem">
+        <span class="step-num">03</span>
+        <span class="step-icon">🌳</span>
+        <h3>Merkle inclusion</h3>
+        <p>The signed hash is inserted into the append-only Merkle tree. Tampering with any historical entry breaks the root.</p>
+      </article>
+      <article class="step" role="listitem">
+        <span class="step-num">04</span>
+        <span class="step-icon">✅</span>
+        <h3>Verify anywhere</h3>
+        <p>Anyone can verify using the public key and Merkle proof — no trust in Helios required. Pure cryptographic truth.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features" aria-labelledby="features-heading">
+  <div class="container">
+    <span class="section-label">Capabilities</span>
+    <h2 id="features-heading">Everything you need for AI trust infrastructure</h2>
+    <p class="section-lead">A minimal, composable toolkit — nothing more, nothing less.</p>
+    <div class="features-grid" role="list">
+      <article class="feature" role="listitem">
+        <span class="feature-icon">⚡</span>
+        <h3>REST API</h3>
+        <p>Submit, verify, and audit provenance records from any language or platform. JSON in, JSON out.</p>
+        <span class="feature-tag">POST /api/records</span>
+      </article>
+      <article class="feature" role="listitem">
+        <span class="feature-icon">🔑</span>
+        <h3>Ed25519 signatures</h3>
+        <p>64-byte signatures, sub-millisecond verification. Modern elliptic-curve cryptography — fast and battle-tested.</p>
+        <span class="feature-tag">cryptography</span>
+      </article>
+      <article class="feature" role="listitem">
+        <span class="feature-icon">🌳</span>
+        <h3>Merkle attestations</h3>
+        <p>Append-only Merkle structure. Historical records are mathematically immutable — silent tampering is impossible.</p>
+        <span class="feature-tag">tamper-evident</span>
+      </article>
+      <article class="feature" role="listitem">
+        <span class="feature-icon">🏅</span>
+        <h3>Reward system</h3>
+        <p>Incentivize contributors who submit provenance records. Configurable reward logic with per-account balances.</p>
+        <span class="feature-tag">optional</span>
+      </article>
+      <article class="feature" role="listitem">
+        <span class="feature-icon">🤝</span>
+        <h3>Multi-node consensus</h3>
+        <p>Run a network of Helios nodes. Consensus ensures ledger state is agreed on before new records are committed.</p>
+        <span class="feature-tag">federated</span>
+      </article>
+      <article class="feature" role="listitem">
+        <span class="feature-icon">📖</span>
+        <h3>Fully open source</h3>
+        <p>MIT licensed. Audit every line. Self-host on your own infrastructure or contribute to the public instance.</p>
+        <span class="feature-tag">MIT</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- USE CASES -->
+<section id="use-cases" aria-labelledby="uc-heading">
+  <div class="container">
+    <span class="section-label">Applications</span>
+    <h2 id="uc-heading">Built for any industry that touches AI content</h2>
+    <p class="section-lead">Wherever accountability for AI-generated material matters, Helios provides the cryptographic layer of truth.</p>
+    <div class="usecases" role="list">
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">📰</span>
+        <div><h3>Journalism</h3><p>Prove AI-assisted articles weren't altered after publication.</p></div>
+      </article>
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">⚖️</span>
+        <div><h3>Legal</h3><p>Court-admissible provenance chains for AI-generated evidence.</p></div>
+      </article>
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">🏥</span>
+        <div><h3>Healthcare</h3><p>Audit AI diagnostic outputs against their original generation context.</p></div>
+      </article>
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">🏦</span>
+        <div><h3>Finance</h3><p>Regulatory-ready audit trails for AI-generated reports and advisories.</p></div>
+      </article>
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">🎓</span>
+        <div><h3>Academia</h3><p>Verify AI disclosure in research papers with immutable provenance.</p></div>
+      </article>
+      <article class="usecase" role="listitem">
+        <span class="usecase-icon">🎨</span>
+        <div><h3>Creative</h3><p>Certify AI co-creation credit for artists and content studios.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FAQ -->
+<section id="faq" aria-labelledby="faq-heading">
+  <div class="container">
+    <span class="section-label">FAQ</span>
+    <h2 id="faq-heading">Common questions</h2>
+    <div class="faq" role="list">
+      <article class="faq-item" role="listitem">
+        <h3>What is AI provenance?</h3>
+        <p>The ability to cryptographically prove the origin, creation context, and post-creation integrity of AI-generated content. Helios records a tamper-proof signed entry for each piece of content, creating an immutable audit trail.</p>
+      </article>
+      <article class="faq-item" role="listitem">
+        <h3>How does verification work?</h3>
+        <p>Helios hashes your content and signs the hash with Ed25519. The signature and metadata are stored in a Merkle tree. Anyone with the public key can independently verify the record — no need to trust Helios at all.</p>
+      </article>
+      <article class="faq-item" role="listitem">
+        <h3>Is it free and open source?</h3>
+        <p>Yes. MIT-licensed, freely available on GitHub. Self-host on your own infrastructure or use the public instance at ai.oooooooooo.se.</p>
+      </article>
+      <article class="faq-item" role="listitem">
+        <h3>Which AI models are supported?</h3>
+        <p>All of them. Helios is model-agnostic — GPT-4, Claude, Gemini, Llama, Mistral, or any custom model. Only the content hash matters.</p>
+      </article>
+      <article class="faq-item" role="listitem">
+        <h3>Does Helios store the actual content?</h3>
+        <p>No. Only cryptographic hashes and metadata — never the raw content itself. Your data stays with you; Helios only records proof of its existence and integrity.</p>
+      </article>
+      <article class="faq-item" role="listitem">
+        <h3>Can I run my own node?</h3>
+        <p>Yes. Clone the repo, configure your environment, and start a local or networked node in minutes. Multi-node consensus lets you run a private provenance network within your organization.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ONBOARDING -->
+<section id="get-started" aria-labelledby="gs-heading">
+  <div class="container">
+    <span class="section-label">Get started</span>
+    <h2 id="gs-heading">Two ways in</h2>
+    <p class="section-lead">Whether you live in a terminal or have never opened one — you can start using Helios Ledger today.</p>
+
+    <div class="paths" role="list">
+      <!-- DEVELOPER PATH -->
+      <article class="path" role="listitem" aria-labelledby="path-dev">
+        <span class="path-badge dev">⚡ For developers</span>
+        <h3 id="path-dev">Self-host in minutes</h3>
+        <p>Clone the repo, install dependencies, and run your own Helios node. Full control, no vendor lock-in.</p>
+        <div class="path-steps">
+          <div class="path-step">
+            <span class="path-step-num">1</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">git clone https://github.com/fogennnnn/helios-ledger</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">2</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">pip install -r requirements.txt</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">3</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">python -m app.main</code> — API live at :8000</span>
+          </div>
+        </div>
+        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
+      </article>
+
+      <!-- HUMAN PATH -->
+      <article class="path" role="listitem" aria-labelledby="path-human">
+        <span class="path-badge human">🙋 No terminal needed</span>
+        <h3 id="path-human">Try the browser demo</h3>
+        <p>Paste any text below and see exactly what Helios does to it — SHA-256 hash, Ed25519 signature, and a Merkle proof. No account, no install. Runs entirely in your browser.</p>
+        <p style="font-size:0.8rem;color:var(--muted2);margin-top:-0.25rem">A hosted public API is coming soon. Drop your email on GitHub Discussions to get notified.</p>
+        <a href="https://github.com/fogennnnn/helios-ledger/discussions" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">Join the discussion →</a>
+      </article>
+    </div>
+
+    <!-- INTERACTIVE DEMO -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span>browser demo — client-side only, nothing is sent anywhere</span>
+        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
+      </div>
+      <div class="demo-body">
+        <div>
+          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
+          <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
+        </div>
+        <button class="demo-btn" id="demo-run">Generate provenance record →</button>
+        <div class="demo-output" id="demo-output"></div>
+      </div>
+      <p class="demo-note">This demo hits the real Helios API. A temporary account is created for your session — records are permanently sealed in the D1 ledger on Cloudflare.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CTA -->
+<section aria-labelledby="cta-heading">
+  <div class="container">
+    <div class="cta-box">
+      <span class="section-label">Ready to deploy?</span>
+      <h2 id="cta-heading">Bring cryptographic trust to your AI stack</h2>
+      <p>Self-host in minutes or use the public API. No vendor lock-in, no black boxes — just math.</p>
+      <div class="hero-actions">
+        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener noreferrer">Star on GitHub</a>
+        <a href="https://github.com/fogennnnn/helios-ledger/blob/main/README.md" class="btn btn-secondary" rel="noopener noreferrer">Read the docs →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <span class="footer-logo">helios-ledger</span>
+    <nav aria-label="Footer navigation">
+      <ul class="footer-links" role="list">
+        <li><a href="https://github.com/fogennnnn/helios-ledger" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/fogennnnn/helios-ledger/blob/main/README.md" rel="noopener">Docs</a></li>
+        <li><a href="https://github.com/fogennnnn/helios-ledger/issues" rel="noopener">Issues</a></li>
+        <li><a href="https://github.com/fogennnnn/helios-ledger/blob/main/LICENSE" rel="noopener">MIT License</a></li>
+      </ul>
+    </nav>
+    <p class="footer-copy">© <span id="year"></span> Helios Ledger · MIT License</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---- Animated terminal ----
+  const SCENES = [
+    {
+      label: 'health check',
+      lines: [
+        { type: 'cmd', text: 'curl https://ai.oooooooooo.se/api/health' },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 80 },
+        { type: 'out', text: '  "status": "ok",',            hl: 'ok',    delay: 60 },
+        { type: 'out', text: '  "service": "helios-ledger",', hl: 'svc',   delay: 60 },
+        { type: 'out', text: '  "version": "1.0.0",',         hl: 'ver',   delay: 60 },
+        { type: 'out', text: '  "record_count": 4,',          hl: 'count', delay: 60 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:15:56Z"', delay: 60 },
+        { type: 'out', text: '}', delay: 60 },
+      ]
+    },
+    {
+      label: 'submit record',
+      lines: [
+        { type: 'cmd', text: 'curl -X POST https://ai.oooooooooo.se/api/records \\' },
+        { type: 'cmd', text: '  -H "Authorization: Bearer $TOKEN" \\', indent: true },
+        { type: 'cmd', text: '  -d \'{"content":"The patient presents with fever"}\' ', indent: true },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 120 },
+        { type: 'out', text: '  "id": "d4f2a1b3-...",',                           hl: 'id',    delay: 70 },
+        { type: 'out', text: '  "content_hash": "a3f1e2d4b5c6...",',              hl: 'hash',  delay: 70 },
+        { type: 'out', text: '  "signature": "9f3c1a2b...",',                     hl: 'sig',   delay: 70 },
+        { type: 'out', text: '  "merkle_index": 4,',                              hl: 'mrkl',  delay: 70 },
+        { type: 'out', text: '  "merkle_root": "00a1b2c3d4e5...",',               hl: 'root',  delay: 70 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:16:02Z"', delay: 70 },
+        { type: 'out', text: '}', delay: 70 },
+      ]
+    },
+    {
+      label: 'verify',
+      lines: [
+        { type: 'cmd', text: 'curl https://ai.oooooooooo.se/api/records/d4f2a1b3.../verify' },
+        { type: 'gap' },
+        { type: 'out', text: '{', delay: 90 },
+        { type: 'out', text: '  "record_id": "d4f2a1b3-...",', delay: 65 },
+        { type: 'out', text: '  "valid": true,',               hl: 'valid', delay: 65 },
+        { type: 'out', text: '  "content_hash": "a3f1e2d4...",', delay: 65 },
+        { type: 'out', text: '  "merkle_index": 4,',            hl: 'mrkl', delay: 65 },
+        { type: 'out', text: '  "merkle_proof": [ ... ],',       delay: 65 },
+        { type: 'out', text: '  "timestamp": "2026-03-15T19:16:02Z"', delay: 65 },
+        { type: 'out', text: '}', delay: 65 },
+      ]
+    }
+  ];
+
+  // highlight keys based on scene
+  const HL_COLORS = {
+    ok: 'var(--teal)', svc: 'var(--teal)', ver: 'var(--teal)',
+    count: 'var(--teal)', id: 'var(--teal)', hash: 'var(--teal)',
+    sig: 'var(--teal)', mrkl: 'var(--teal)', root: 'var(--teal)',
+    valid: 'var(--teal)'
+  };
+
+  const screen = document.getElementById('term-screen');
+  const cursor = document.getElementById('term-cursor');
+  const tabs   = document.querySelectorAll('.term-tab');
+  const replay = document.getElementById('term-replay');
+
+  let animHandle = null;
+  let currentScene = 0;
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderLine(line) {
+    if (line.type === 'gap') return '\n';
+    if (line.type === 'cmd') {
+      // Colorize flags and strings
+      let t = escHtml(line.text);
+      t = t.replace(/(-[A-Za-z])/g, '<span class="t-flag">$1</span>');
+      t = t.replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g, '<span class="t-str">$1</span>');
+      return '<span class="t-prompt">$ </span><span class="t-cmd">' + t + '</span>\n';
+    }
+    if (line.type === 'out') {
+      let t = escHtml(line.text);
+      // Color JSON keys
+      t = t.replace(/"([^"]+)":/g, '<span class="t-key">"$1":</span>');
+      // Color values
+      t = t.replace(/: (true|false)/g, ': <span class="t-ok">$1</span>');
+      if (line.hl) {
+        // Wrap whole line in highlight span
+        return '<span class="t-hl">' + t + '</span>\n';
+      }
+      return '<span class="t-val">' + t + '</span>\n';
+    }
+    return '';
+  }
+
+  async function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function typeText(text, el) {
+    for (let i = 0; i <= text.length; i++) {
+      el.textContent = text.slice(0, i);
+      await sleep(28 + Math.random() * 22);
+    }
+  }
+
+  async function runScene(sceneIdx) {
+    const scene = SCENES[sceneIdx];
+    screen.innerHTML = '';
+    cursor.style.display = 'inline';
+
+    for (const line of scene.lines) {
+      if (animHandle === null) return; // cancelled
+
+      if (line.type === 'gap') {
+        screen.innerHTML += '\n';
+        await sleep(120);
+        continue;
+      }
+
+      if (line.type === 'cmd') {
+        // Type cmd character by character
+        const span = document.createElement('span');
+        screen.appendChild(span);
+        span.innerHTML = '<span class="t-prompt">$ </span>';
+        const textSpan = document.createElement('span');
+        textSpan.className = 't-cmd';
+        span.appendChild(textSpan);
+        screen.appendChild(document.createTextNode(''));
+
+        // type it
+        const raw = line.text;
+        for (let i = 0; i <= raw.length; i++) {
+          if (animHandle === null) return;
+          textSpan.textContent = raw.slice(0, i);
+          await sleep(22 + Math.random() * 18);
+        }
+        screen.appendChild(document.createTextNode('\n'));
+        await sleep(line.indent ? 0 : 50);
+        continue;
+      }
+
+      if (line.type === 'out') {
+        await sleep(line.delay || 80);
+        if (animHandle === null) return;
+        const div = document.createElement('span');
+        div.innerHTML = renderLine(line);
+        screen.appendChild(div);
+        continue;
+      }
+    }
+
+    // Done — hide cursor after a moment
+    await sleep(1200);
+    cursor.style.display = 'none';
+  }
+
+  function startScene(idx) {
+    // Cancel any running animation
+    animHandle = null;
+    setTimeout(() => {
+      animHandle = {};
+      currentScene = idx;
+      tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+      runScene(idx);
+    }, 50);
+  }
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => startScene(i));
+  });
+
+  replay.addEventListener('click', () => startScene(currentScene));
+
+  // Auto-advance scenes
+  async function autoAdvance() {
+    for (let i = 0; i < SCENES.length; i++) {
+      startScene(i);
+      await sleep(4000 + SCENES[i].lines.length * 200);
+    }
+  }
+
+  // Start on load
+  setTimeout(() => autoAdvance(), 800);
+
+
+  // Live demo against real Helios API
+  const API = 'https://ai.oooooooooo.se/api';
+  let demoToken = null;
+  let demoUser  = null;
+
+  async function ensureAccount() {
+    if (demoToken) return true;
+    const username = 'demo_' + Math.random().toString(36).slice(2, 9);
+    try {
+      const r = await fetch(API + '/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      if (!r.ok) throw new Error('account creation failed: ' + r.status);
+      const d = await r.json();
+      demoToken = d.token;
+      demoUser  = d.username;
+      return true;
+    } catch(e) { return false; }
+  }
+
+  document.getElementById('demo-run').addEventListener('click', async () => {
+    const text = document.getElementById('demo-input').value.trim();
+    const out  = document.getElementById('demo-output');
+    const btn  = document.getElementById('demo-run');
+
+    if (!text) {
+      out.innerHTML = '<span style="color:var(--red)">Please enter some text first.</span>';
+      out.classList.add('visible');
+      return;
+    }
+
+    btn.textContent = 'Connecting...';
+    btn.disabled = true;
+    out.innerHTML = '<span style="color:var(--muted)">Connecting to Helios API...</span>';
+    out.classList.add('visible');
+
+    if (!await ensureAccount()) {
+      out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
+      btn.textContent = 'Generate provenance record';
+      btn.disabled = false;
+      return;
+    }
+
+    btn.textContent = 'Submitting...';
+
+    try {
+      const r = await fetch(API + '/records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + demoToken
+        },
+        body: JSON.stringify({ content: text, model: 'browser-demo', context: 'helios-landing-demo' })
+      });
+      if (!r.ok) throw new Error('API error ' + r.status);
+      const d = await r.json();
+      out.innerHTML =
+        '<span class="ok">record sealed on Helios Ledger</span>\n' +
+        '<span style="color:var(--muted)">id            </span>' + d.id + '\n' +
+        '<span style="color:var(--muted)">content_hash  </span><span class="hash">' + d.content_hash + '</span>\n' +
+        '<span style="color:var(--muted)">signature     </span><span class="hash">' + d.signature + '</span>\n' +
+        '<span style="color:var(--muted)">merkle_index  </span>#' + d.merkle_index + '\n' +
+        '<span style="color:var(--muted)">merkle_root   </span><span class="hash">' + d.merkle_root + '</span>\n' +
+        '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
+        '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
+        '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
+    } catch(e) {
+      out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+    }
+
+    btn.textContent = 'Generate provenance record';
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
+'@
+
+git add docs\index.html
+git commit -m 'feat: animated terminal with typewriter and highlight flashes'
+git push
+
+Write-Host 'Done! Check https://ai.oooooooooo.se' -ForegroundColor Green
