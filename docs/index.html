@@ -659,6 +659,7 @@
           <button class="qs-tab active" data-tab="submit">submit</button>
           <button class="qs-tab" data-tab="verify">verify</button>
           <button class="qs-tab" data-tab="ledger">ledger</button>
+          <button class="qs-tab" data-tab="embed">embed</button>
         </div>
         <div class="qs-shell-tabs">
           <button class="qs-shell active" data-shell="bash">bash</button>
@@ -739,6 +740,24 @@
             <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd">requests.get(<span class="qs-str">"https://ai.oooooooooo.se/api/v1/ledger/root"</span>).json()</span></div>
           </div>
           <button class="qs-copy" data-tab="ledger">copy</button>
+        </div>
+
+        <!-- EMBED TAB -->
+        <div class="qs-tab-panel" id="tab-embed">
+          <div class="qs-comment">&lt;!-- Paste one tag wherever you want the badge to appear --&gt;</div>
+          <div class="qs-line">
+            <span class="qs-cmd" style="color:#a5d6ff">&lt;script</span>
+            <span class="qs-cmd">&nbsp;src=<span class="qs-str">"https://ai.oooooooooo.se/api/badge.js"</span></span>
+          </div>
+          <div class="qs-line qs-indent">
+            <span class="qs-cmd">data-record=<span class="qs-str">"<span class="qs-var">YOUR_RECORD_ID</span>"</span><span style="color:#a5d6ff">&gt;&lt;/script&gt;</span></span>
+          </div>
+          <div style="margin-top:1rem;padding:0.6rem 0.9rem;background:var(--bg);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <span style="font-family:var(--ff-mono);font-size:0.68rem;color:var(--muted2);flex-shrink:0">live preview →</span>
+            <script src="https://ai.oooooooooo.se/api/badge.js" data-record="cb6f9a7c-689e-4be1-bfcf-808d55e87c04"></script>
+            <span style="font-family:var(--ff-mono);font-size:0.68rem;color:var(--muted2)">click the badge to inspect the sealed record</span>
+          </div>
+          <button class="qs-copy" data-tab="embed">copy</button>
         </div>
 
       </div>
@@ -1071,6 +1090,10 @@
         if (shell === 'powershell') return 'Invoke-RestMethod ' + url;
         if (shell === 'python')     return 'requests.get("' + url + '").json()';
         return 'curl ' + url;
+      }
+
+      if (tab === 'embed') {
+        return '<script src="https://ai.oooooooooo.se/api/badge.js"\n        data-record="YOUR_RECORD_ID"><\/script>';
       }
 
       // ledger
