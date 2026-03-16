@@ -1,4 +1,4 @@
-name = "helios-ledger-api"
+﻿name = "helios-ledger-api"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -6,8 +6,9 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "helios-ledger"
-database_id = "884d3be3-7389-49ea-aab3-7ae6720d4fa7"
+database_id = "YOUR_DATABASE_ID_HERE"
 
-[[routes]]
-pattern = "ai.oooooooooo.se/api/*"
-zone_name = "oooooooooo.se"
+# Uncomment and edit for custom domain:
+# [[routes]]
+# pattern = "yourdomain.com/api/*"
+# zone_name = "yourdomain.com"

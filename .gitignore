@@ -1,0 +1,14 @@
+﻿node_modules/
+.wrangler/
+*.zip
+_archive/
+_working/
+bots/
+
+# Local scripts
+*.ps1
+!helios-worker/keygen.js
+
+# OS junk
+.DS_Store
+Thumbs.db
