@@ -522,6 +522,13 @@
       0%   { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
+    .hero-ticker {
+      width: 100vw; margin-left: calc(-50vw + 50%);
+      margin-top: 3.5rem; margin-bottom: -1rem;
+    }
+    .hero-ticker .ticker-wrap {
+      border-radius: 0; border-left: none; border-right: none;
+    }
 
     /* ---- LIVE MERKLE PANEL ---- */
     #merkle-panel {
@@ -596,7 +603,6 @@
     <ul class="nav-links" role="list">
       <li><a href="#how-it-works">How it works</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#use-cases">Use cases</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="https://github.com/fogennnnn/helios-ledger" class="nav-cta" rel="noopener">GitHub ↗</a></li>
     </ul>
@@ -619,6 +625,24 @@
         &#10095; GitHub
       </a>
       <a href="#how-it-works" class="btn btn-secondary">How it works →</a>
+    </div>
+    <div class="hero-ticker">
+      <div class="ticker-wrap">
+        <div class="ticker-track" id="ticker-track">
+          <span class="tick-item"><span class="tick-icon">📰</span> <strong>Journalism</strong> — Prove AI-assisted articles weren't altered after publication</span>
+          <span class="tick-item"><span class="tick-icon">⚖️</span> <strong>Legal</strong> — Court-admissible provenance chains for AI-generated evidence</span>
+          <span class="tick-item"><span class="tick-icon">🏥</span> <strong>Healthcare</strong> — Audit AI diagnostic outputs against their original generation context</span>
+          <span class="tick-item"><span class="tick-icon">🏦</span> <strong>Finance</strong> — Regulatory-ready audit trails for AI-generated reports and advisories</span>
+          <span class="tick-item"><span class="tick-icon">🎓</span> <strong>Academia</strong> — Verify AI disclosure in research papers with immutable provenance</span>
+          <span class="tick-item"><span class="tick-icon">🎨</span> <strong>Creative</strong> — Certify AI co-creation credit for artists and content studios</span>
+          <span class="tick-item"><span class="tick-icon">🔍</span> <strong>Compliance</strong> — Prove to auditors exactly what AI generated and when</span>
+          <span class="tick-item"><span class="tick-icon">🤖</span> <strong>AI Pipelines</strong> — Seal every LLM output automatically as it's generated</span>
+          <span class="tick-item"><span class="tick-icon">📜</span> <strong>Contracts</strong> — Immutable record of AI-drafted clauses and negotiation history</span>
+          <span class="tick-item"><span class="tick-icon">🌐</span> <strong>Government</strong> — Transparent audit trail for AI-assisted public communications</span>
+          <span class="tick-item"><span class="tick-icon">🛡️</span> <strong>Security</strong> — Tamper-evident logging of AI threat analysis reports</span>
+          <span class="tick-item"><span class="tick-icon">📊</span> <strong>Research</strong> — Reproducible AI experiments with cryptographic output snapshots</span>
+        </div>
+      </div>
     </div>
     <div class="hero-meta" aria-label="Key facts">
       <div class="meta-item"><span class="meta-val">Ed25519</span><span class="meta-key">Cryptography</span></div>
@@ -807,33 +831,6 @@
         <p>MIT licensed. Audit every line. Self-host on your own infrastructure or contribute to the public instance.</p>
         <span class="feature-tag">MIT</span>
       </article>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- USE CASES -->
-<section id="use-cases" aria-labelledby="uc-heading">
-  <div class="container">
-    <span class="section-label">Applications</span>
-    <h2 id="uc-heading">Built for any industry that touches AI content</h2>
-    <p class="section-lead">Wherever accountability for AI-generated material matters, Helios provides the cryptographic layer of truth.</p>
-    <div class="ticker-wrap">
-      <div class="ticker-track" id="ticker-track">
-        <span class="tick-item"><span class="tick-icon">📰</span> <strong>Journalism</strong> — Prove AI-assisted articles weren’t altered after publication</span>
-        <span class="tick-item"><span class="tick-icon">⚖️</span> <strong>Legal</strong> — Court-admissible provenance chains for AI-generated evidence</span>
-        <span class="tick-item"><span class="tick-icon">🏥</span> <strong>Healthcare</strong> — Audit AI diagnostic outputs against their original generation context</span>
-        <span class="tick-item"><span class="tick-icon">🏦</span> <strong>Finance</strong> — Regulatory-ready audit trails for AI-generated reports and advisories</span>
-        <span class="tick-item"><span class="tick-icon">🎓</span> <strong>Academia</strong> — Verify AI disclosure in research papers with immutable provenance</span>
-        <span class="tick-item"><span class="tick-icon">🎨</span> <strong>Creative</strong> — Certify AI co-creation credit for artists and content studios</span>
-        <span class="tick-item"><span class="tick-icon">🔍</span> <strong>Compliance</strong> — Prove to auditors exactly what AI generated and when</span>
-        <span class="tick-item"><span class="tick-icon">🤖</span> <strong>AI Pipelines</strong> — Seal every LLM output automatically as it’s generated</span>
-        <span class="tick-item"><span class="tick-icon">📜</span> <strong>Contracts</strong> — Immutable record of AI-drafted clauses and negotiation history</span>
-        <span class="tick-item"><span class="tick-icon">🌐</span> <strong>Government</strong> — Transparent audit trail for AI-assisted public communications</span>
-        <span class="tick-item"><span class="tick-icon">🛡️</span> <strong>Security</strong> — Tamper-evident logging of AI threat analysis reports</span>
-        <span class="tick-item"><span class="tick-icon">📊</span> <strong>Research</strong> — Reproducible AI experiments with cryptographic output snapshots</span>
-      </div>
     </div>
   </div>
 </section>
