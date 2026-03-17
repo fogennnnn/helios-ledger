@@ -170,18 +170,30 @@
       transition: transform 420ms cubic-bezier(.4, 0, .2, 1),
                   opacity 420ms cubic-bezier(.4, 0, .2, 1);
     }
-    .hlx-rotator__word.exit {
+    .hlx-rotator__word.exit-left {
       position: absolute;
       top: 0; left: 0;
       opacity: 0;
       transform: translateX(-30%);
       pointer-events: none;
     }
-    .hlx-rotator__word.enter {
+    .hlx-rotator__word.exit-right {
+      position: absolute;
+      top: 0; left: 0;
+      opacity: 0;
+      transform: translateX(30%);
+      pointer-events: none;
+    }
+    .hlx-rotator__word.enter-left {
+      opacity: 0;
+      transform: translateX(-30%);
+    }
+    .hlx-rotator__word.enter-right {
       opacity: 0;
       transform: translateX(30%);
     }
-    .hlx-rotator__word.enter.in {
+    .hlx-rotator__word.enter-left.in,
+    .hlx-rotator__word.enter-right.in {
       opacity: 1;
       transform: translateX(0);
     }
@@ -1538,30 +1550,32 @@
   var MIN_WAIT = 2800;
   var MAX_WAIT = 5200;
 
-  function swap(box, newText) {
+  function swap(box, newText, dir) {
+    /* dir: 'right' = exit left, enter from right (default)
+       dir: 'left'  = exit right, enter from left (reverse) */
+    var exitCls = dir === 'left' ? 'exit-right' : 'exit-left';
+    var enterCls = dir === 'left' ? 'enter-left' : 'enter-right';
     var old = box.querySelector('.hlx-rotator__word');
     if (old) {
-      old.classList.add('exit');
+      old.classList.add(exitCls);
       setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, 450);
     }
     var w = document.createElement('span');
-    w.className = 'hlx-rotator__word enter';
+    w.className = 'hlx-rotator__word ' + enterCls;
     w.textContent = newText;
     box.appendChild(w);
-    /* force reflow then trigger transition */
     w.offsetWidth;
     w.classList.add('in');
-    /* clean up enter classes after transition */
     setTimeout(function () {
-      w.classList.remove('enter', 'in');
+      w.className = 'hlx-rotator__word';
     }, 450);
   }
 
   function advance() {
     index = (index + 1) % pairs.length;
-    swap(leftBox, pairs[index][0]);
+    swap(leftBox, pairs[index][0], 'right');
     setTimeout(function () {
-      swap(rightBox, pairs[index][1]);
+      swap(rightBox, pairs[index][1], 'left');
     }, STAGGER);
   }
 
