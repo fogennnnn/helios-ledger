@@ -134,6 +134,56 @@
       max-width: 680px; margin-bottom: 1.25rem;
     }
     h1 span { color: var(--teal); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .hlx-hero-rotator {
+      max-width: 980px;
+      margin-bottom: 1.25rem;
+    }
+    .hlx-hero-rotator__line {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 0.18em;
+      flex-wrap: nowrap;
+    }
+    .hlx-hero-rotator__window {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      white-space: nowrap;
+      min-width: 1ch;
+    }
+    .hlx-hero-rotator__track {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+      transform: translate3d(0,0,0);
+      transition: transform 546ms cubic-bezier(.22,.61,.36,1);
+    }
+    .hlx-hero-rotator__item {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      margin: 0;
+      padding: 0;
+    }
+    .hlx-hero-rotator__item--white {
+      color: var(--white);
+    }
+    .hlx-hero-rotator__item--teal {
+      color: var(--teal);
+    }
     .hero-sub {
       font-size: 1rem; color: var(--muted);
       max-width: 560px; margin-bottom: 2.5rem; line-height: 1.75;
@@ -614,9 +664,19 @@
   <div class="container">
     <div class="hero-badge">
       <span class="hero-badge-dot"></span>
-      Open-source · MIT License · v1.0.0
+      Open-source · MIT License · v5.2.0
     </div>
-    <h1>Prove where your<br/><span>AI content</span> came from</h1>
+    <h1 class="hlx-hero-rotator" aria-label="Artificial Intelligence Provenance">
+      <span class="sr-only">Artificial Intelligence Provenance</span>
+      <span class="hlx-hero-rotator__line" aria-hidden="true">
+        <span class="hlx-hero-rotator__window hlx-hero-rotator__window--white">
+          <span class="hlx-hero-rotator__track hlx-hero-rotator__track--white"></span>
+        </span>
+        <span class="hlx-hero-rotator__window hlx-hero-rotator__window--teal">
+          <span class="hlx-hero-rotator__track hlx-hero-rotator__track--teal"></span>
+        </span>
+      </span>
+    </h1>
     <p class="hero-sub">
       Helios Ledger cryptographically seals the origin and integrity of AI-generated content using Ed25519 signatures and Merkle-tree attestations. Tamper-proof. Independently verifiable. No trust required.
     </p>
@@ -841,8 +901,8 @@
       <article class="feature" role="listitem">
         <span class="feature-icon">🤝</span>
         <h3>Multi-node consensus</h3>
-        <p>Run a network of Helios nodes. Consensus ensures ledger state is agreed on before new records are committed.</p>
-        <span class="feature-tag">federated</span>
+        <p>Deploy a network of Helios nodes. Each node broadcasts records to peers with Ed25519 signature verification — federated trust without a single point of failure.</p>
+        <span class="feature-tag">federated · GET /api/v1/peers</span>
       </article>
       <article class="feature" role="listitem">
         <span class="feature-icon">📖</span>
@@ -915,7 +975,7 @@
       </article>
       <article class="faq-item" role="listitem">
         <h3>Can I run my own node?</h3>
-        <p>Yes. Clone the repo, configure your environment, and start a local or networked node in minutes. Multi-node consensus lets you run a private provenance network within your organization.</p>
+        <p>Yes. Clone the repo, deploy a Cloudflare Worker with D1, and you have your own node in minutes. Add the public node as a peer to join the federated network — records propagate automatically with cryptographic verification.</p>
       </article>
     </div>
   </div>
@@ -931,11 +991,11 @@
     <p class="section-lead">Whether you live in a terminal or have never opened one — you can start using Helios Ledger today.</p>
 
     <div class="paths" role="list">
-      <!-- DEVELOPER PATH -->
+      <!-- DEVELOPER PATH — FIXED: Cloudflare Workers, not Python -->
       <article class="path" role="listitem" aria-labelledby="path-dev">
         <span class="path-badge dev">⚡ For developers</span>
-        <h3 id="path-dev">Self-host in minutes</h3>
-        <p>Clone the repo, install dependencies, and run your own Helios node. Full control, no vendor lock-in.</p>
+        <h3 id="path-dev">Deploy your own node</h3>
+        <p>Deploy a Cloudflare Worker with D1 database — your own Helios node with full Ed25519 signing. Join the peer network or run standalone.</p>
         <div class="path-steps">
           <div class="path-step">
             <span class="path-step-num">1</span>
@@ -943,11 +1003,23 @@
           </div>
           <div class="path-step">
             <span class="path-step-num">2</span>
-            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">pip install -r requirements.txt</code></span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">cd helios-worker && npm install</code></span>
           </div>
           <div class="path-step">
             <span class="path-step-num">3</span>
-            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">python -m app.main</code> — API live at :8000</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">npx wrangler d1 create helios-ledger</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">4</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">npx wrangler d1 execute helios-ledger --file=schema.sql</code></span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">5</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">node keygen.js</code> &rarr; set keys as secrets</span>
+          </div>
+          <div class="path-step">
+            <span class="path-step-num">6</span>
+            <span><code style="color:var(--teal);font-family:var(--ff-mono);font-size:0.8em">npx wrangler deploy</code></span>
           </div>
         </div>
         <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
@@ -1319,7 +1391,6 @@
     }
 
     function loadRecentViaHealth() {
-      // Fallback: just update root + count, no record rows
       fetch(API + '/ledger/root')
         .then(function(r) { return r.json(); })
         .then(function(d) { updateRoot(d); })
@@ -1332,7 +1403,6 @@
       var updEl   = document.getElementById('merkle-last-updated');
       if (hashEl && data.root) {
         hashEl.textContent = data.root;
-        // Flash the root when it changes
         hashEl.style.animation = 'none';
         hashEl.offsetHeight;
         hashEl.style.animation = 'flash-hl 1s ease forwards';
@@ -1351,7 +1421,6 @@
       var container = document.getElementById('merkle-records');
       if (!container) return;
 
-      // Clear placeholder
       var placeholder = container.querySelector('div');
       if (placeholder) placeholder.remove();
 
@@ -1364,31 +1433,24 @@
         '<span class="mrr-model">' + (rec.model || 'unknown') + '</span>' +
         '<span class="mrr-acct">' + (rec.account_id ? rec.account_id.slice(0,8) + '...' : '') + '</span>';
 
-      // Prepend so newest is on top
       container.insertBefore(row, container.firstChild);
     }
 
-    // Load initial records from DB using the public root endpoint
-    // then augment with recent via health
     function initialLoad() {
       var container = document.getElementById('merkle-records');
       
-      // Fetch root first
       fetch(API + '/ledger/root')
         .then(function(r) { return r.json(); })
         .then(function(d) {
           updateRoot(d);
-          // Try to load a few recent records by guessing IDs won't work,
-          // so we show just the stats and a note
           if (container && knownIds.size === 0) {
             container.innerHTML =
               '<div style="font-family:var(--ff-mono);font-size:0.72rem;color:var(--muted2);padding:0.75rem 0">' +
-              d.record_count + ' records sealed \xc2\xb7 submit content below to see your record appear here' +
+              d.record_count + ' records sealed \u00b7 submit content below to see your record appear here' +
               '</div>';
           }
         }).catch(function() {});
 
-      // Also try health for live count
       fetch(API + '/health')
         .then(function(r) { return r.json(); })
         .then(function(d) {
@@ -1397,17 +1459,14 @@
         }).catch(function() {});
     }
 
-    // After a successful demo submission, add that record to the panel
     window.heliosAddRecord = function(rec) {
       addRecordRow(rec, true);
-      // Also refresh root
       fetch(API + '/ledger/root')
         .then(function(r) { return r.json(); })
         .then(function(d) { updateRoot(d); })
         .catch(function() {});
     };
 
-    // Auto-refresh every 15s
     function startAutoRefresh() {
       refreshTimer = setInterval(function() {
         fetch(API + '/ledger/root')
@@ -1417,7 +1476,6 @@
       }, 15000);
     }
 
-    // Manual refresh button
     var refreshBtn = document.getElementById('merkle-refresh');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', function() {
@@ -1434,12 +1492,118 @@
     initialLoad();
     startAutoRefresh();
   })();
-
-
 </script>
 
-
-
 <div id="tok-toast">TOKEN copied to clipboard</div>
+
+<script>
+(function () {
+  const whiteTerms = [
+    'Artificial Intelligence',
+    'Model Output',
+    'Agent Activity',
+    'Prompt History',
+    'Response Integrity',
+    'Training Evidence',
+    'Inference Logs',
+    'Generated Media',
+    'Synthetic Audio',
+    'Synthetic Video',
+    'Synthetic Images',
+    'Dataset Lineage',
+    'Document Origin',
+    'Message Authenticity',
+    'API Responses',
+    'Automation Runs',
+    'Bot Decisions',
+    'Audit Trails',
+    'Source Attribution',
+    'Claim History',
+    'Content Fingerprints',
+    'Ledger Entries',
+    'Proof Chains',
+    'Publication History',
+    'Workflow Evidence'
+  ];
+
+  const tealTerms = [
+    'Provenance',
+    'Verification',
+    'Authenticity',
+    'Validation',
+    'Attestation',
+    'Traceability',
+    'Integrity',
+    'Certification',
+    'Evidence',
+    'Lineage'
+  ];
+
+  const ROTATE_MS = 1820;
+  const whiteTrack = document.querySelector('.hlx-hero-rotator__track--white');
+  const tealTrack = document.querySelector('.hlx-hero-rotator__track--teal');
+  const whiteWindow = document.querySelector('.hlx-hero-rotator__window--white');
+  const tealWindow = document.querySelector('.hlx-hero-rotator__window--teal');
+  if (!whiteTrack || !tealTrack || !whiteWindow || !tealWindow) return;
+
+  function addItems(track, terms, cls) {
+    terms.forEach((term) => {
+      const item = document.createElement('span');
+      item.className = 'hlx-hero-rotator__item ' + cls;
+      item.textContent = term;
+      track.appendChild(item);
+    });
+  }
+
+  function lockHeight(windowEl, trackEl) {
+    const items = Array.from(trackEl.children);
+    if (!items.length) return 0;
+    const height = Math.ceil(Math.max.apply(null, items.map((item) => item.getBoundingClientRect().height)));
+    windowEl.style.height = height + 'px';
+    items.forEach((item) => {
+      item.style.height = height + 'px';
+      item.style.lineHeight = '1';
+    });
+    return height;
+  }
+
+  addItems(whiteTrack, whiteTerms, 'hlx-hero-rotator__item--white');
+  addItems(tealTrack, tealTerms, 'hlx-hero-rotator__item--teal');
+
+  let whiteStep = 0;
+  let tealStep = 0;
+  let whiteIndex = 0;
+  let tealIndex = 0;
+
+  function measure() {
+    whiteStep = lockHeight(whiteWindow, whiteTrack);
+    tealStep = lockHeight(tealWindow, tealTrack);
+    whiteTrack.style.transform = 'translate3d(0,-' + (whiteIndex * whiteStep) + 'px,0)';
+    tealTrack.style.transform = 'translate3d(0,-' + (tealIndex * tealStep) + 'px,0)';
+  }
+
+  function advance() {
+    whiteIndex = (whiteIndex + 1) % whiteTerms.length;
+    tealIndex = (tealIndex + 1) % tealTerms.length;
+    whiteTrack.style.transform = 'translate3d(0,-' + (whiteIndex * whiteStep) + 'px,0)';
+    tealTrack.style.transform = 'translate3d(0,-' + (tealIndex * tealStep) + 'px,0)';
+  }
+
+  const start = () => {
+    measure();
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setInterval(advance, ROTATE_MS);
+      window.addEventListener('resize', measure, { passive: true });
+    }
+  };
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(start);
+  } else {
+    window.addEventListener('load', start, { once: true });
+  }
+})();
+</script>
+
 </body>
 </html>
