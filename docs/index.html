@@ -662,7 +662,7 @@
 <nav aria-label="Main navigation">
   <div class="nav-inner">
     <a href="/" class="nav-logo" aria-label="Helios Ledger home">
-      <script src="https://ai.oooooooooo.se/api/badge.js" data-record="cb6f9a7c-689e-4be1-bfcf-808d55e87c04"></script>
+      <span class="nav-logo-dot" id="nav-badge-slot"></span>
       helios-ledger
     </a>
     <ul class="nav-links" role="list">
@@ -1369,6 +1369,41 @@
       var el = document.getElementById('live-record-count');
       if (el) el.textContent = d.record_count;
     }).catch(function() {});
+
+  // ── Nav badge: auto-create session record, inject live badge ─────────
+  (function() {
+    var slot = document.getElementById('nav-badge-slot');
+    if (!slot) return;
+    var API = 'https://ai.oooooooooo.se/api/v1';
+    var rnd = 'nav_' + Math.random().toString(36).slice(2, 9);
+    fetch(API + '/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
+      body: JSON.stringify({ username: rnd })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(acct) {
+      return fetch(API + '/records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + acct.token,
+          'Origin': 'https://ai.oooooooooo.se'
+        },
+        body: JSON.stringify({ content: 'helios-ledger nav session badge', model: 'session', context: 'nav-badge' })
+      });
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(rec) {
+      if (rec && rec.id) {
+        var s = document.createElement('script');
+        s.src = 'https://ai.oooooooooo.se/api/badge.js';
+        s.setAttribute('data-record', rec.id);
+        slot.replaceWith(s);
+      }
+    })
+    .catch(function() { /* keep the teal dot fallback */ });
+  })();
 
   // ── Ticker: duplicate items so it loops seamlessly ────────────────────
   (function() {
