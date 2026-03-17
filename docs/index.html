@@ -147,67 +147,44 @@
       border: 0;
     }
     
-.hlx-hero-rotator {
-      max-width: 1100px;
-      margin-bottom: 1.25rem;
-      line-height: 1.12;
-      contain: layout style;
-    }
-    h1.hlx-hero-rotator {
+    .hlx-rotator {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.3em;
       max-width: 1100px;
       font-size: clamp(1.72rem, 4vw, 2.56rem);
-      line-height: 1.12;
+      font-weight: 700;
+      line-height: 1.15;
       letter-spacing: -0.025em;
-      min-height: 2.5em;
     }
-    .hlx-hero-rotator__line {
-      display: inline-flex;
-      align-items: flex-end;
-      gap: 0.26em;
-      flex-wrap: wrap;
-      row-gap: 0.12em;
-    }
-    .hlx-hero-rotator__window {
+    .hlx-rotator__box {
       position: relative;
-      display: inline-flex;
+      display: inline-block;
       overflow: hidden;
-      vertical-align: bottom;
-      white-space: nowrap;
-      min-width: 1ch;
-      max-width: min(100%, 15.5ch);
-      line-height: 1.12;
-      padding: 0.12em 0.08em 0.18em;
+      vertical-align: baseline;
+      height: 1.2em;
       opacity: 0;
-      transform: translate3d(0, 0, 0);
-      transition:
-        opacity 220ms ease,
-        transform 760ms cubic-bezier(.22,.61,.36,1);
+      transition: opacity 300ms ease;
     }
-    .hlx-hero-rotator.is-ready .hlx-hero-rotator__window {
+    .hlx-rotator.is-ready .hlx-rotator__box {
       opacity: 1;
     }
-    .hlx-hero-rotator__track {
+    .hlx-rotator__track {
       display: flex;
       flex-direction: column;
       will-change: transform;
-      transform: translate3d(0,0,0);
-      transition: transform 760ms cubic-bezier(.22,.61,.36,1);
+      transform: translate3d(0, 0, 0);
+      transition: transform 620ms cubic-bezier(.22, .61, .36, 1);
       backface-visibility: hidden;
     }
-    .hlx-hero-rotator__item {
-      display: flex;
-      align-items: flex-end;
+    .hlx-rotator__item {
+      display: block;
       white-space: nowrap;
-      margin: 0;
-      padding: 0.08em 0 0.18em;
-      line-height: 1.12;
+      height: 1.2em;
+      line-height: 1.2em;
     }
-    .hlx-hero-rotator__item--white {
-      color: var(--white);
-    }
-    .hlx-hero-rotator__item--teal {
-      color: var(--teal);
-    }
+    .hlx-rotator__box--left .hlx-rotator__item { color: var(--white); }
+    .hlx-rotator__box--right .hlx-rotator__item { color: var(--teal); }
     .hero-sub {
       font-size: 1rem; color: var(--muted);
       max-width: 560px; margin-bottom: 2.5rem; line-height: 1.75;
@@ -690,14 +667,14 @@
       <span class="hero-badge-dot"></span>
       Open-source · MIT License · v5.2.0
     </div>
-    <h1 class="hlx-hero-rotator" aria-label="Artificial Intelligence Provenance">
-      <span class="sr-only">Artificial Intelligence Provenance</span>
-      <span class="hlx-hero-rotator__line" aria-hidden="true">
-        <span class="hlx-hero-rotator__window hlx-hero-rotator__window--white">
-          <span class="hlx-hero-rotator__track hlx-hero-rotator__track--white"></span>
+    <h1 aria-label="AI Provenance">
+      <span class="sr-only">AI Provenance</span>
+      <span class="hlx-rotator" aria-hidden="true">
+        <span class="hlx-rotator__box hlx-rotator__box--left">
+          <span class="hlx-rotator__track" id="rotator-left"></span>
         </span>
-        <span class="hlx-hero-rotator__window hlx-hero-rotator__window--teal">
-          <span class="hlx-hero-rotator__track hlx-hero-rotator__track--teal"></span>
+        <span class="hlx-rotator__box hlx-rotator__box--right">
+          <span class="hlx-rotator__track" id="rotator-right"></span>
         </span>
       </span>
     </h1>
@@ -1522,181 +1499,99 @@
 
 <script>
 (function () {
-  const sharedTerms = [
-    'AI Provenance',
-    'Source Proof',
-    'Model Integrity',
-    'Prompt Lineage',
-    'Content Ledger',
-    'Origin Signals',
-    'Audit Evidence',
-    'Output History',
-    'Trust Markers',
-    'Claim Trace',
-    'Media Proof',
-    'Response Lineage',
-    'Proof Chains',
-    'Source Context',
-    'Origin Records',
-    'Signal Integrity',
-    'Ledger Entries',
-    'Model Trace',
-    'Evidence Trail',
-    'Trust Signals'
+  /* ── Synced word-pair rotator ─────────────────────────────────────── */
+  var pairs = [
+    ['AI',        'Provenance'],
+    ['Source',    'Proof'],
+    ['Model',     'Integrity'],
+    ['Prompt',    'Lineage'],
+    ['Content',   'Ledger'],
+    ['Origin',    'Signals'],
+    ['Audit',     'Evidence'],
+    ['Output',    'History'],
+    ['Trust',     'Markers'],
+    ['Claim',     'Trace'],
+    ['Media',     'Proof'],
+    ['Response',  'Lineage'],
+    ['Proof',     'Chains'],
+    ['Source',    'Context'],
+    ['Origin',    'Records'],
+    ['Signal',    'Integrity'],
+    ['Ledger',    'Entries'],
+    ['Model',     'Trace'],
+    ['Evidence',  'Trail'],
+    ['Trust',     'Signals']
   ];
 
-  const heroRoot = document.querySelector('h1.hlx-hero-rotator');
-  if (!heroRoot) return;
-
-  const whiteTrack = heroRoot.querySelector('.hlx-hero-rotator__track--white');
-  const tealTrack = heroRoot.querySelector('.hlx-hero-rotator__track--teal');
-  const whiteWindow = heroRoot.querySelector('.hlx-hero-rotator__window--white');
-  const tealWindow = heroRoot.querySelector('.hlx-hero-rotator__window--teal');
-  if (!whiteTrack || !tealTrack || !whiteWindow || !tealWindow) return;
-
-  function shuffledCopy(seedOffset) {
-    const copy = sharedTerms.slice();
-    for (let i = copy.length - 1; i > 0; i -= 1) {
-      const j = (Math.floor(Math.random() * (i + 1)) + seedOffset) % (i + 1);
-      const tmp = copy[i];
-      copy[i] = copy[j];
-      copy[j] = tmp;
-    }
-    return copy;
+  /* Shuffle once */
+  for (var i = pairs.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pairs[i]; pairs[i] = pairs[j]; pairs[j] = tmp;
   }
 
-  function addItems(track, terms, cls) {
-    track.innerHTML = '';
-    terms.forEach((term) => {
-      const item = document.createElement('span');
-      item.className = 'hlx-hero-rotator__item ' + cls;
-      item.textContent = term;
-      track.appendChild(item);
-    });
-  }
+  var root     = document.querySelector('.hlx-rotator');
+  var leftBox  = document.querySelector('.hlx-rotator__box--left');
+  var rightBox = document.querySelector('.hlx-rotator__box--right');
+  var leftTrack  = document.getElementById('rotator-left');
+  var rightTrack = document.getElementById('rotator-right');
+  if (!root || !leftTrack || !rightTrack) return;
 
-  const whiteTerms = shuffledCopy(1);
-  const tealTerms = shuffledCopy(3);
+  /* Populate items */
+  pairs.forEach(function (p) {
+    var l = document.createElement('span');
+    l.className = 'hlx-rotator__item';
+    l.textContent = p[0];
+    leftTrack.appendChild(l);
 
-  addItems(whiteTrack, whiteTerms, 'hlx-hero-rotator__item--white');
-  addItems(tealTrack, tealTerms, 'hlx-hero-rotator__item--teal');
+    var r = document.createElement('span');
+    r.className = 'hlx-rotator__item';
+    r.textContent = p[1];
+    rightTrack.appendChild(r);
+  });
 
-  const lanes = [
-    {
-      track: whiteTrack,
-      windowEl: whiteWindow,
-      terms: whiteTerms,
-      index: 0,
-      step: 0,
-      timer: null,
-      minDelay: 5000,
-      maxDelay: 7600,
-      reverseChance: 0.38,
-      horizontalChance: 0.34,
-      lastDirection: 1
-    },
-    {
-      track: tealTrack,
-      windowEl: tealWindow,
-      terms: tealTerms,
-      index: 4,
-      step: 0,
-      timer: null,
-      minDelay: 5600,
-      maxDelay: 8600,
-      reverseChance: 0.46,
-      horizontalChance: 0.42,
-      lastDirection: -1
-    }
-  ];
-
-  function clampWordWidth() {
-    const widest = Math.max.apply(null, sharedTerms.map((term) => term.length));
-    const safeWidth = Math.min(Math.max(widest + 0.4, 11.6), 15.5);
-    whiteWindow.style.maxWidth = safeWidth + 'ch';
-    tealWindow.style.maxWidth = safeWidth + 'ch';
-  }
-
-  function lockHeight(windowEl, trackEl) {
-    const items = Array.from(trackEl.children);
-    if (!items.length) return 0;
-    const height = Math.ceil(Math.max.apply(null, items.map((item) => item.getBoundingClientRect().height)));
-    const padded = Math.ceil(height + 8);
-    windowEl.style.height = padded + 'px';
-    items.forEach((item) => {
-      item.style.height = padded + 'px';
-    });
-    return padded;
-  }
-
-  function renderLane(lane, motion) {
-    lane.track.style.transform = 'translate3d(0,-' + (lane.index * lane.step) + 'px,0)';
-    if (motion === 'left') {
-      lane.windowEl.style.transform = 'translate3d(-0.08em,0,0)';
-    } else if (motion === 'right') {
-      lane.windowEl.style.transform = 'translate3d(0.08em,0,0)';
-    } else {
-      lane.windowEl.style.transform = 'translate3d(0,0,0)';
-    }
-    window.setTimeout(() => {
-      lane.windowEl.style.transform = 'translate3d(0,0,0)';
-    }, 880);
-  }
+  var index    = 0;
+  var itemH    = 0;
+  var timer    = null;
+  var MIN_WAIT = 2800;
+  var MAX_WAIT = 5200;
+  var STAGGER  = 140;   /* ms delay between left and right slide */
 
   function measure() {
-    clampWordWidth();
-    lanes.forEach((lane) => {
-      lane.step = lockHeight(lane.windowEl, lane.track);
-      renderLane(lane, 'reset');
-    });
-    heroRoot.classList.add('is-ready');
+    var items = leftTrack.querySelectorAll('.hlx-rotator__item');
+    if (!items.length) return;
+    itemH = items[0].getBoundingClientRect().height;
+    leftBox.style.height  = itemH + 'px';
+    rightBox.style.height = itemH + 'px';
+    slide(leftTrack, index);
+    slide(rightTrack, index);
+    root.classList.add('is-ready');
   }
 
-  function chooseDirection(lane) {
-    let direction = Math.random() < lane.reverseChance ? -1 : 1;
-    if (Math.random() < 0.22) direction = lane.lastDirection * -1;
-    lane.lastDirection = direction;
-    return direction;
+  function slide(track, idx) {
+    track.style.transform = 'translate3d(0,-' + (idx * itemH) + 'px,0)';
   }
 
-  function chooseMotion(lane, direction) {
-    if (Math.random() > lane.horizontalChance) return 'none';
-    return direction > 0 ? 'left' : 'right';
+  function advance() {
+    index = (index + 1) % pairs.length;
+    slide(leftTrack, index);
+    setTimeout(function () { slide(rightTrack, index); }, STAGGER);
   }
 
-  function advanceLane(lane) {
-    if (!lane.step || lane.terms.length < 2) return;
-    const direction = chooseDirection(lane);
-    const motion = chooseMotion(lane, direction);
-    lane.index = (lane.index + direction + lane.terms.length) % lane.terms.length;
-    renderLane(lane, motion);
-  }
-
-  function scheduleLane(lane) {
-    const delay = lane.minDelay + Math.floor(Math.random() * (lane.maxDelay - lane.minDelay + 1));
-    lane.timer = window.setTimeout(() => {
-      advanceLane(lane);
-      scheduleLane(lane);
+  function scheduleNext() {
+    var delay = MIN_WAIT + Math.floor(Math.random() * (MAX_WAIT - MIN_WAIT));
+    timer = setTimeout(function () {
+      advance();
+      scheduleNext();
     }, delay);
   }
 
-  function clearTimers() {
-    lanes.forEach((lane) => {
-      if (lane.timer) {
-        window.clearTimeout(lane.timer);
-        lane.timer = null;
-      }
-    });
-  }
-
-  const start = () => {
+  function start() {
     measure();
     window.addEventListener('resize', measure, { passive: true });
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      clearTimers();
-      lanes.forEach(scheduleLane);
+      scheduleNext();
     }
-  };
+  }
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(start);
