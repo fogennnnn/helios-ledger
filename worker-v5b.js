@@ -1,7 +1,6 @@
-// Helios Ledger Worker v5.2 — Incremental Merkle Tree + Multi-Node Consensus
+// Helios Ledger Worker v5 — Incremental Merkle Tree
 // O(log n) per insert/proof instead of O(n)
 // Scales to 1M+ records without timeout
-// Peer propagation: records broadcast to peer nodes with Ed25519 verification
 
 import { createPrivateKey, createPublicKey, generateKeyPairSync,
          sign as nodeCryptoSign, verify as nodeCryptoVerify } from 'node:crypto';
@@ -14,12 +13,7 @@ const RATE_WINDOW_ACCT  = 3600;
 const RATE_MAX_ACCT     = 10;
 const RATE_WINDOW_REC   = 60;
 const RATE_MAX_REC      = 100;
-const PEER_RECEIVE_MAX  = 200;       // max peer records per minute
-const PEER_RECEIVE_WIN  = 60;
-const TS_MAX_SKEW_MS    = 60000;
-const TS_FUTURE_SKEW_MS = 5000;
-const NONCE_ENDPOINT    = 'https://ai.oooooooooooo.se/api/v1/nonce';
-const VERSION           = '5.2.0';
+const VERSION           = '5.1.0';
 
 const BADGE_JS = `// helios-badge.js — Embeddable verification badge for Helios Ledger
 // Usage: <script src="https://ai.oooooooooo.se/badge.js" data-record="RECORD_ID"></script>
@@ -540,21 +534,9 @@ async function migrateToIncrementalTree(db) {
 
 // ─── Route handlers ────────────────────────────────────────────────────────
 
-async function handleNonce(origin) {
-  return new Response(crypto.randomUUID(), {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
-      ...corsHeaders(origin),
-    },
-  });
-}
-
 async function handleHealth(env, origin) {
   const meta = await env.DB.prepare("SELECT value FROM ledger_meta WHERE key='record_count'").first();
   const treeCount = await env.DB.prepare('SELECT COUNT(*) as cnt FROM merkle_tree WHERE level = 0').first();
-  const peers = parsePeers(env);
   return jsonR({
     status: 'ok',
     service: 'helios-ledger',
@@ -562,8 +544,6 @@ async function handleHealth(env, origin) {
     record_count: parseInt(meta?.value || '0'),
     tree_nodes: treeCount?.cnt || 0,
     merkle_engine: 'incremental',
-    consensus: peers.length > 0 ? 'federated' : 'standalone',
-    peer_count: peers.length,
     timestamp: new Date().toISOString(),
   }, 200, origin);
 }
@@ -650,13 +630,6 @@ async function handleCreateAccount(req, env, origin) {
   const { root, proof } = await appendLeaf(env.DB, leafIdx, contentHash);
   await env.DB.prepare("UPDATE ledger_meta SET value=? WHERE key='root'").bind(root).run();
 
-  // Broadcast account creation record to peers
-  broadcastToPeers(env, {
-    id: recordId, content_hash: contentHash, signature,
-    model: 'system', context: 'account_creation',
-    account_id: id, merkle_index: leafIdx, timestamp: now,
-  });
-
   return jsonR({
     id, username,
     token: rawToken,
@@ -713,14 +686,6 @@ async function handleSubmitRecord(req, env, origin) {
   try {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-
-    let nonce = null;
-    try {
-      const resp = await fetch(NONCE_ENDPOINT, { cf: { cacheTtl: 0, cacheEverything: false } });
-      if (resp && resp.ok) nonce = (await resp.text()).trim();
-    } catch {}
-    if (!nonce) nonce = crypto.randomUUID();
-
     const sigPayload = JSON.stringify({
       id, content_hash: contentHash, model: model || null,
       timestamp: now, account_id: account.id,
@@ -750,14 +715,6 @@ async function handleSubmitRecord(req, env, origin) {
       await env.DB.prepare("UPDATE ledger_meta SET value=? WHERE key='root'").bind(root).run();
     } catch (e) { return errR('E:rootupd:' + e.message, 500, origin); }
 
-    // Broadcast to peers (non-blocking, fire-and-forget)
-    broadcastToPeers(env, {
-      id, content_hash: contentHash, signature,
-      model: model || null, context: context || null,
-      account_id: account.id, merkle_index: leafIdx, timestamp: now,
-      nonce,
-    });
-
     return jsonR({
       id, content_hash: contentHash, signature,
       signing_algorithm: 'Ed25519',
@@ -768,7 +725,6 @@ async function handleSubmitRecord(req, env, origin) {
       model: model || null,
       context: context || null,
       timestamp: now,
-      nonce,
       duplicate_of: dupe ? dupe.id : null,
     }, 201, origin);
 
@@ -861,194 +817,6 @@ async function handleMigrate(env, origin) {
   return jsonR({ status: 'already_migrated' }, 200, origin);
 }
 
-// ─── Peer Consensus ────────────────────────────────────────────────────────
-//
-// Each node has its own Ed25519 key pair. PEERS env var is a JSON array:
-//   [{"url":"https://peer.example.com","public_key":{"kty":"OKP","crv":"Ed25519","x":"..."}}]
-//
-// After sealing a record locally, the node broadcasts to all peers via
-// POST /api/v1/peer/receive. The receiving node verifies the origin node's
-// signature before accepting. Records received from peers are NOT re-broadcast
-// (source_node != null), preventing infinite loops.
-
-function parsePeers(env) {
-  if (!env.PEERS) return [];
-  try {
-    const peers = JSON.parse(env.PEERS);
-    if (!Array.isArray(peers)) return [];
-    return peers.filter(p => p.url && p.public_key);
-  } catch { return []; }
-}
-
-function getNodeId(env) {
-  // Node ID is derived from the public key for unique identification
-  if (!env.SIGNING_PUBLIC_KEY) return null;
-  try {
-    const pub = JSON.parse(env.SIGNING_PUBLIC_KEY);
-    return pub.x ? pub.x.substring(0, 16) : null;
-  } catch { return null; }
-}
-
-// Broadcast a sealed record to all peers (fire-and-forget, non-blocking)
-function broadcastToPeers(env, record) {
-  const peers = parsePeers(env);
-  if (peers.length === 0) return;
-  if (!env.SIGNING_PRIVATE_KEY || !env.SIGNING_PUBLIC_KEY) return;
-
-  // Sign the broadcast payload with this node's key
-  const payload = JSON.stringify({
-    record_id: record.id,
-    content_hash: record.content_hash,
-    signature: record.signature,
-    model: record.model,
-    context: record.context,
-    account_id: record.account_id,
-    merkle_index: record.merkle_index,
-    timestamp: record.timestamp,
-    nonce: record.nonce || null,
-  });
-  const peerSig = heliosSign(env.SIGNING_PRIVATE_KEY, payload);
-
-  const body = JSON.stringify({
-    record: JSON.parse(payload),
-    origin_signature: peerSig,
-    origin_public_key: JSON.parse(env.SIGNING_PUBLIC_KEY),
-  });
-
-  for (const peer of peers) {
-    // Fire-and-forget — don't block the response
-    fetch(peer.url.replace(/\/$/, '') + '/api/v1/peer/receive', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-    }).catch((e) => console.error('Peer broadcast failed:', peer.url, e && e.message ? e.message : e));
-  }
-}
-
-async function handlePeerReceive(req, env, origin) {
-  // Rate limit peer receives
-  const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
-  if (!await rateCheck(env.DB, 'peer:' + ip, PEER_RECEIVE_MAX, PEER_RECEIVE_WIN))
-    return errR('Peer rate limit exceeded.', 429, origin);
-
-  let body;
-  try { body = await req.json(); } catch { return errR('Invalid JSON', 400, origin); }
-
-  const { record, origin_signature, origin_public_key } = body;
-  if (!record || !origin_signature || !origin_public_key)
-    return errR('Missing required fields: record, origin_signature, origin_public_key', 400, origin);
-
-  // Validate the origin public key is from a known peer
-  const peers = parsePeers(env);
-  const knownPeer = peers.find(p => p.public_key && p.public_key.x === origin_public_key.x);
-  if (!knownPeer)
-    return errR('Unknown peer. Origin public key not in this node\'s peer list.', 403, origin);
-
-  // Verify the origin node's signature over the record payload
-  const payload = JSON.stringify({
-    record_id: record.record_id,
-    content_hash: record.content_hash,
-    signature: record.signature,
-    model: record.model,
-    context: record.context,
-    account_id: record.account_id,
-    merkle_index: record.merkle_index,
-    timestamp: record.timestamp,
-    nonce: record.nonce || null,
-  });
-
-  const sigValid = heliosVerify(JSON.stringify(origin_public_key), payload, origin_signature);
-  if (!sigValid)
-    return errR('Invalid origin signature. Record rejected.', 400, origin);
-
-  const ts = Date.parse(record.timestamp);
-  if (!ts || Number.isNaN(ts))
-    return errR('Invalid timestamp', 400, origin);
-
-  const nowMs = Date.now();
-  if (ts > nowMs + TS_FUTURE_SKEW_MS)
-    return errR('Future timestamp rejected', 400, origin);
-
-  if (nowMs - ts > TS_MAX_SKEW_MS)
-    return errR('Replay rejected (too old)', 400, origin);
-
-  if (record.nonce) {
-    try {
-      const seen = await env.DB.prepare('SELECT 1 FROM seen_nonces WHERE nonce = ?').bind(record.nonce).first();
-      if (seen)
-        return errR('Replay rejected (nonce reuse)', 400, origin);
-      await env.DB.prepare('INSERT INTO seen_nonces (nonce) VALUES (?)').bind(record.nonce).run();
-    } catch {}
-  }
-
-  // Check if we already have this record (by content_hash or original record_id)
-  const existing = await env.DB.prepare(
-    'SELECT id FROM records WHERE content_hash = ? OR id = ?'
-  ).bind(record.content_hash, record.record_id).first();
-
-  if (existing)
-    return jsonR({ status: 'duplicate', existing_id: existing.id }, 200, origin);
-
-  // Accept the record: sign it ourselves and insert into our tree
-  if (!env.SIGNING_PRIVATE_KEY) return errR('Server signing key not configured', 500, origin);
-
-  const localId = crypto.randomUUID();
-  const now = new Date().toISOString();
-  const localSigPayload = JSON.stringify({
-    id: localId, content_hash: record.content_hash, model: record.model || null,
-    timestamp: now, account_id: record.account_id,
-  });
-  const localSig = heliosSign(env.SIGNING_PRIVATE_KEY, localSigPayload);
-
-  const countRow = await env.DB.prepare("SELECT value FROM ledger_meta WHERE key='record_count'").first();
-  const leafIdx = parseInt(countRow?.value || '0');
-
-  // source_node marks this as peer-received — prevents re-broadcast
-  await env.DB.batch([
-    env.DB.prepare(
-      'INSERT INTO records (id, content_hash, signature, model, context, account_id, merkle_index, timestamp, source_node) VALUES (?,?,?,?,?,?,?,?,?)'
-    ).bind(localId, record.content_hash, localSig, record.model || null,
-           record.context || null, record.account_id, leafIdx, now, knownPeer.url),
-    env.DB.prepare('INSERT OR IGNORE INTO merkle_nodes (idx, hash) VALUES (?,?)').bind(leafIdx, record.content_hash),
-    env.DB.prepare("UPDATE ledger_meta SET value=? WHERE key='record_count'").bind(String(leafIdx + 1)),
-  ]);
-
-  // Incremental Merkle update
-  const { root, proof } = await appendLeaf(env.DB, leafIdx, record.content_hash);
-  await env.DB.prepare("UPDATE ledger_meta SET value=? WHERE key='root'").bind(root).run();
-
-  return jsonR({
-    status: 'accepted',
-    local_id: localId,
-    origin_record_id: record.record_id,
-    content_hash: record.content_hash,
-    merkle_index: leafIdx,
-    merkle_root: root,
-    source_node: knownPeer.url,
-  }, 201, origin);
-}
-
-async function handlePeers(env, origin) {
-  const peers = parsePeers(env);
-  const nodeId = getNodeId(env);
-  const pubKey = env.SIGNING_PUBLIC_KEY ? JSON.parse(env.SIGNING_PUBLIC_KEY) : null;
-  const countRow = await env.DB.prepare("SELECT value FROM ledger_meta WHERE key='record_count'").first();
-
-  return jsonR({
-    node_id: nodeId,
-    public_key: pubKey,
-    record_count: parseInt(countRow?.value || '0'),
-    peers: peers.map(p => ({
-      url: p.url,
-      public_key: p.public_key,
-    })),
-    peer_count: peers.length,
-    consensus: peers.length > 0 ? 'federated' : 'standalone',
-    endpoint: '/api/v1/peer/receive',
-    note: 'Add this node\'s URL and public_key to your PEERS config to form a consensus network.',
-  }, 200, origin);
-}
-
 // ─── Main router ───────────────────────────────────────────────────────────
 
 export default {
@@ -1070,7 +838,6 @@ export default {
 
     try {
       if (method === 'GET' && p === '/api/health')       return await handleHealth(env, origin);
-      if (method === 'GET' && p === '/api/nonce')         return await handleNonce(origin);
       if (method === 'GET' && p === '/api/pubkey')        return await handlePubkey(env, origin);
       if (method === 'GET' && p === '/api/keygen')        return await handleKeygen(origin);
       if (method === 'POST' && p === '/api/accounts')     return await handleCreateAccount(request, env, origin);
@@ -1078,10 +845,6 @@ export default {
       if (method === 'GET' && p === '/api/ledger/root')   return await handleLedgerRoot(env, origin);
       if (method === 'GET' && p === '/api/ledger/recent') return await handleLedgerRecent(env, origin);
       if (method === 'POST' && p === '/api/migrate')      return await handleMigrate(env, origin);
-
-      // Peer consensus
-      if (method === 'GET'  && p === '/api/peers')          return await handlePeers(env, origin);
-      if (method === 'POST' && p === '/api/peer/receive')   return await handlePeerReceive(request, env, origin);
 
       const recM = p.match(/^\/api\/records\/([^/]+)$/);
       if (method === 'GET' && recM) return await handleGetRecord(recM[1], env, origin);

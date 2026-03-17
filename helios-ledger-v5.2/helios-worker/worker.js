@@ -16,9 +16,6 @@ const RATE_WINDOW_REC   = 60;
 const RATE_MAX_REC      = 100;
 const PEER_RECEIVE_MAX  = 200;       // max peer records per minute
 const PEER_RECEIVE_WIN  = 60;
-const TS_MAX_SKEW_MS    = 60000;
-const TS_FUTURE_SKEW_MS = 5000;
-const NONCE_ENDPOINT    = 'https://ai.oooooooooooo.se/api/v1/nonce';
 const VERSION           = '5.2.0';
 
 const BADGE_JS = `// helios-badge.js — Embeddable verification badge for Helios Ledger
@@ -540,17 +537,6 @@ async function migrateToIncrementalTree(db) {
 
 // ─── Route handlers ────────────────────────────────────────────────────────
 
-async function handleNonce(origin) {
-  return new Response(crypto.randomUUID(), {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
-      ...corsHeaders(origin),
-    },
-  });
-}
-
 async function handleHealth(env, origin) {
   const meta = await env.DB.prepare("SELECT value FROM ledger_meta WHERE key='record_count'").first();
   const treeCount = await env.DB.prepare('SELECT COUNT(*) as cnt FROM merkle_tree WHERE level = 0').first();
@@ -713,14 +699,6 @@ async function handleSubmitRecord(req, env, origin) {
   try {
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-
-    let nonce = null;
-    try {
-      const resp = await fetch(NONCE_ENDPOINT, { cf: { cacheTtl: 0, cacheEverything: false } });
-      if (resp && resp.ok) nonce = (await resp.text()).trim();
-    } catch {}
-    if (!nonce) nonce = crypto.randomUUID();
-
     const sigPayload = JSON.stringify({
       id, content_hash: contentHash, model: model || null,
       timestamp: now, account_id: account.id,
@@ -755,7 +733,6 @@ async function handleSubmitRecord(req, env, origin) {
       id, content_hash: contentHash, signature,
       model: model || null, context: context || null,
       account_id: account.id, merkle_index: leafIdx, timestamp: now,
-      nonce,
     });
 
     return jsonR({
@@ -768,7 +745,6 @@ async function handleSubmitRecord(req, env, origin) {
       model: model || null,
       context: context || null,
       timestamp: now,
-      nonce,
       duplicate_of: dupe ? dupe.id : null,
     }, 201, origin);
 
@@ -905,7 +881,6 @@ function broadcastToPeers(env, record) {
     account_id: record.account_id,
     merkle_index: record.merkle_index,
     timestamp: record.timestamp,
-    nonce: record.nonce || null,
   });
   const peerSig = heliosSign(env.SIGNING_PRIVATE_KEY, payload);
 
@@ -921,7 +896,7 @@ function broadcastToPeers(env, record) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,
-    }).catch((e) => console.error('Peer broadcast failed:', peer.url, e && e.message ? e.message : e));
+    }).catch(() => {}); // Silently ignore peer failures
   }
 }
 
@@ -940,7 +915,8 @@ async function handlePeerReceive(req, env, origin) {
 
   // Validate the origin public key is from a known peer
   const peers = parsePeers(env);
-  const knownPeer = peers.find(p => p.public_key && p.public_key.x === origin_public_key.x);
+  const originKeyStr = JSON.stringify(origin_public_key);
+  const knownPeer = peers.find(p => JSON.stringify(p.public_key) === originKeyStr);
   if (!knownPeer)
     return errR('Unknown peer. Origin public key not in this node\'s peer list.', 403, origin);
 
@@ -954,32 +930,11 @@ async function handlePeerReceive(req, env, origin) {
     account_id: record.account_id,
     merkle_index: record.merkle_index,
     timestamp: record.timestamp,
-    nonce: record.nonce || null,
   });
 
   const sigValid = heliosVerify(JSON.stringify(origin_public_key), payload, origin_signature);
   if (!sigValid)
     return errR('Invalid origin signature. Record rejected.', 400, origin);
-
-  const ts = Date.parse(record.timestamp);
-  if (!ts || Number.isNaN(ts))
-    return errR('Invalid timestamp', 400, origin);
-
-  const nowMs = Date.now();
-  if (ts > nowMs + TS_FUTURE_SKEW_MS)
-    return errR('Future timestamp rejected', 400, origin);
-
-  if (nowMs - ts > TS_MAX_SKEW_MS)
-    return errR('Replay rejected (too old)', 400, origin);
-
-  if (record.nonce) {
-    try {
-      const seen = await env.DB.prepare('SELECT 1 FROM seen_nonces WHERE nonce = ?').bind(record.nonce).first();
-      if (seen)
-        return errR('Replay rejected (nonce reuse)', 400, origin);
-      await env.DB.prepare('INSERT INTO seen_nonces (nonce) VALUES (?)').bind(record.nonce).run();
-    } catch {}
-  }
 
   // Check if we already have this record (by content_hash or original record_id)
   const existing = await env.DB.prepare(
@@ -1070,7 +1025,6 @@ export default {
 
     try {
       if (method === 'GET' && p === '/api/health')       return await handleHealth(env, origin);
-      if (method === 'GET' && p === '/api/nonce')         return await handleNonce(origin);
       if (method === 'GET' && p === '/api/pubkey')        return await handlePubkey(env, origin);
       if (method === 'GET' && p === '/api/keygen')        return await handleKeygen(origin);
       if (method === 'POST' && p === '/api/accounts')     return await handleCreateAccount(request, env, origin);

@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "helios-ledger"
-database_id = "884d3be3-7389-49ea-aab3-7ae6720d4fa7"
+database_id = "YOUR_DATABASE_ID_HERE"
 
 # ─── Multi-Node Consensus ─────────────────────────────────────────────────
 # To join a peer network, set PEERS as a JSON array of peer nodes.

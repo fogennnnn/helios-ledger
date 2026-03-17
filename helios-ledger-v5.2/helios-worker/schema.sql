@@ -55,8 +55,3 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 CREATE INDEX IF NOT EXISTS idx_rate_limits_window ON rate_limits(window_start);
 CREATE INDEX IF NOT EXISTS idx_records_content_hash ON records(content_hash);
 CREATE INDEX IF NOT EXISTS idx_records_merkle_index ON records(merkle_index);
-
-
-CREATE TABLE IF NOT EXISTS seen_nonces (
-  nonce TEXT PRIMARY KEY
-);
