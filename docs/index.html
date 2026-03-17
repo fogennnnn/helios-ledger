@@ -685,10 +685,10 @@
       <span class="sr-only">AI Provenance</span>
       <span class="hlx-rotator" aria-hidden="true">
         <span class="hlx-rotator__box hlx-rotator__box--left" id="rotator-left">
-          <span class="hlx-rotator__word">AI</span>
+          <span class="hlx-rotator__word current">AI</span>
         </span>
         <span class="hlx-rotator__box hlx-rotator__box--right" id="rotator-right">
-          <span class="hlx-rotator__word">Provenance</span>
+          <span class="hlx-rotator__word current">Provenance</span>
         </span>
       </span>
     </h1>
@@ -1551,15 +1551,14 @@
   var MAX_WAIT = 5200;
 
   function swap(box, newText, dir) {
-    /* dir: 'right' = exit left, enter from right (default)
-       dir: 'left'  = exit right, enter from left (reverse) */
     var exitCls = dir === 'left' ? 'exit-right' : 'exit-left';
     var enterCls = dir === 'left' ? 'enter-left' : 'enter-right';
-    var old = box.querySelector('.hlx-rotator__word');
-    if (old) {
+    /* kill ALL old words — not just the first .hlx-rotator__word */
+    var oldWords = box.querySelectorAll('.hlx-rotator__word');
+    oldWords.forEach(function (old) {
       old.classList.add(exitCls);
       setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, 450);
-    }
+    });
     var w = document.createElement('span');
     w.className = 'hlx-rotator__word ' + enterCls;
     w.textContent = newText;
@@ -1567,7 +1566,7 @@
     w.offsetWidth;
     w.classList.add('in');
     setTimeout(function () {
-      w.className = 'hlx-rotator__word';
+      w.className = 'hlx-rotator__word current';
     }, 450);
   }
 
