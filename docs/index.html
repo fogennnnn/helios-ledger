@@ -151,25 +151,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .nav-badge-card-copy {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      background: none;
-      border: 1px solid rgba(45,212,170,0.2);
-      color: var(--muted);
-      font-size: 0.62rem;
-      font-family: var(--ff-mono);
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-top: 6px;
-      transition: all 0.15s;
-    }
-    .nav-badge-card-copy:hover {
-      border-color: var(--teal);
-      color: var(--teal);
-    }
     .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
     .nav-links a {
       color: var(--muted); font-size: 0.82rem; padding: 0.35rem 0.75rem;
@@ -1461,21 +1442,26 @@
       if (el) el.textContent = d.record_count;
     }).catch(function() {});
 
-  // ── Nav badge: populate hover card from health endpoint ─────────────
+  // ── Nav badge: populate hover card from health + ledger/root ─────────
   (function() {
     var card = document.getElementById('nav-badge-card');
     if (!card) return;
-    fetch('https://ai.oooooooooo.se/api/v1/health')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
+    var API = 'https://ai.oooooooooo.se/api/v1';
+    Promise.all([
+      fetch(API + '/health').then(function(r) { return r.json(); }),
+      fetch(API + '/ledger/root').then(function(r) { return r.json(); }).catch(function() { return {}; })
+    ]).then(function(res) {
+      var d = res[0];
+      var lr = res[1];
+      var root = lr.root || d.merkle_root || '';
+      var sh = root.length > 16 ? root.slice(0,8) + '…' + root.slice(-6) : (root || '—');
       card.innerHTML =
         '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--teal)">✓ online</span></div>' +
         '<div class="nav-badge-card-row"><span class="nav-badge-card-label">version</span><span class="nav-badge-card-val">' + (d.version || '—') + '</span></div>' +
         '<div class="nav-badge-card-row"><span class="nav-badge-card-label">records</span><span class="nav-badge-card-val">' + (d.record_count || '—') + '</span></div>' +
-        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">merkle root</span><span class="nav-badge-card-val" title="' + (d.merkle_root || '') + '">' + (d.merkle_root ? d.merkle_root.slice(0,8) + '…' + d.merkle_root.slice(-6) : '—') + '</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">merkle root</span><span class="nav-badge-card-val" title="' + root + '">' + sh + '</span></div>' +
         '<div class="nav-badge-card-row"><span class="nav-badge-card-label">crypto</span><span class="nav-badge-card-val">Ed25519</span></div>';
-    })
-    .catch(function() {
+    }).catch(function() {
       card.innerHTML = '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--red)">offline</span></div>';
     });
   })();
