@@ -86,6 +86,90 @@
       box-shadow: 0 0 8px var(--teal);
       display: inline-block;
     }
+    /* ── Nav badge ── */
+    .nav-badge-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .nav-badge-check {
+      fill: var(--teal);
+      transition: transform 0.15s ease;
+      flex-shrink: 0;
+    }
+    .nav-badge-wrap:hover .nav-badge-check {
+      transform: scale(1.15);
+    }
+    .nav-badge-card {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      background: var(--bg);
+      border: 1px solid rgba(45,212,170,0.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 200;
+    }
+    .nav-badge-wrap:hover .nav-badge-card {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .nav-badge-card::before {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-bottom-color: var(--bg);
+    }
+    .nav-badge-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .nav-badge-card-label {
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
+    .nav-badge-card-val {
+      color: var(--white);
+      font-family: var(--ff-mono);
+      font-size: 0.68rem;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .nav-badge-card-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      background: none;
+      border: 1px solid rgba(45,212,170,0.2);
+      color: var(--muted);
+      font-size: 0.62rem;
+      font-family: var(--ff-mono);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 6px;
+      transition: all 0.15s;
+    }
+    .nav-badge-card-copy:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
     .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
     .nav-links a {
       color: var(--muted); font-size: 0.82rem; padding: 0.35rem 0.75rem;
@@ -662,7 +746,14 @@
 <nav aria-label="Main navigation">
   <div class="nav-inner">
     <a href="/" class="nav-logo" aria-label="Helios Ledger home">
-      <span class="nav-logo-dot" id="nav-badge-slot"></span>
+      <span class="nav-badge-wrap" id="nav-badge-wrap">
+        <svg class="nav-badge-check" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+          <path d="M11 0C4.925 0 0 4.925 0 11s4.925 11 11 11 11-4.925 11-11S17.075 0 11 0zm5.28 8.28l-6 6a.75.75 0 01-1.06 0l-3-3a.75.75 0 111.06-1.06L9.75 12.69l5.47-5.47a.75.75 0 111.06 1.06z"/>
+        </svg>
+        <div class="nav-badge-card" id="nav-badge-card">
+          <div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--teal)">loading…</span></div>
+        </div>
+      </span>
       helios-ledger
     </a>
     <ul class="nav-links" role="list">
@@ -1370,10 +1461,10 @@
       if (el) el.textContent = d.record_count;
     }).catch(function() {});
 
-  // ── Nav badge: auto-create session record, inject live badge ─────────
+  // ── Nav badge: auto-create session record, populate hover card ───────
   (function() {
-    var slot = document.getElementById('nav-badge-slot');
-    if (!slot) return;
+    var card = document.getElementById('nav-badge-card');
+    if (!card) return;
     var API = 'https://ai.oooooooooo.se/api/v1';
     var rnd = 'nav_' + Math.random().toString(36).slice(2, 9);
     fetch(API + '/accounts', {
@@ -1395,14 +1486,26 @@
     })
     .then(function(r) { return r.json(); })
     .then(function(rec) {
-      if (rec && rec.id) {
-        var s = document.createElement('script');
-        s.src = 'https://ai.oooooooooo.se/api/badge.js';
-        s.setAttribute('data-record', rec.id);
-        slot.replaceWith(s);
-      }
+      if (!rec || !rec.id) return;
+      var sh = function(h) { return h && h.length > 16 ? h.slice(0,8) + '…' + h.slice(-6) : (h || '—'); };
+      card.innerHTML =
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--teal)">✓ verified</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">id</span><span class="nav-badge-card-val">' + rec.id.slice(0,8) + '…</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">hash</span><span class="nav-badge-card-val" title="' + rec.content_hash + '">' + sh(rec.content_hash) + '</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">timestamp</span><span class="nav-badge-card-val">' + new Date(rec.timestamp).toLocaleTimeString() + '</span></div>' +
+        '<button class="nav-badge-card-copy" id="nav-badge-copy">copy id</button>';
+      document.getElementById('nav-badge-copy').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navigator.clipboard.writeText(rec.id);
+        this.textContent = 'copied!';
+        var self = this;
+        setTimeout(function() { self.textContent = 'copy id'; }, 1500);
+      });
     })
-    .catch(function() { /* keep the teal dot fallback */ });
+    .catch(function() {
+      card.innerHTML = '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--muted)">offline</span></div>';
+    });
   })();
 
   // ── Ticker: duplicate items so it loops seamlessly ────────────────────
