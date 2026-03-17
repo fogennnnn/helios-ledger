@@ -150,11 +150,11 @@
     .hlx-rotator {
       display: inline-flex;
       align-items: baseline;
-      gap: 0.3em;
+      gap: 0.22em;
       max-width: 1100px;
       font-size: clamp(1.72rem, 4vw, 2.56rem);
       font-weight: 700;
-      line-height: 1.15;
+      line-height: 1.25;
       letter-spacing: -0.025em;
     }
     .hlx-rotator__box {
@@ -162,29 +162,31 @@
       display: inline-block;
       overflow: hidden;
       vertical-align: baseline;
-      height: 1.2em;
-      opacity: 0;
-      transition: opacity 300ms ease;
-    }
-    .hlx-rotator.is-ready .hlx-rotator__box {
-      opacity: 1;
-    }
-    .hlx-rotator__track {
-      display: flex;
-      flex-direction: column;
-      will-change: transform;
-      transform: translate3d(0, 0, 0);
-      transition: transform 620ms cubic-bezier(.22, .61, .36, 1);
-      backface-visibility: hidden;
-    }
-    .hlx-rotator__item {
-      display: block;
       white-space: nowrap;
-      height: 1.2em;
-      line-height: 1.2em;
     }
-    .hlx-rotator__box--left .hlx-rotator__item { color: var(--white); }
-    .hlx-rotator__box--right .hlx-rotator__item { color: var(--teal); }
+    /* outgoing word slides left and fades */
+    .hlx-rotator__word {
+      display: inline-block;
+      transition: transform 420ms cubic-bezier(.4, 0, .2, 1),
+                  opacity 420ms cubic-bezier(.4, 0, .2, 1);
+    }
+    .hlx-rotator__word.exit {
+      position: absolute;
+      top: 0; left: 0;
+      opacity: 0;
+      transform: translateX(-30%);
+      pointer-events: none;
+    }
+    .hlx-rotator__word.enter {
+      opacity: 0;
+      transform: translateX(30%);
+    }
+    .hlx-rotator__word.enter.in {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .hlx-rotator__box--left .hlx-rotator__word { color: var(--white); }
+    .hlx-rotator__box--right .hlx-rotator__word { color: var(--teal); }
     .hero-sub {
       font-size: 1rem; color: var(--muted);
       max-width: 560px; margin-bottom: 2.5rem; line-height: 1.75;
@@ -670,11 +672,11 @@
     <h1 aria-label="AI Provenance">
       <span class="sr-only">AI Provenance</span>
       <span class="hlx-rotator" aria-hidden="true">
-        <span class="hlx-rotator__box hlx-rotator__box--left">
-          <span class="hlx-rotator__track" id="rotator-left"></span>
+        <span class="hlx-rotator__box hlx-rotator__box--left" id="rotator-left">
+          <span class="hlx-rotator__word">AI</span>
         </span>
-        <span class="hlx-rotator__box hlx-rotator__box--right">
-          <span class="hlx-rotator__track" id="rotator-right"></span>
+        <span class="hlx-rotator__box hlx-rotator__box--right" id="rotator-right">
+          <span class="hlx-rotator__word">Provenance</span>
         </span>
       </span>
     </h1>
@@ -1499,7 +1501,6 @@
 
 <script>
 (function () {
-  /* ── Synced word-pair rotator ─────────────────────────────────────── */
   var pairs = [
     ['AI',        'Provenance'],
     ['Source',    'Proof'],
@@ -1523,80 +1524,57 @@
     ['Trust',     'Signals']
   ];
 
-  /* Shuffle once */
   for (var i = pairs.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = pairs[i]; pairs[i] = pairs[j]; pairs[j] = tmp;
   }
 
-  var root     = document.querySelector('.hlx-rotator');
-  var leftBox  = document.querySelector('.hlx-rotator__box--left');
-  var rightBox = document.querySelector('.hlx-rotator__box--right');
-  var leftTrack  = document.getElementById('rotator-left');
-  var rightTrack = document.getElementById('rotator-right');
-  if (!root || !leftTrack || !rightTrack) return;
+  var leftBox  = document.getElementById('rotator-left');
+  var rightBox = document.getElementById('rotator-right');
+  if (!leftBox || !rightBox) return;
 
-  /* Populate items */
-  pairs.forEach(function (p) {
-    var l = document.createElement('span');
-    l.className = 'hlx-rotator__item';
-    l.textContent = p[0];
-    leftTrack.appendChild(l);
-
-    var r = document.createElement('span');
-    r.className = 'hlx-rotator__item';
-    r.textContent = p[1];
-    rightTrack.appendChild(r);
-  });
-
-  var index    = 0;
-  var itemH    = 0;
-  var timer    = null;
+  var index = 0;
+  var STAGGER = 100;
   var MIN_WAIT = 2800;
   var MAX_WAIT = 5200;
-  var STAGGER  = 140;   /* ms delay between left and right slide */
 
-  function measure() {
-    var items = leftTrack.querySelectorAll('.hlx-rotator__item');
-    if (!items.length) return;
-    itemH = items[0].getBoundingClientRect().height;
-    leftBox.style.height  = itemH + 'px';
-    rightBox.style.height = itemH + 'px';
-    slide(leftTrack, index);
-    slide(rightTrack, index);
-    root.classList.add('is-ready');
-  }
-
-  function slide(track, idx) {
-    track.style.transform = 'translate3d(0,-' + (idx * itemH) + 'px,0)';
+  function swap(box, newText) {
+    var old = box.querySelector('.hlx-rotator__word');
+    if (old) {
+      old.classList.add('exit');
+      setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, 450);
+    }
+    var w = document.createElement('span');
+    w.className = 'hlx-rotator__word enter';
+    w.textContent = newText;
+    box.appendChild(w);
+    /* force reflow then trigger transition */
+    w.offsetWidth;
+    w.classList.add('in');
+    /* clean up enter classes after transition */
+    setTimeout(function () {
+      w.classList.remove('enter', 'in');
+    }, 450);
   }
 
   function advance() {
     index = (index + 1) % pairs.length;
-    slide(leftTrack, index);
-    setTimeout(function () { slide(rightTrack, index); }, STAGGER);
+    swap(leftBox, pairs[index][0]);
+    setTimeout(function () {
+      swap(rightBox, pairs[index][1]);
+    }, STAGGER);
   }
 
   function scheduleNext() {
     var delay = MIN_WAIT + Math.floor(Math.random() * (MAX_WAIT - MIN_WAIT));
-    timer = setTimeout(function () {
+    setTimeout(function () {
       advance();
       scheduleNext();
     }, delay);
   }
 
-  function start() {
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      scheduleNext();
-    }
-  }
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(start);
-  } else {
-    window.addEventListener('load', start, { once: true });
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    scheduleNext();
   }
 })();
 </script>
