@@ -147,48 +147,43 @@
       border: 0;
     }
     .hlx-hero-rotator {
-      max-width: 1100px;
+      max-width: 980px;
       margin-bottom: 1.25rem;
-      line-height: 1.08;
+      line-height: 0.96;
     }
     h1.hlx-hero-rotator {
-      max-width: 1100px;
-      font-size: clamp(1.75rem, 4.15vw, 2.72rem);
-      line-height: 1.08;
-      letter-spacing: -0.028em;
+      max-width: 980px;
+      line-height: 0.96;
     }
     .hlx-hero-rotator__line {
       display: inline-flex;
-      align-items: flex-end;
-      gap: 0.24em;
-      flex-wrap: wrap;
-      row-gap: 0.08em;
+      align-items: baseline;
+      gap: 0.18em;
+      flex-wrap: nowrap;
     }
     .hlx-hero-rotator__window {
       position: relative;
-      display: inline-flex;
+      display: inline-block;
       overflow: hidden;
-      vertical-align: bottom;
+      vertical-align: baseline;
       white-space: nowrap;
       min-width: 1ch;
-      line-height: 1.08;
-      padding-top: 0.05em;
-      padding-bottom: 0.14em;
+      line-height: 1;
     }
     .hlx-hero-rotator__track {
       display: flex;
       flex-direction: column;
       will-change: transform;
       transform: translate3d(0,0,0);
-      transition: transform 620ms cubic-bezier(.22,.61,.36,1);
+      transition: transform 546ms cubic-bezier(.22,.61,.36,1);
     }
     .hlx-hero-rotator__item {
       display: flex;
       align-items: flex-end;
       white-space: nowrap;
       margin: 0;
-      padding: 0.05em 0 0.14em;
-      line-height: 1.08;
+      padding: 0;
+      line-height: 1;
     }
     .hlx-hero-rotator__item--white {
       color: var(--white);
@@ -1510,7 +1505,7 @@
 
 <script>
 (function () {
-  const whiteTermsRaw = [
+  const whiteTerms = [
     'Artificial Intelligence',
     'Model Output',
     'Agent Activity',
@@ -1538,7 +1533,7 @@
     'Workflow Evidence'
   ];
 
-  const conceptTerms = [
+  const tealTerms = [
     'Provenance',
     'Verification',
     'Authenticity',
@@ -1548,16 +1543,10 @@
     'Integrity',
     'Certification',
     'Evidence',
-    'Lineage',
-    'Trust Signals',
-    'Audit Proof',
-    'Origin Proof',
-    'Source Truth'
+    'Lineage'
   ];
 
-  const whiteTerms = whiteTermsRaw.concat(conceptTerms);
-  const tealTerms = conceptTerms.concat(whiteTermsRaw);
-
+  const ROTATE_MS = 2366;
   const heroRoot = document.querySelector('h1.hlx-hero-rotator');
   if (!heroRoot) return;
 
@@ -1568,7 +1557,6 @@
   if (!whiteTrack || !tealTrack || !whiteWindow || !tealWindow) return;
 
   function addItems(track, terms, cls) {
-    track.innerHTML = '';
     terms.forEach((term) => {
       const item = document.createElement('span');
       item.className = 'hlx-hero-rotator__item ' + cls;
@@ -1584,7 +1572,7 @@
     windowEl.style.height = height + 'px';
     items.forEach((item) => {
       item.style.height = height + 'px';
-      item.style.lineHeight = '1.08';
+      item.style.lineHeight = '1';
       item.style.alignItems = 'flex-end';
     });
     return height;
@@ -1593,67 +1581,30 @@
   addItems(whiteTrack, whiteTerms, 'hlx-hero-rotator__item--white');
   addItems(tealTrack, tealTerms, 'hlx-hero-rotator__item--teal');
 
-  const lanes = [
-    {
-      track: whiteTrack,
-      windowEl: whiteWindow,
-      terms: whiteTerms,
-      index: 0,
-      step: 0,
-      timer: null,
-      minDelay: 2320,
-      maxDelay: 3480,
-      reverseChance: 0.34
-    },
-    {
-      track: tealTrack,
-      windowEl: tealWindow,
-      terms: tealTerms,
-      index: 5,
-      step: 0,
-      timer: null,
-      minDelay: 2860,
-      maxDelay: 4260,
-      reverseChance: 0.43
-    }
-  ];
-
-  function renderLane(lane) {
-    lane.track.style.transform = 'translate3d(0,-' + (lane.index * lane.step) + 'px,0)';
-  }
+  let whiteStep = 0;
+  let tealStep = 0;
+  let whiteIndex = 0;
+  let tealIndex = 0;
 
   function measure() {
-    lanes.forEach((lane) => {
-      lane.step = lockHeight(lane.windowEl, lane.track);
-      renderLane(lane);
-    });
+    whiteStep = lockHeight(whiteWindow, whiteTrack);
+    tealStep = lockHeight(tealWindow, tealTrack);
+    whiteTrack.style.transform = 'translate3d(0,-' + (whiteIndex * whiteStep) + 'px,0)';
+    tealTrack.style.transform = 'translate3d(0,-' + (tealIndex * tealStep) + 'px,0)';
   }
 
-  function nextDirection(lane) {
-    const roll = Math.random();
-    return roll < lane.reverseChance ? -1 : 1;
-  }
-
-  function advanceLane(lane) {
-    if (!lane.step || lane.terms.length < 2) return;
-    const direction = nextDirection(lane);
-    lane.index = (lane.index + direction + lane.terms.length) % lane.terms.length;
-    renderLane(lane);
-  }
-
-  function scheduleLane(lane) {
-    const delay = lane.minDelay + Math.floor(Math.random() * (lane.maxDelay - lane.minDelay + 1));
-    lane.timer = window.setTimeout(() => {
-      advanceLane(lane);
-      scheduleLane(lane);
-    }, delay);
+  function advance() {
+    whiteIndex = (whiteIndex + 1) % whiteTerms.length;
+    tealIndex = (tealIndex + 1) % tealTerms.length;
+    whiteTrack.style.transform = 'translate3d(0,-' + (whiteIndex * whiteStep) + 'px,0)';
+    tealTrack.style.transform = 'translate3d(0,-' + (tealIndex * tealStep) + 'px,0)';
   }
 
   const start = () => {
     measure();
-    window.addEventListener('resize', measure, { passive: true });
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      lanes.forEach(scheduleLane);
+      setInterval(advance, ROTATE_MS);
+      window.addEventListener('resize', measure, { passive: true });
     }
   };
 
