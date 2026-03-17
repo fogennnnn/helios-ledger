@@ -1,0 +1,27 @@
+name = "helios-ledger-api"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "helios-ledger"
+database_id = "884d3be3-7389-49ea-aab3-7ae6720d4fa7"
+
+# ─── Multi-Node Consensus ─────────────────────────────────────────────────
+# To join a peer network, set PEERS as a JSON array of peer nodes.
+# Each peer needs a URL and the peer's Ed25519 public key.
+# Get a peer's public key from: GET https://peer-url/api/v1/pubkey
+#
+# Set via wrangler secret or environment variable:
+#   echo '[{"url":"https://ai.oooooooooo.se","public_key":{"kty":"OKP","crv":"Ed25519","x":"..."}}]' | npx wrangler secret put PEERS
+#
+# Or uncomment below for non-secret config:
+# [vars]
+# PEERS = '[{"url":"https://peer.example.com","public_key":{"kty":"OKP","crv":"Ed25519","x":"BASE64_X_COORDINATE"}}]'
+
+# ─── Custom Domain ────────────────────────────────────────────────────────
+# Uncomment and edit for custom domain:
+# [[routes]]
+# pattern = "yourdomain.com/api/*"
+# zone_name = "yourdomain.com"
