@@ -632,26 +632,23 @@
 
     /* ---- TICKER ---- */
     .ticker-wrap {
-      overflow: hidden; position: relative;
+      overflow-x: auto; overflow-y: hidden; position: relative;
       border: 1px solid var(--border2); border-radius: 8px;
       background: var(--bg2); padding: 0;
-      -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .ticker-wrap::-webkit-scrollbar { display: none; }
     .ticker-track {
       display: inline-flex; gap: 0; white-space: nowrap;
-      animation: ticker-scroll 48s linear infinite;
     }
-    .ticker-track:hover { animation-play-state: paused; }
     .tick-item {
       display: inline-block; padding: 0.9rem 2.5rem;
       font-size: 0.82rem; color: var(--muted); border-right: 1px solid var(--border2);
     }
     .tick-item strong { color: var(--white); }
     .tick-icon { margin-right: 0.4rem; }
-    @keyframes ticker-scroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
     .hero-ticker {
       width: 100vw; margin-left: calc(-50vw + 50%);
       margin-top: 3.5rem; margin-bottom: -1rem;
@@ -1466,12 +1463,41 @@
     });
   })();
 
-  // ── Ticker: duplicate items so it loops seamlessly ────────────────────
+  // ── Ticker: scroll horizontally on mouse wheel with momentum + wrap ──
   (function() {
+    // Duplicate items for seamless wrap
     var track = document.getElementById('ticker-track');
-    if (track) {
-      track.innerHTML = track.innerHTML + track.innerHTML;
-    }
+    if (track) track.innerHTML = track.innerHTML + track.innerHTML;
+
+    var wraps = document.querySelectorAll('.ticker-wrap');
+    wraps.forEach(function(wrap) {
+      var velocity = 0;
+      var raf = null;
+      var friction = 0.94;
+
+      function loopScroll() {
+        var half = wrap.scrollWidth / 2;
+        if (half <= 0) return;
+        if (wrap.scrollLeft >= half) wrap.scrollLeft -= half;
+        else if (wrap.scrollLeft <= 0) wrap.scrollLeft += half;
+      }
+
+      function coast() {
+        if (Math.abs(velocity) < 0.5) { velocity = 0; raf = null; return; }
+        wrap.scrollLeft += velocity;
+        velocity *= friction;
+        loopScroll();
+        raf = requestAnimationFrame(coast);
+      }
+
+      wrap.addEventListener('wheel', function(e) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          velocity += e.deltaY * 1.5;
+          if (!raf) raf = requestAnimationFrame(coast);
+        }
+      }, { passive: false });
+    });
   })();
 
   // ── Live Merkle Panel ─────────────────────────────────────────────────
