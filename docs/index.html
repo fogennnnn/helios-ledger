@@ -149,10 +149,15 @@
     .hlx-hero-rotator {
       max-width: 980px;
       margin-bottom: 1.25rem;
+      line-height: 0.96;
+    }
+    h1.hlx-hero-rotator {
+      max-width: 980px;
+      line-height: 0.96;
     }
     .hlx-hero-rotator__line {
       display: inline-flex;
-      align-items: flex-end;
+      align-items: baseline;
       gap: 0.18em;
       flex-wrap: nowrap;
     }
@@ -160,9 +165,10 @@
       position: relative;
       display: inline-block;
       overflow: hidden;
-      vertical-align: bottom;
+      vertical-align: baseline;
       white-space: nowrap;
       min-width: 1ch;
+      line-height: 1;
     }
     .hlx-hero-rotator__track {
       display: flex;
@@ -173,10 +179,11 @@
     }
     .hlx-hero-rotator__item {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       white-space: nowrap;
       margin: 0;
       padding: 0;
+      line-height: 1;
     }
     .hlx-hero-rotator__item--white {
       color: var(--white);
@@ -1539,11 +1546,14 @@
     'Lineage'
   ];
 
-  const ROTATE_MS = 1820;
-  const whiteTrack = document.querySelector('.hlx-hero-rotator__track--white');
-  const tealTrack = document.querySelector('.hlx-hero-rotator__track--teal');
-  const whiteWindow = document.querySelector('.hlx-hero-rotator__window--white');
-  const tealWindow = document.querySelector('.hlx-hero-rotator__window--teal');
+  const ROTATE_MS = 2366;
+  const heroRoot = document.querySelector('h1.hlx-hero-rotator');
+  if (!heroRoot) return;
+
+  const whiteTrack = heroRoot.querySelector('.hlx-hero-rotator__track--white');
+  const tealTrack = heroRoot.querySelector('.hlx-hero-rotator__track--teal');
+  const whiteWindow = heroRoot.querySelector('.hlx-hero-rotator__window--white');
+  const tealWindow = heroRoot.querySelector('.hlx-hero-rotator__window--teal');
   if (!whiteTrack || !tealTrack || !whiteWindow || !tealWindow) return;
 
   function addItems(track, terms, cls) {
@@ -1563,6 +1573,7 @@
     items.forEach((item) => {
       item.style.height = height + 'px';
       item.style.lineHeight = '1';
+      item.style.alignItems = 'flex-end';
     });
     return height;
   }
