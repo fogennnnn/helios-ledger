@@ -1461,50 +1461,22 @@
       if (el) el.textContent = d.record_count;
     }).catch(function() {});
 
-  // ── Nav badge: auto-create session record, populate hover card ───────
+  // ── Nav badge: populate hover card from health endpoint ─────────────
   (function() {
     var card = document.getElementById('nav-badge-card');
     if (!card) return;
-    var API = 'https://ai.oooooooooo.se/api/v1';
-    var rnd = 'nav_' + Math.random().toString(36).slice(2, 9);
-    fetch(API + '/accounts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Origin': 'https://ai.oooooooooo.se' },
-      body: JSON.stringify({ username: rnd })
-    })
+    fetch('https://ai.oooooooooo.se/api/v1/health')
     .then(function(r) { return r.json(); })
-    .then(function(acct) {
-      return fetch(API + '/records', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + acct.token,
-          'Origin': 'https://ai.oooooooooo.se'
-        },
-        body: JSON.stringify({ content: 'helios-ledger nav session badge', model: 'session', context: 'nav-badge' })
-      });
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(rec) {
-      if (!rec || !rec.id) return;
-      var sh = function(h) { return h && h.length > 16 ? h.slice(0,8) + '…' + h.slice(-6) : (h || '—'); };
+    .then(function(d) {
       card.innerHTML =
-        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--teal)">✓ verified</span></div>' +
-        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">id</span><span class="nav-badge-card-val">' + rec.id.slice(0,8) + '…</span></div>' +
-        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">hash</span><span class="nav-badge-card-val" title="' + rec.content_hash + '">' + sh(rec.content_hash) + '</span></div>' +
-        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">timestamp</span><span class="nav-badge-card-val">' + new Date(rec.timestamp).toLocaleTimeString() + '</span></div>' +
-        '<button class="nav-badge-card-copy" id="nav-badge-copy">copy id</button>';
-      document.getElementById('nav-badge-copy').addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        navigator.clipboard.writeText(rec.id);
-        this.textContent = 'copied!';
-        var self = this;
-        setTimeout(function() { self.textContent = 'copy id'; }, 1500);
-      });
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--teal)">✓ online</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">version</span><span class="nav-badge-card-val">' + (d.version || '—') + '</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">records</span><span class="nav-badge-card-val">' + (d.record_count || '—') + '</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">merkle root</span><span class="nav-badge-card-val" title="' + (d.merkle_root || '') + '">' + (d.merkle_root ? d.merkle_root.slice(0,8) + '…' + d.merkle_root.slice(-6) : '—') + '</span></div>' +
+        '<div class="nav-badge-card-row"><span class="nav-badge-card-label">crypto</span><span class="nav-badge-card-val">Ed25519</span></div>';
     })
     .catch(function() {
-      card.innerHTML = '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--muted)">offline</span></div>';
+      card.innerHTML = '<div class="nav-badge-card-row"><span class="nav-badge-card-label">status</span><span class="nav-badge-card-val" style="color:var(--red)">offline</span></div>';
     });
   })();
 
