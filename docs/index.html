@@ -959,7 +959,7 @@
           <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
           <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
         </div>
-        <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
+        <button class="demo-btn" id="demo-run">Create Record →</button>
         <div class="demo-output" id="demo-output"></div>
       </div>
       <p class="demo-note">Every submission is permanently sealed — Ed25519 signed, Merkle-included, independently verifiable. This is the real ledger, not a simulation.</p>
@@ -1330,7 +1330,7 @@
       ensureAccount().then(function(ok) {
         if (!ok) {
           out.innerHTML = '<span style="color:var(--red)">Could not reach the API. Try again.</span>';
-          btn.textContent = 'Generate provenance record';
+          btn.textContent = 'Create Record →';
           btn.disabled = false;
           return Promise.resolve(null);
         }
@@ -1360,11 +1360,11 @@
           '<span style="color:var(--muted)">timestamp     </span>' + d.timestamp + '\n' +
           '<span style="color:var(--muted)">account       </span>' + demoUser + '\n' +
           '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
-        btn.textContent = 'Seal this content on the ledger →';
+        btn.textContent = 'Create Record →';
         btn.disabled = false;
       }).catch(function(e) {
         out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
-        btn.textContent = 'Generate provenance record';
+        btn.textContent = 'Create Record →';
         btn.disabled = false;
       });
     });
