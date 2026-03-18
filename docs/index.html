@@ -910,32 +910,31 @@
         <!-- DEPLOY TAB -->
         <div class="qs-tab-panel" id="tab-deploy">
           <div class="qs-shell-panel active" data-shell="bash">
-            <div class="qs-comment"># clone + run — handles everything</div>
-            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger && bash setup.sh</span></div>
+            <div class="qs-comment"># Node.js — runs anywhere</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger/standalone && npm install && node server.js</span></div>
             <div style="height:0.75rem"></div>
-            <div class="qs-comment"># what setup.sh does:</div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">cd helios-worker && npm install</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 create helios-ledger</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">auto-patches wrangler.toml with database_id</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">node keygen.js → prompts for secret setup</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler deploy</span></div>
+            <div class="qs-comment"># Docker — one command</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">docker run -p 3000:3000 -v helios-data:/app/data ghcr.io/fogennnnn/helios-ledger</span></div>
+            <div style="height:0.75rem"></div>
+            <div class="qs-comment"># Cloudflare Workers — edge deployment</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd" style="color:#6e7681">cd ../helios-worker && bash setup.sh</span></div>
           </div>
           <div class="qs-shell-panel" data-shell="powershell">
-            <div class="qs-comment"># clone + run — handles everything</div>
-            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger; cd helios-ledger; .\setup.ps1</span></div>
+            <div class="qs-comment"># Node.js — runs anywhere</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger; cd helios-ledger\standalone; npm install; node server.js</span></div>
             <div style="height:0.75rem"></div>
-            <div class="qs-comment"># what setup.ps1 does:</div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">Set-Location helios-worker; npm install</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 create helios-ledger</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">auto-patches wrangler.toml with database_id</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">node keygen.js → prompts for secret setup</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler deploy</span></div>
+            <div class="qs-comment"># Docker — one command</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">docker run -p 3000:3000 -v helios-data:/app/data ghcr.io/fogennnnn/helios-ledger</span></div>
+            <div style="height:0.75rem"></div>
+            <div class="qs-comment"># Cloudflare Workers — edge deployment</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd" style="color:#6e7681">cd ..\helios-worker; .\setup.ps1</span></div>
           </div>
           <div class="qs-shell-panel" data-shell="python">
-            <div class="qs-comment"># Python SDK coming soon — for now, deploy via bash or PowerShell</div>
-            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd" style="color:#6e7681">pip install helios-ledger  <span class="qs-comment"># planned</span></span></div>
+            <div class="qs-comment"># Node.js — runs anywhere</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger/standalone && npm install && node server.js</span></div>
+            <div style="height:0.75rem"></div>
+            <div class="qs-comment"># Docker — one command</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">docker run -p 3000:3000 -v helios-data:/app/data ghcr.io/fogennnnn/helios-ledger</span></div>
           </div>
           <button class="qs-copy" data-tab="deploy">copy</button>
         </div>
@@ -1188,8 +1187,8 @@
       }
 
       if (tab === 'deploy') {
-        if (shell === 'powershell') return 'git clone https://github.com/fogennnnn/helios-ledger; cd helios-ledger; .\\setup.ps1';
-        return 'git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger && bash setup.sh';
+        if (shell === 'powershell') return 'git clone https://github.com/fogennnnn/helios-ledger; cd helios-ledger\\standalone; npm install; node server.js';
+        return 'git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger/standalone && npm install && node server.js';
       }
 
       // ledger
