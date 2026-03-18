@@ -331,7 +331,7 @@
     .qs-tab-panel.active { display: block; }
     .qs-comment {
       font-family: var(--ff-mono); font-size: 0.78rem;
-      color: var(--muted2); margin-bottom: 0.6rem; font-style: italic;
+      color: #6e7681; margin-bottom: 0.6rem; font-style: italic;
     }
     .qs-line {
       display: flex; align-items: baseline; gap: 0.6rem;
@@ -339,10 +339,10 @@
       line-height: 1.9; color: var(--white);
     }
     .qs-indent { padding-left: 1.4rem; }
-    .qs-prompt { color: var(--teal); font-weight: 700; flex-shrink: 0; }
-    .qs-cmd    { color: var(--white); }
+    .qs-prompt { color: #8b949e; font-weight: 600; flex-shrink: 0; }
+    .qs-cmd    { color: #e6edf3; }
     .qs-str    { color: #a5d6ff; }
-    .qs-var    { color: var(--muted); }
+    .qs-var    { color: #b1bac4; }
     .qs-token-hidden { color: var(--muted2); letter-spacing: 0.1em; }
     .qs-token-revealed {
       color: var(--teal); font-weight: 600;
@@ -914,28 +914,28 @@
             <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger && cd helios-ledger && bash setup.sh</span></div>
             <div style="height:0.75rem"></div>
             <div class="qs-comment"># what setup.sh does:</div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">cd helios-worker && npm install</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">cd helios-worker && npm install</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 create helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">auto-patches wrangler.toml with database_id</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">node keygen.js → prompts for secret setup</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler deploy</span></div>
           </div>
           <div class="qs-shell-panel" data-shell="powershell">
             <div class="qs-comment"># clone + run — handles everything</div>
             <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger; cd helios-ledger; .\setup.ps1</span></div>
             <div style="height:0.75rem"></div>
             <div class="qs-comment"># what setup.ps1 does:</div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">Set-Location helios-worker; npm install</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
-            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">Set-Location helios-worker; npm install</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 create helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">auto-patches wrangler.toml with database_id</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">node keygen.js → prompts for secret setup</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:#6e7681">npx wrangler deploy</span></div>
           </div>
           <div class="qs-shell-panel" data-shell="python">
             <div class="qs-comment"># Python SDK coming soon — for now, deploy via bash or PowerShell</div>
-            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd" style="color:var(--muted2)">pip install helios-ledger  <span class="qs-comment"># planned</span></span></div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd" style="color:#6e7681">pip install helios-ledger  <span class="qs-comment"># planned</span></span></div>
           </div>
           <button class="qs-copy" data-tab="deploy">copy</button>
         </div>
