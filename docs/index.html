@@ -806,6 +806,7 @@
           <button class="qs-tab" data-tab="verify">verify</button>
           <button class="qs-tab" data-tab="ledger">ledger</button>
           <button class="qs-tab" data-tab="embed">embed</button>
+          <button class="qs-tab" data-tab="deploy">deploy</button>
         </div>
         <div class="qs-shell-tabs">
           <button class="qs-shell active" data-shell="bash">bash</button>
@@ -906,6 +907,41 @@
           <button class="qs-copy" data-tab="embed">copy</button>
         </div>
 
+        <!-- DEPLOY TAB -->
+        <div class="qs-tab-panel" id="tab-deploy">
+          <div class="qs-shell-panel active" data-shell="bash">
+            <div class="qs-comment"># clone + run — handles everything</div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">cd helios-ledger && bash setup.sh</span></div>
+            <div style="height:0.75rem"></div>
+            <div class="qs-comment"># what setup.sh does:</div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">cd helios-worker && npm install</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="powershell">
+            <div class="qs-comment"># clone + run — handles everything</div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">cd helios-ledger; .\setup.ps1</span></div>
+            <div style="height:0.75rem"></div>
+            <div class="qs-comment"># what setup.ps1 does:</div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">Set-Location helios-worker; npm install</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
+            <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
+          </div>
+          <div class="qs-shell-panel" data-shell="python">
+            <div class="qs-comment"># Python SDK coming soon — for now, deploy via bash or PowerShell</div>
+            <div class="qs-line"><span class="qs-prompt">>>></span><span class="qs-cmd" style="color:var(--muted2)">pip install helios-ledger  <span class="qs-comment"># planned</span></span></div>
+          </div>
+          <button class="qs-copy" data-tab="deploy">copy</button>
+        </div>
+
       </div>
 
       <div class="qs-footer" id="qs-footer" style="display:none">
@@ -913,6 +949,24 @@
         <span class="qs-tok-warn">Save it &mdash; cannot be recovered.</span>
       </div>
     </div>
+
+    <!-- INTERACTIVE DEMO -->
+    <div class="demo-box" style="margin-top:2rem">
+      <div class="demo-header">
+        <span>live ledger — paste any AI output, seal it permanently</span>
+        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
+      </div>
+      <div class="demo-body">
+        <div>
+          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
+          <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
+        </div>
+        <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
+        <div class="demo-output" id="demo-output"></div>
+      </div>
+      <p class="demo-note">Every submission is permanently sealed — Ed25519 signed, Merkle-included, independently verifiable. This is the real ledger, not a simulation.</p>
+    </div>
+
   </div>
 </header>
 
@@ -1069,98 +1123,6 @@
 
 <div class="divider"></div>
 
-<!-- ONBOARDING -->
-<section id="get-started" aria-labelledby="gs-heading">
-  <div class="container">
-    <span class="section-label">Get started</span>
-    <h2 id="gs-heading">Two ways in</h2>
-    <p class="section-lead">Whether you live in a terminal or have never opened one — you can start using Helios Ledger today.</p>
-
-    <div class="paths" role="list">
-      <!-- DEVELOPER PATH — FIXED: Cloudflare Workers, not Python -->
-      <article class="path" role="listitem" aria-labelledby="path-dev">
-        <span class="path-badge dev">Deploy node</span>
-        <h3 id="path-dev">Deploy your own node</h3>
-        <p>One script handles everything — clone, install, D1, schema, keygen, secrets, deploy.</p>
-
-        <div class="qs-wrap" style="margin-top:0.75rem">
-          <div class="qs-header">
-            <div class="code-dots"><span></span><span></span><span></span></div>
-            <div class="qs-tabs">
-              <button class="qs-tab setup-shell-tab active" data-setup-shell="bash">bash</button>
-              <button class="qs-tab setup-shell-tab" data-setup-shell="powershell">powershell</button>
-            </div>
-          </div>
-          <div class="qs-body" style="max-height:260px;overflow-y:auto">
-
-            <!-- bash -->
-            <div class="setup-shell-panel active" data-setup-shell="bash">
-              <div class="qs-comment"># clone + run — handles everything</div>
-              <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger</span></div>
-              <div class="qs-line"><span class="qs-prompt">$</span><span class="qs-cmd">cd helios-ledger && bash setup.sh</span></div>
-              <div style="height:0.75rem"></div>
-              <div class="qs-comment"># what setup.sh does:</div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">cd helios-worker && npm install</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
-            </div>
-
-            <!-- powershell -->
-            <div class="setup-shell-panel" data-setup-shell="powershell">
-              <div class="qs-comment"># clone + run — handles everything</div>
-              <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">git clone https://github.com/fogennnnn/helios-ledger</span></div>
-              <div class="qs-line"><span class="qs-prompt">PS></span><span class="qs-cmd">cd helios-ledger; .\setup.ps1</span></div>
-              <div style="height:0.75rem"></div>
-              <div class="qs-comment"># what setup.ps1 does:</div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">Set-Location helios-worker; npm install</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 create helios-ledger</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">auto-patches wrangler.toml with database_id</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler d1 execute helios-ledger --file=schema.sql</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">node keygen.js → prompts for secret setup</span></div>
-              <div class="qs-line"><span class="qs-prompt">#</span><span class="qs-cmd" style="color:var(--muted2)">npx wrangler deploy</span></div>
-            </div>
-
-            <button class="qs-copy" id="setup-copy">copy</button>
-          </div>
-        </div>
-
-        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener" style="align-self:flex-start;margin-top:0.75rem">View on GitHub →</a>
-      </article>
-
-      <!-- HUMAN PATH -->
-      <article class="path" role="listitem" aria-labelledby="path-human">
-        <span class="path-badge human">Try live</span>
-        <h3 id="path-human">Try the live demo</h3>
-        <p>Paste any AI-generated text below. The browser calls the real Helios API, creates an account for your session, and seals your content on the live ledger — Ed25519 signed, Merkle included, verifiable forever.</p>
-        <p style="font-size:0.8rem;color:var(--teal);margin-top:-0.25rem">✓ Live API at ai.oooooooooo.se — no install required.</p>
-        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-secondary" rel="noopener" style="align-self:flex-start;margin-top:0.5rem">View on GitHub →</a>
-      </article>
-    </div>
-
-    <!-- INTERACTIVE DEMO -->
-    <div class="demo-box">
-      <div class="demo-header">
-        <span>live ledger — paste any AI output, seal it permanently</span>
-        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
-      </div>
-      <div class="demo-body">
-        <div>
-          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
-          <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
-        </div>
-        <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
-        <div class="demo-output" id="demo-output"></div>
-      </div>
-      <p class="demo-note">Every submission is permanently sealed — Ed25519 signed, Merkle-included, independently verifiable. This is the real ledger, not a simulation.</p>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
 <!-- CTA -->
 <section aria-labelledby="cta-heading">
   <div class="container">
@@ -1273,6 +1235,11 @@
         return '<script src="https://ai.oooooooooo.se/api/badge.js"\n        data-record="YOUR_RECORD_ID"><\/script>';
       }
 
+      if (tab === 'deploy') {
+        if (shell === 'powershell') return 'git clone https://github.com/fogennnnn/helios-ledger\ncd helios-ledger; .\\setup.ps1';
+        return 'git clone https://github.com/fogennnnn/helios-ledger\ncd helios-ledger && bash setup.sh';
+      }
+
       // ledger
       var url = base + 'ledger/root';
       if (shell === 'powershell') return 'Invoke-RestMethod ' + url;
@@ -1368,41 +1335,6 @@
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 2800);
       }
-    }
-  })();
-
-  // ---- Setup script tabs (deploy node section) ----
-  (function() {
-    var currentSetupShell = 'bash';
-    document.querySelectorAll('.setup-shell-tab').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        currentSetupShell = btn.dataset.setupShell;
-        document.querySelectorAll('.setup-shell-tab').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        document.querySelectorAll('.setup-shell-panel').forEach(function(p) {
-          p.classList.toggle('active', p.dataset.setupShell === currentSetupShell);
-        });
-      });
-    });
-
-    var copyBtn = document.getElementById('setup-copy');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', function() {
-        var text = currentSetupShell === 'bash'
-          ? 'git clone https://github.com/fogennnnn/helios-ledger\ncd helios-ledger && bash setup.sh'
-          : 'git clone https://github.com/fogennnnn/helios-ledger\ncd helios-ledger; .\\setup.ps1';
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.setAttribute('readonly', '');
-        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        copyBtn.textContent = 'copied!';
-        copyBtn.classList.add('copied');
-        setTimeout(function() { copyBtn.textContent = 'copy'; copyBtn.classList.remove('copied'); }, 2000);
-      });
     }
   })();
 
