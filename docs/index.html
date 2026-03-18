@@ -1054,37 +1054,6 @@
 
 <div class="divider"></div>
 
-
-<!-- Live Merkle Panel -->
-<section id="live-ledger" aria-label="Live ledger">
-  <div class="container">
-    <span class="section-label">Transparency</span>
-    <h2>Live ledger</h2>
-    <p class="section-lead">Every seal, in real time. The Merkle root updates with each submission — verify any record independently using the public key.</p>
-    <div id="merkle-panel">
-      <div class="merkle-panel-header">
-        <div class="merkle-live-dot"></div>
-        <h3>Helios Ledger</h3>
-        <span style="font-family:var(--ff-mono);font-size:0.7rem;color:var(--muted2);margin-left:auto" id="merkle-last-updated"></span>
-      </div>
-      <div class="merkle-root-display">
-        <span class="merkle-root-label">root</span>
-        <span class="merkle-root-hash" id="merkle-root-hash">loading...</span>
-        <span class="merkle-root-count" id="merkle-root-count"></span>
-      </div>
-      <div class="merkle-records" id="merkle-records">
-        <div style="color:var(--muted2);font-family:var(--ff-mono);font-size:0.75rem;padding:0.5rem">Loading records...</div>
-      </div>
-      <div class="merkle-panel-footer">
-        <span>Ed25519 signed · independently verifiable · auto-refreshes every 15s</span>
-        <button class="merkle-refresh-btn" id="merkle-refresh">refresh</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
 <!-- FAQ -->
 <section id="faq" aria-labelledby="faq-heading">
   <div class="container">
@@ -1120,21 +1089,6 @@
 </section>
 
 <div class="divider"></div>
-
-<!-- CTA -->
-<section aria-labelledby="cta-heading">
-  <div class="container">
-    <div class="cta-box">
-      <span class="section-label">Ready to deploy?</span>
-      <h2 id="cta-heading">Bring cryptographic trust to your AI stack</h2>
-      <p>Self-host in minutes or use the public API. No vendor lock-in, no black boxes — just math.</p>
-      <div class="hero-actions">
-        <a href="https://github.com/fogennnnn/helios-ledger" class="btn btn-primary" rel="noopener noreferrer">Star on GitHub</a>
-        <a href="https://github.com/fogennnnn/helios-ledger/blob/main/README.md" class="btn btn-secondary" rel="noopener noreferrer">Read the docs →</a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer role="contentinfo">
@@ -1408,7 +1362,6 @@
           '<span style="color:var(--muted)">valid         </span><span class="ok">true</span>';
         btn.textContent = 'Seal this content on the ledger →';
         btn.disabled = false;
-        if (window.heliosAddRecord) window.heliosAddRecord(d);
       }).catch(function(e) {
         out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
         btn.textContent = 'Generate provenance record';
@@ -1416,14 +1369,6 @@
       });
     });
   }
-
-  // ── Live record count in hero stats ───────────────────────────────────
-  fetch('https://ai.oooooooooo.se/api/v1/health')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      var el = document.getElementById('live-record-count');
-      if (el) el.textContent = d.record_count;
-    }).catch(function() {});
 
   // ── Nav badge: populate hover card from health + ledger/root ─────────
   (function() {
@@ -1486,134 +1431,14 @@
     });
   })();
 
-  // ── Live Merkle Panel ─────────────────────────────────────────────────
+  // ── Live record count ───────────────────────────────────────────────
   (function() {
-    var API = 'https://ai.oooooooooo.se/api/v1';
-    var knownIds = new Set();
-    var refreshTimer = null;
-
-    function fmt(ts) {
-      if (!ts) return '';
-      var d = new Date(ts);
-      return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    }
-    function shortHash(h) { return h ? h.slice(0,10) + '...' : ''; }
-
-    function loadLedger(isAuto) {
-      Promise.all([
-        fetch(API + '/ledger/root').then(function(r) { return r.json(); }),
-        fetch(API + '/ledger/recent').then(function(r) { return r.ok ? r.json() : null; })
-      ]).then(function(results) {
-        var root   = results[0];
-        var recent = results[1];
-        updateRoot(root);
-        if (!recent) loadRecentViaHealth();
-      }).catch(function() {
-        loadRecentViaHealth();
-      });
-    }
-
-    function loadRecentViaHealth() {
-      fetch(API + '/ledger/root')
-        .then(function(r) { return r.json(); })
-        .then(function(d) { updateRoot(d); })
-        .catch(function() {});
-    }
-
-    function updateRoot(data) {
-      var hashEl  = document.getElementById('merkle-root-hash');
-      var countEl = document.getElementById('merkle-root-count');
-      var updEl   = document.getElementById('merkle-last-updated');
-      if (hashEl && data.root) {
-        hashEl.textContent = data.root;
-        hashEl.style.animation = 'none';
-        hashEl.offsetHeight;
-        hashEl.style.animation = 'flash-hl 1s ease forwards';
-      }
-      if (countEl && data.record_count !== undefined) {
-        countEl.textContent = data.record_count + ' records';
-        var liveEl = document.getElementById('live-record-count');
-        if (liveEl) liveEl.textContent = data.record_count;
-      }
-      if (updEl) updEl.textContent = 'updated ' + fmt(new Date().toISOString());
-    }
-
-    function addRecordRow(rec, isNew) {
-      if (knownIds.has(rec.id)) return;
-      knownIds.add(rec.id);
-      var container = document.getElementById('merkle-records');
-      if (!container) return;
-
-      var placeholder = container.querySelector('div');
-      if (placeholder) placeholder.remove();
-
-      var row = document.createElement('div');
-      row.className = 'merkle-record-row' + (isNew ? ' new-row' : '');
-      row.innerHTML =
-        '<span class="mrr-idx">#' + rec.merkle_index + '</span>' +
-        '<span class="mrr-time">' + fmt(rec.timestamp) + '</span>' +
-        '<span class="mrr-hash" title="' + rec.content_hash + '">' + shortHash(rec.content_hash) + '</span>' +
-        '<span class="mrr-model">' + (rec.model || 'unknown') + '</span>' +
-        '<span class="mrr-acct">' + (rec.account_id ? rec.account_id.slice(0,8) + '...' : '') + '</span>';
-
-      container.insertBefore(row, container.firstChild);
-    }
-
-    function initialLoad() {
-      var container = document.getElementById('merkle-records');
-      
-      fetch(API + '/ledger/root')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          updateRoot(d);
-          if (container && knownIds.size === 0) {
-            container.innerHTML =
-              '<div style="font-family:var(--ff-mono);font-size:0.72rem;color:var(--muted2);padding:0.75rem 0">' +
-              d.record_count + ' records sealed \u00b7 submit content below to see your record appear here' +
-              '</div>';
-          }
-        }).catch(function() {});
-
-      fetch(API + '/health')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          var el = document.getElementById('live-record-count');
-          if (el) el.textContent = d.record_count;
-        }).catch(function() {});
-    }
-
-    window.heliosAddRecord = function(rec) {
-      addRecordRow(rec, true);
-      fetch(API + '/ledger/root')
-        .then(function(r) { return r.json(); })
-        .then(function(d) { updateRoot(d); })
-        .catch(function() {});
-    };
-
-    function startAutoRefresh() {
-      refreshTimer = setInterval(function() {
-        fetch(API + '/ledger/root')
-          .then(function(r) { return r.json(); })
-          .then(function(d) { updateRoot(d); })
-          .catch(function() {});
-      }, 15000);
-    }
-
-    var refreshBtn = document.getElementById('merkle-refresh');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', function() {
-        refreshBtn.textContent = 'refreshing...';
-        fetch(API + '/ledger/root')
-          .then(function(r) { return r.json(); })
-          .then(function(d) {
-            updateRoot(d);
-            refreshBtn.textContent = 'refresh';
-          }).catch(function() { refreshBtn.textContent = 'refresh'; });
-      });
-    }
-
-    initialLoad();
-    startAutoRefresh();
+    fetch('https://ai.oooooooooo.se/api/v1/health')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var el = document.getElementById('live-record-count');
+        if (el) el.textContent = d.record_count;
+      }).catch(function() {});
   })();
 </script>
 
