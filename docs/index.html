@@ -576,11 +576,20 @@
       font-weight: 600; cursor: pointer; transition: background 0.15s;
     }
     .demo-btn:hover { background: #25c49c; }
+    .demo-btn.secondary {
+      background: var(--bg3); color: var(--white); border: 1px solid var(--border);
+    }
+    .demo-btn.secondary:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+    .demo-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
     .demo-output {
       background: var(--bg); border: 1px solid var(--border2);
       border-radius: 6px; padding: 0.85rem 1rem;
       font-family: var(--ff-mono); font-size: 0.75rem; color: var(--muted);
       line-height: 1.8; min-height: 56px; display: none;
+    }
+    .demo-output pre {
+      white-space: pre-wrap; word-break: break-word;
+      margin: 0; color: var(--white); line-height: 1.6;
     }
     .demo-output.visible { display: block; }
     .demo-output .ok { color: var(--teal); }
@@ -589,6 +598,9 @@
       font-size: 0.75rem; color: var(--muted2); text-align: center;
       padding: 0 1.25rem 1.25rem;
     }
+    .hero-tools { margin-top: 1.25rem; }
+    .hero-tools .demo-box { margin-top: 1rem; }
+    .hero-tools .demo-box:first-child { margin-top: 0; }
 
     @media (max-width: 700px) {
       .paths { grid-template-columns: 1fr; }
@@ -798,6 +810,42 @@
       <div class="meta-item"><span class="meta-val">MIT</span><span class="meta-key">License</span></div>
     </div>
 
+    <div class="hero-tools">
+      <div class="demo-box">
+        <div class="demo-header">
+          <span>prompt wrapper — strict hash-gated execution template</span>
+          <span class="demo-live"><span class="demo-live-dot"></span>tool</span>
+        </div>
+        <div class="demo-body">
+          <div>
+            <label class="demo-label" for="wrap-input">Prompt</label>
+            <textarea class="demo-textarea" id="wrap-input"></textarea>
+          </div>
+          <div class="demo-actions">
+            <button class="demo-btn" id="wrap-run">Wrap Prompt</button>
+            <button class="demo-btn secondary" id="wrap-download" disabled>Download .md</button>
+          </div>
+          <div class="demo-output" id="wrap-output"></div>
+          <div class="demo-output" id="wrap-output-b64"></div>
+        </div>
+      </div>
+
+      <div class="demo-box">
+        <div class="demo-header">
+          <span>live ledger — paste any AI output, seal it permanently</span>
+          <span class="demo-live"><span class="demo-live-dot"></span>live</span>
+        </div>
+        <div class="demo-body">
+          <div>
+            <label class="demo-label" for="demo-input">Content</label>
+            <textarea class="demo-textarea" id="demo-input"></textarea>
+          </div>
+          <button class="demo-btn" id="demo-run">Seal this content on the ledger →</button>
+          <div class="demo-output" id="demo-output"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="qs-wrap">
       <div class="qs-header">
         <div class="code-dots"><span></span><span></span><span></span></div>
@@ -945,23 +993,6 @@
         <span class="qs-tok-ok">&#10003; Token for <strong id="qs-username"></strong></span>
         <span class="qs-tok-warn">Save it &mdash; cannot be recovered.</span>
       </div>
-    </div>
-
-    <!-- INTERACTIVE DEMO -->
-    <div class="demo-box" style="margin-top:2rem">
-      <div class="demo-header">
-        <span>live ledger — paste any AI output, seal it permanently</span>
-        <span class="demo-live"><span class="demo-live-dot"></span>live</span>
-      </div>
-      <div class="demo-body">
-        <div>
-          <label class="demo-label" for="demo-input">Paste any AI-generated text</label>
-          <textarea class="demo-textarea" id="demo-input" placeholder="e.g. The quick brown fox...  or paste an actual AI response you want to verify later"></textarea>
-        </div>
-        <button class="demo-btn" id="demo-run">Create Record →</button>
-        <div class="demo-output" id="demo-output"></div>
-      </div>
-      <p class="demo-note">Every submission is permanently sealed — Ed25519 signed, Merkle-included, independently verifiable. This is the real ledger, not a simulation.</p>
     </div>
 
   </div>
@@ -1293,6 +1324,126 @@
   var API = 'https://ai.oooooooooo.se/api/v1';
   var demoToken = null;
   var demoUser  = null;
+  var wrappedPromptText = '';
+
+  function buildWrappedPrompt(userPrompt) {
+    return [
+      'You are operating in STRICT HASH-GATED EXECUTION MODE.',
+      '',
+      'Goal:',
+      'Only execute instructions that are cryptographically bound to a HELIOS(https://ai.oooooooooo.se/api/v1/records/RECORD_ID/verify) record, and verify alignment before every execution step.',
+      '',
+      'Protocol (mandatory, no exceptions):',
+      '',
+      '1) Canonical instruction capture',
+      '- Treat the exact text inside <CANONICAL_PROMPT>...</CANONICAL_PROMPT> as immutable byte content.',
+      '- Do not normalize whitespace, punctuation, case, or line endings.',
+      '- Compute local SHA-256 of the exact bytes.',
+      '- Call HELIOS to store this exact content as a record.',
+      '- Fetch verification for that record and confirm:',
+      '  - remote_content_hash == local_content_hash',
+      '- Print:',
+      '  - record_id',
+      '  - local_content_hash',
+      '  - remote_content_hash',
+      '  - hash_match (true/false)',
+      '  - merkle_index',
+      '  - merkle_root',
+      '- If hash_match is false: STOP immediately. Execute nothing.',
+      '',
+      '2) Pre-execution gate (before EACH command/query/edit/apply)',
+      '- Recompute local SHA-256 of the exact same canonical prompt bytes.',
+      '- Re-verify HELIOS record_id and compare remote hash again.',
+      '- Print a “PRECHECK” line with:',
+      '  - step_id',
+      '  - record_id',
+      '  - local_content_hash',
+      '  - remote_content_hash',
+      '  - hash_match',
+      '  - one-line description of the next action',
+      '- If mismatch: STOP, rollback pending changes for current step, and do not continue.',
+      '',
+      '3) Execution alignment rule',
+      '- Every action must map to the canonical prompt scope.',
+      '- If requested action is outside scope, STOP and ask for a new canonical prompt/hash cycle.',
+      '- Never switch project/repo/target unless explicitly present in canonical prompt.',
+      '',
+      '4) Rollback rule',
+      '- If any step fails verification or scope alignment:',
+      '  - abort step',
+      '  - rollback step-local modifications',
+      '  - print “ROLLBACK COMPLETED” with reason',
+      '  - wait for operator input',
+      '',
+      '5) Audit trail',
+      '- Keep an append-only execution log:',
+      '  - timestamp',
+      '  - step_id',
+      '  - action',
+      '  - precheck hash tuple',
+      '  - result',
+      '- Print the latest hash tuple in every status update.',
+      '',
+      '6) Output format requirement',
+      '- Every status update must include:',
+      '  HASH: record_id=..., local=..., remote=..., match=...',
+      '- No silent execution is allowed.',
+      '',
+      '<CANONICAL_PROMPT>',
+      '',
+      userPrompt,
+      '</CANONICAL_PROMPT>',
+      '',
+      'Prompt wrapped, provide this file or this text block to any AI model'
+    ].join('\n');
+  }
+
+  function encodeBase64Utf8(input) {
+    return btoa(unescape(encodeURIComponent(input)));
+  }
+
+  var wrapRunBtn = document.getElementById('wrap-run');
+  var wrapDownloadBtn = document.getElementById('wrap-download');
+  if (wrapRunBtn) {
+    wrapRunBtn.addEventListener('click', function() {
+      var prompt = document.getElementById('wrap-input').value;
+      var out = document.getElementById('wrap-output');
+      var outB64 = document.getElementById('wrap-output-b64');
+      if (!prompt.trim()) {
+        out.innerHTML = '<span style="color:var(--red)">Please enter a prompt first.</span>';
+        out.classList.add('visible');
+        outB64.classList.remove('visible');
+        wrapDownloadBtn.disabled = true;
+        wrappedPromptText = '';
+        return;
+      }
+      wrappedPromptText = buildWrappedPrompt(prompt);
+      var wrappedB64 = encodeBase64Utf8(wrappedPromptText);
+      out.innerHTML = '<pre>' + wrappedPromptText
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;') + '</pre>';
+      out.classList.add('visible');
+      outB64.innerHTML = '<span class="ok">base64</span>\n<pre>' + wrappedB64 + '</pre>';
+      outB64.classList.add('visible');
+      wrapDownloadBtn.disabled = false;
+    });
+  }
+
+  if (wrapDownloadBtn) {
+    wrapDownloadBtn.addEventListener('click', function() {
+      if (!wrappedPromptText) return;
+      var blob = new Blob([wrappedPromptText], { type: 'text/markdown;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'wrapped-prompt.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
 
   function ensureAccount() {
     if (demoToken) return Promise.resolve(true);
